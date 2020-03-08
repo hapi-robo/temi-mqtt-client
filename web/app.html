@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+  <head>
+    <title>Jitsi-bot</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Materialize CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+    <!-- Materialize JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+  </head>
+
+  <body style="background-color:black;">
+    <!-- Header-->
+    <div id="jitsi-meet"></div>
+    
+    <!-- Footer-->
+    <footer id="footer" class="page-footer">
+      <!-- Copyright-->
+      <div class="footer-copyright text-center py-3">
+        <p>© 2020 hapi-robo st, Inc. — All Rights Reserved.</p>
+      </div>
+    </footer>
+
+    <!-- Jitsi-->
+    <!-- https://github.com/jitsi/jitsi-meet/blob/master/doc/api.md -->
+    <script src="https://meet.jit.si/external_api.js"></script>
+    <script>
+      var domain = "meet.jit.si";
+      var options = {
+          roomName: "temi-0123456",
+          // width: window.innerWidth;
+          // height: window.innerHeight;
+          parentNode: document.getElementById('jitsi-meet'),
+          configOverwrite: {},
+          interfaceConfigOverwrite: {
+              filmStripOnly: false
+          }
+      }
+      var api = new JitsiMeetExternalAPI(domain, options);
+    </script>
+
+    <!-- Paho MQTT-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
+    <script>
+      // const MQTT_BROKER_HOST = 'localhost'; // TODO Get this automatically
+      // const MQTT_BROKER_PORT = 9001; // MQTT with websocket port
+
+      // let client;
+
+      // /*
+      //  * Connect to MQTT broker
+      //  */
+      // function connectMQTT() {
+      //   console.log(`Connecting to ${MQTT_BROKER_HOST}:${MQTT_BROKER_PORT}`);
+      //   client = new Paho.MQTT.Client(MQTT_BROKER_HOST, MQTT_BROKER_PORT, 'webapp-client');
+
+      //   // sniff and display messages on MQTT bus
+      //   client.onMessageArrived = onMessageArrived;
+        
+      //   let options = {
+      //     // connection attempt timeout in seconds
+      //     timeout: 3,
+
+      //     // on successful connection
+      //     onSuccess: function() {
+      //       console.log('MQTT broker connection successful');
+      //       client.subscribe('temi/#');
+      //     },
+
+      //     // on failed connection
+      //     onFailure: function(message) {
+      //       console.log(`Connection failed: ${message.errorMessage}`);
+      //     }
+      //   };
+
+      //   // attempt to connect
+      //   client.connect(options);
+      // }
+
+      /*
+       * Keyboard listener
+       *
+       * Reference
+       *  - https://keycode.info/
+       */
+      document.addEventListener('keydown', function(event) {
+        switch (event.keyCode) {
+          case 37: // arrow-left
+            console.log('[Keycode] ArrowLeft');
+            // onJoystickLeftButton()
+            break;
+          case 39: // arrow-right
+            console.log('[Keycode] ArrowRight');
+            // onJoystickRightButton()
+            break;
+          case 38: // arrow-up
+            console.log('[Keycode] ArrowUp');
+            // onJoystickUpButton()
+            break;
+          case 40: // arrow-down
+            console.log('[Keycode] ArrowDown');
+            // onJoystickDownButton()
+            break;
+          case 13: // enter
+            console.log('[Keycode] Enter');
+            // onTTSButton()
+            // document.getElementById('tts-input').value = '';
+            break;
+        }
+
+        if (event.ctrlKey) {
+          switch (event.keyCode) {
+            case 70: // CTRL + F
+              console.log('[Keycode] CTRL + F');
+              // onFollowButton();
+              break;
+          }
+        }
+      });
+
+      // /**
+      //  * Start text-to-speech
+      //  */
+      // function onTTSButton() {
+      //   const tts_str = document.getElementById('tts-input').value;
+      //   console.log(`[SEND][TTS] ${tts_str}`);
+
+      //   // write payload in JSON format
+      //   let payload = JSON.stringify({
+      //     value: tts_str
+      //   });
+
+      //   // publish message
+      //   let message = new Paho.MQTT.Message(payload);
+      //   message.destinationName = 'temi/speech/speak';
+      //   message.qos = 0;
+      //   client.send(message);
+      // }
+
+      // /**
+      //  * Select go-to button
+      //  */
+      // function onGotoButton() {
+      //   let goto_list = document.getElementById('goto-list');
+      //   let selection = goto_list.options[goto_list.selectedIndex].text;
+      //   console.log(`[SEND][Button]: ${selection}`);
+
+      //   // write payload in JSON format
+      //   let payload = JSON.stringify({
+      //     location: selection
+      //   });
+
+      //   // fill payload
+      //   let message = new Paho.MQTT.Message(payload);
+      //   message.destinationName = 'temi/locations/goto';
+      //   message.qos = 0;
+      //   client.send(message);
+      // }
+
+      // /**
+      //  * Select joystick center button
+      //  */
+      // function onJoystickCenterButton(event) {
+      //   console.log('[SEND][Button] Stop');
+
+      //   // write payload in JSON format
+      //   let payload = JSON.stringify({});
+
+      //   // publish message
+      //   let message = new Paho.MQTT.Message(payload);
+      //   message.destinationName = 'temi/movement/stop';
+      //   message.qos = 0;
+      //   client.send(message);
+      // }
+
+      // /**
+      //  * Select joystick left button
+      //  */
+      // function onJoystickLeftButton() {
+      //   console.log('[SEND][Button] Left');
+
+      //   // write payload in JSON format
+      //   let payload = JSON.stringify({
+      //     angle: +45
+      //   });
+
+      //   // publish message
+      //   let message = new Paho.MQTT.Message(payload);
+      //   message.destinationName = 'temi/movement/turn_by';
+      //   message.qos = 0;
+      //   client.send(message);
+      // }
+
+      // /**
+      //  * Select joystick right button
+      //  */
+      // function onJoystickRightButton() {
+      //   console.log('[SEND][Button] Right');
+
+      //   // write payload in JSON format
+      //   let payload = JSON.stringify({
+      //     angle: -45
+      //   });
+
+      //   // publish message
+      //   let message = new Paho.MQTT.Message(payload);
+      //   message.destinationName = 'temi/movement/turn_by';
+      //   message.qos = 0;
+      //   client.send(message);
+      // }
+
+      // /**
+      //  * Select joystick up button
+      //  */
+      // function onJoystickUpButton() {
+      //   console.log('[SEND][Button] Up');
+
+      //   // write payload in JSON format
+      //   let payload = JSON.stringify({
+      //     x: +3,
+      //     y: 0
+      //   });
+
+      //   // publish message
+      //   let message = new Paho.MQTT.Message(payload);
+      //   message.destinationName = 'temi/movement/joystick';
+      //   message.qos = 0;
+      //   client.send(message);
+      // }
+
+      // /**
+      //  * Select joystick down button
+      //  */
+      // function onJoystickDownButton() {
+      //   console.log('[SEND][Button] Down');
+
+      //   // write payload in JSON format
+      //   let payload = JSON.stringify({
+      //     x: -3,
+      //     y: 10
+      //   });
+
+      //   // publish message
+      //   let message = new Paho.MQTT.Message(payload);
+      //   message.destinationName = 'temi/movement/joystick';
+      //   message.qos = 0;
+      //   client.send(message);
+      // }
+
+      // /**
+      //  * Select follow button
+      //  */
+      // function onFollowButton() {
+      //   console.log('[SEND][Button]: Follow');
+
+      //   // write payload in JSON format
+      //   let payload = JSON.stringify({});
+
+      //   // publish message
+      //   let message = new Paho.MQTT.Message(payload);
+      //   message.destinationName = 'temi/follow/unconstrained';
+      //   message.qos = 0;
+      //   client.send(message);
+      // }
+
+    </script>
+  </body>
+
+</html>
