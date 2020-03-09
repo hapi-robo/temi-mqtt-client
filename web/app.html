@@ -2,7 +2,7 @@
 <html lang="en" dir="ltr">
 
   <head>
-    <title>Jitsi-bot</title>
+    <title>Connect</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
@@ -32,7 +32,7 @@
     <script>
       var domain = "meet.jit.si";
       var options = {
-          roomName: "temi-0123456",
+          roomName: "temi-00119452440",
           // width: window.innerWidth;
           // height: window.innerHeight;
           parentNode: document.getElementById('jitsi-meet'),
@@ -41,16 +41,18 @@
               filmStripOnly: false
           }
       }
-      var api = new JitsiMeetExternalAPI(domain, options);
+      // var api = new JitsiMeetExternalAPI(domain, options);
     </script>
 
     <!-- Paho MQTT-->
     <!-- https://github.com/eclipse/paho.mqtt.javascript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/mqttws31.min.js"></script>
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/paho-mqtt.min.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/paho-mqtt.min.js"></script>
     <script>
-      const MQTT_BROKER_HOST = 'localhost'; // TODO Get this automatically
-      const MQTT_BROKER_PORT = 9001; // MQTT with websocket port
+      // MQTT broker with websocket support
+      const MQTT_BROKER_HOST = '192.168.0.118';
+      const MQTT_BROKER_PORT = 9001;
+
+      const ROBOT_ID = '00119452440';
 
       let client;
 
@@ -62,7 +64,7 @@
         console.log(`Connecting to ${MQTT_BROKER_HOST}:${MQTT_BROKER_PORT}`);
 
         // @TODO Provide a unique identifier
-        client = new Paho.MQTT.Client(MQTT_BROKER_HOST, MQTT_BROKER_PORT, 'jitsi-temi-client');
+        client = new Paho.Client(MQTT_BROKER_HOST, MQTT_BROKER_PORT, 'jitsi-temi-web-client');
 
         // sniff and display messages on MQTT bus
         // client.onMessageArrived = onMessageArrived;
@@ -137,12 +139,12 @@
 
         // write payload in JSON format
         let payload = JSON.stringify({
-          angle: +45
+          angle: +30
         });
 
         // publish message
-        let message = new Paho.MQTT.Message(payload);
-        message.destinationName = 'temi/movement/turn_by';
+        let message = new Paho.Message(payload);
+        message.destinationName = 'temi/' + ROBOT_ID + '/command/movement/turn_by';
         message.qos = 0;
         client.send(message);
       }
@@ -155,12 +157,12 @@
 
         // write payload in JSON format
         let payload = JSON.stringify({
-          angle: -45
+          angle: -30
         });
 
         // publish message
-        let message = new Paho.MQTT.Message(payload);
-        message.destinationName = 'temi/movement/turn_by';
+        let message = new Paho.Message(payload);
+        message.destinationName = 'temi/' + ROBOT_ID + '/command/movement/turn_by';
         message.qos = 0;
         client.send(message);
       }
@@ -173,13 +175,13 @@
 
         // write payload in JSON format
         let payload = JSON.stringify({
-          x: +5,
+          x: -5,
           y: 0
         });
 
         // publish message
-        let message = new Paho.MQTT.Message(payload);
-        message.destinationName = 'temi/movement/joystick';
+        let message = new Paho.Message(payload);
+        message.destinationName = 'temi/' + ROBOT_ID + '/command/movement/joystick';
         message.qos = 0;
         client.send(message);
       }
@@ -192,13 +194,13 @@
 
         // write payload in JSON format
         let payload = JSON.stringify({
-          x: -5,
+          x: +5,
           y: 0
         });
 
         // publish message
-        let message = new Paho.MQTT.Message(payload);
-        message.destinationName = 'temi/movement/joystick';
+        let message = new Paho.Message(payload);
+        message.destinationName = 'temi/' + ROBOT_ID + '/command/movement/joystick';
         message.qos = 0;
         client.send(message);
       }
@@ -213,8 +215,8 @@
         let payload = JSON.stringify({});
 
         // publish message
-        let message = new Paho.MQTT.Message(payload);
-        message.destinationName = 'temi/follow/unconstrained';
+        let message = new Paho.Message(payload);
+        message.destinationName = 'temi/' + ROBOT_ID + '/command/follow/unconstrained';
         message.qos = 1;
         client.send(message);
       }
@@ -233,8 +235,8 @@
         // });
 
         // fill payload
-        let message = new Paho.MQTT.Message(payload);
-        message.destinationName = 'temi/locations/goto';
+        let message = new Paho.Message(payload);
+        message.destinationName = 'temi/' + ROBOT_ID + '/command/locations/goto';
         message.qos = 1;
         client.send(message);
       }

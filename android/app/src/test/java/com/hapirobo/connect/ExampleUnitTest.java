@@ -1,4 +1,4 @@
-package com.hapirobo.jitsi_temi;
+package com.hapirobo.connect;
 
 import org.junit.Test;
 

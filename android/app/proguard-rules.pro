@@ -20,6 +20,8 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
+
+# Jitsi-Meet Proguard-Rules
 # React Native
 
 # Keep our interfaces so they can be used by other ProGuard rules.
