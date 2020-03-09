@@ -298,8 +298,8 @@ public class MainActivity extends JitsiMeetActivity implements
                 case "locations":
                     parseLocations(command, payload);
                     break;
-                case "movement":
-                    parseMovement(command, payload);
+                case "move":
+                    parseMove(command, payload);
                     break;
                 case "speech":
                     parseSpeech(command, payload);
@@ -373,20 +373,26 @@ public class MainActivity extends JitsiMeetActivity implements
     }
 
     /**
-     * Parse Movement message
+     * Parse Move message
      * @param command Movement command
      * @param payload Movement payload
      * @throws JSONException JSON exception
      */
-    private void parseMovement(String command, JSONObject payload) throws JSONException {
+    private void parseMove(String command, JSONObject payload) throws JSONException {
         Log.v(TAG_MQTT, "[CMD][MOVE] " + command);
 
         switch (command) {
-            case "joystick":
-                float x = Float.parseFloat(payload.getString("x"));
-                float y = Float.parseFloat(payload.getString("y"));
-                Log.v(TAG_MQTT, "x: " + x + " | y: " + y);
-                robot.skidJoy(x, y);
+            case "forward":
+                robot.skidJoy(+1.0F, 0.0F);
+                break;
+            case "backward":
+                robot.skidJoy(-1.0F, 0.0F);
+                break;
+            case "turn_left":
+                robot.skidJoy(0.0F, +1.0F);
+                break;
+            case "turn_right":
+                robot.skidJoy(0.0F, -1.0F);
                 break;
             case "turn_by":
                 robot.turnBy(Integer.parseInt(payload.getString("angle")));
