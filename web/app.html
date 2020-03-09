@@ -144,7 +144,7 @@
 
         // publish message
         let message = new Paho.Message(payload);
-        message.destinationName = 'temi/' + ROBOT_ID + '/command/movement/turn_by';
+        message.destinationName = 'temi/' + ROBOT_ID + '/command/move/turn_by';
         message.qos = 0;
         client.send(message);
       }
@@ -162,7 +162,7 @@
 
         // publish message
         let message = new Paho.Message(payload);
-        message.destinationName = 'temi/' + ROBOT_ID + '/command/movement/turn_by';
+        message.destinationName = 'temi/' + ROBOT_ID + '/command/move/turn_by';
         message.qos = 0;
         client.send(message);
       }
@@ -174,14 +174,11 @@
         console.log('[SEND] Move Forward');
 
         // write payload in JSON format
-        let payload = JSON.stringify({
-          x: -5,
-          y: 0
-        });
+        let payload = JSON.stringify({});
 
         // publish message
         let message = new Paho.Message(payload);
-        message.destinationName = 'temi/' + ROBOT_ID + '/command/movement/joystick';
+        message.destinationName = 'temi/' + ROBOT_ID + '/command/move/forward';
         message.qos = 0;
         client.send(message);
       }
@@ -193,14 +190,11 @@
         console.log('[SEND] Move Backward');
 
         // write payload in JSON format
-        let payload = JSON.stringify({
-          x: +5,
-          y: 0
-        });
+        let payload = JSON.stringify({});
 
         // publish message
         let message = new Paho.Message(payload);
-        message.destinationName = 'temi/' + ROBOT_ID + '/command/movement/joystick';
+        message.destinationName = 'temi/' + ROBOT_ID + '/command/move/backward';
         message.qos = 0;
         client.send(message);
       }
