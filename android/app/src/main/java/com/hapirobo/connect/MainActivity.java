@@ -1,9 +1,8 @@
 package com.hapirobo.connect;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
-import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.robotemi.sdk.BatteryData;
@@ -33,6 +32,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 
 public class MainActivity extends JitsiMeetActivity implements
         OnRobotReadyListener,
@@ -42,9 +42,13 @@ public class MainActivity extends JitsiMeetActivity implements
     private static final String TAG_MQTT = "PahoMQTT";
     private static final String TAG_ROBOT = "temiSDK";
 
+    private static final String hostURI = "tcp://192.168.0.118:1883";
+    private static final int mRobotInfoInterval = 2000;
+
     private Robot robot;
     private String serialNumber;
     private MqttAndroidClient mqttClient;
+    private Handler mHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +74,9 @@ public class MainActivity extends JitsiMeetActivity implements
                 .setWelcomePageEnabled(false)
                 .build();
         JitsiMeet.setDefaultConferenceOptions(defaultOptions);
+
+        // Create the Handler object (on the main thread by default)
+        mHandler = new Handler();
     }
 
     @Override
@@ -86,16 +93,18 @@ public class MainActivity extends JitsiMeetActivity implements
     protected void onResume() {
         super.onResume();
 
-        // re-initialize MQTT client
-//         EditText hostNameView = findViewById(R.id.hostNameEditText);
-//        String hostURI = "tcp://" + hostNameView.getText().toString().trim() + ":1883";
-//        String hostURI = "tcp://192.168.0.118:1883";
-//        initMQTT(hostURI);
+        if (serialNumber != null && !serialNumber.isEmpty()) {
+            // re-initialize MQTT client
+            initMQTT(hostURI);
+        }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+
+        // stop sending robot info
+        stopRobotInfoTask();
 
         // disconnect MQTT client
         try {
@@ -116,8 +125,10 @@ public class MainActivity extends JitsiMeetActivity implements
             serialNumber = robot.getSerialNumber();
 
             // connect to MQTT broker
-            String hostURI = "tcp://192.168.0.118:1883";
             initMQTT(hostURI);
+
+            // start sending robot info
+            startRobotInfoTask();
 
             // hide temi's top bar
             robot.hideTopBar();
@@ -258,6 +269,13 @@ public class MainActivity extends JitsiMeetActivity implements
                     } catch (MqttException e) {
                         e.printStackTrace();
                     }
+
+                    // broadcast current status
+                    try {
+                        robotPublishStatus();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 @Override
@@ -277,6 +295,7 @@ public class MainActivity extends JitsiMeetActivity implements
      * @throws JSONException JSON exception
      */
     private void parseMessage(String topic, MqttMessage message) throws JSONException {
+        // parse message
         String[] topic_tree = topic.split("/");
         String robot_id = topic_tree[1];
         String type = topic_tree[2];
@@ -289,8 +308,8 @@ public class MainActivity extends JitsiMeetActivity implements
         Log.d(TAG_MQTT, "Command: " + command);
 
         if (robot_id.equals(serialNumber)) {
+            // parse payload
             JSONObject payload = new JSONObject(message.toString());
-
             switch (category) {
                 case "follow":
                     parseFollow(command);
@@ -298,15 +317,15 @@ public class MainActivity extends JitsiMeetActivity implements
                 case "locations":
                     parseLocations(command, payload);
                     break;
-                case "movement":
-                    parseMovement(command, payload);
+                case "move":
+                    parseMove(command, payload);
                     break;
                 case "speech":
                     parseSpeech(command, payload);
                     break;
-                case "info":
+                case "status":
                     try {
-                        robotPublishLocations();
+                        robotPublishStatus();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -373,20 +392,26 @@ public class MainActivity extends JitsiMeetActivity implements
     }
 
     /**
-     * Parse Movement message
+     * Parse Move message
      * @param command Movement command
      * @param payload Movement payload
      * @throws JSONException JSON exception
      */
-    private void parseMovement(String command, JSONObject payload) throws JSONException {
+    private void parseMove(String command, JSONObject payload) throws JSONException {
         Log.v(TAG_MQTT, "[CMD][MOVE] " + command);
 
         switch (command) {
-            case "joystick":
-                float x = Float.parseFloat(payload.getString("x"));
-                float y = Float.parseFloat(payload.getString("y"));
-                Log.v(TAG_MQTT, "x: " + x + " | y: " + y);
-                robot.skidJoy(x, y);
+            case "forward":
+                robot.skidJoy(+1.0F, 0.0F);
+                break;
+            case "backward":
+                robot.skidJoy(-1.0F, 0.0F);
+                break;
+            case "turn_left":
+                robot.skidJoy(0.0F, +1.0F);
+                break;
+            case "turn_right":
+                robot.skidJoy(0.0F, -1.0F);
                 break;
             case "turn_by":
                 robot.turnBy(Integer.parseInt(payload.getString("angle")));
@@ -436,24 +461,56 @@ public class MainActivity extends JitsiMeetActivity implements
      * Publish saved locations
      * @throws JSONException JSON exception
      */
-    private void robotPublishLocations() throws JSONException {
+    public void robotPublishStatus() throws JSONException {
         JSONObject payload = new JSONObject();
         JSONArray location_list = new JSONArray();
 
         List<String> locations = robot.getLocations();
 
+        // collect all locations
         for (String location : locations) {
             location_list.put(location);
-            Log.v(TAG_ROBOT, location);
+            Log.d(TAG_ROBOT, location);
         }
-        payload.put("size", Integer.valueOf(locations.size()));
-        payload.put("locations", location_list);
 
+        // generate payload
+        payload.put("battery_percentage", Objects.requireNonNull(robot.getBatteryData()).getBatteryPercentage());
+        payload.put("locations", location_list);
+        payload.put("size", Integer.valueOf(locations.size()));
+
+        // publish data
         try {
             MqttMessage message = new MqttMessage(payload.toString().getBytes(StandardCharsets.UTF_8));
-            mqttClient.publish("temi/" + serialNumber + "/info/locations", message);
+            mqttClient.publish("temi/" + serialNumber + "/status/info", message);
         } catch (MqttException e) {
             e.printStackTrace();
         }
+    }
+
+
+    // Define the code block to be executed
+    private Runnable mRobotInfo = new Runnable() {
+        @Override
+        public void run() {
+            // Do something here on the main thread
+            Log.d("[mRobotInfo]", "Called on main thread");
+//            try {
+//                robotPublishStatus();
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+
+            // 100% guarantee that this always happens, even if
+            // your update method throws an exception
+            mHandler.postDelayed(mRobotInfo, mRobotInfoInterval);
+        }
+    };
+
+    private void startRobotInfoTask() {
+        mRobotInfo.run();
+    }
+
+    private void stopRobotInfoTask() {
+        mHandler.removeCallbacks(mRobotInfo);
     }
 }

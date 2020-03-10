@@ -46,7 +46,7 @@ dependencies {
     implementation ('org.jitsi.react:jitsi-meet-sdk:2.+') { transitive = true }
 
     // temi SDK
-    implementation 'com.robotemi:sdk:0.10.53'
+    implementation 'com.robotemi:sdk:0.10.55'
 
     // paho-mqtt
     implementation('org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.2')
