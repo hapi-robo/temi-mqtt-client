@@ -4,58 +4,119 @@
   <head>
     <title>Connect</title>
     <meta charset="utf-8">
+
+    <!--Let browser know website is optimized for mobile-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
     <!-- Materialize CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-
-    <!-- Materialize JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-
   </head>
 
-  <body onload="connectMQTT()" style="background-color:black;">
-    <!-- Header-->
+  <body onload="connectMQTT()" style="background-color:blue;">
+    <!-- Menu-->
+    <!-- https://codepen.io/acodemax/pen/KjyXxb -->
+    <div class="navbar-fixed">
+      <nav class="transparent z-depth-0">
+        <div class="nav-wrapper">
+          <div class="row">
+            <div class="col s12">
+              <a href="#" data-target="slide-out" class="sidenav-trigger show-on-large"><i class="material-icons">link</i></a>
+              <a href="#" class="brand-logo">Connect</a>
+              <ul class="right hide-on-med-and-down">
+                <li><a href="https://github.com/dogfalo/materialize/" target="_blank">Github</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </div>
+
+<!--     <div>
+      <ul id="slide-out" class="sidenav grey darken-4">
+        <li id="a"><span class="white-text">001192452442</span></li>
+        <li id="b"><span class="white-text">001192452442</span></li>
+        <li><a href="#!"><span class="white-text">001192452442</span></a></li>
+      </ul>
+    </div>
+ -->
+    <div class="input-field col s12">
+      <select id="select-robot-list" class="browser-default"></select>
+    </div>
+  
+    <div class="input-field col s12">
+      <select id="select-location-list" class="browser-default"></select>
+    </div>
+  
     <div id="jitsi-meet"></div>
     
     <!-- Footer-->
-    <footer id="footer" class="page-footer">
-      <!-- Copyright-->
-      <div class="footer-copyright text-center py-3">
-        <p>© 2020 hapi-robo st, Inc. — All Rights Reserved.</p>
+    <footer>
+      <div class="footer-copyright">
+        <div class="container white-text">© 2020 hapi-robo st, Inc. — All Rights Reserved.</div>
       </div>
     </footer>
+
+    <!--JavaScript at end of body for optimized loading-->
+    <!-- Global Variables -->
+    <script>
+      var jitsi
+      var selected_robot_id, selected_location
+      var robot_list = new Array()
+
+      // MQTT broker with websocket support
+      const MQTT_BROKER_HOST = '192.168.0.118'
+      const MQTT_BROKER_PORT = 9001
+
+      let client;
+
+    </script>
+
+
+    <!-- Materialize JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+      // document.addEventListener('DOMContentLoaded', function() {
+      //   var elems = document.querySelectorAll('.sidenav')
+      //   var instances = M.Sidenav.init(elems, {})
+      // })
+      // var collapsibleElem = document.querySelector('.collapsible')
+      // var collapsibleInstance = M.Collapsible.init(collapsibleElem, {})
+
+      document.addEventListener('DOMContentLoaded', function() {
+        var elems = document.querySelectorAll('select')
+        var instances = M.FormSelect.init(elems, {})
+      })
+    </script>
 
     <!-- Jitsi-->
     <!-- https://github.com/jitsi/jitsi-meet/blob/master/doc/api.md -->
     <script src="https://meet.jit.si/external_api.js"></script>
     <script>
-      var domain = "meet.jit.si";
-      var options = {
-          roomName: "temi-00119452440",
-          // width: window.innerWidth;
-          // height: window.innerHeight;
-          parentNode: document.getElementById('jitsi-meet'),
-          configOverwrite: {},
-          interfaceConfigOverwrite: {
-              filmStripOnly: false
-          }
+      function startJitsi(robot_id) {
+        var domain = "meet.jit.si"
+        var options = {
+            roomName: "temi-" + robot_id,
+            // width: window.innerWidth,
+            height: window.innerHeight,
+            parentNode: document.getElementById('jitsi-meet'),
+            configOverwrite: {},
+            interfaceConfigOverwrite: {
+                filmStripOnly: false
+            }
+        }
+
+        return new JitsiMeetExternalAPI(domain, options);
       }
-      // var api = new JitsiMeetExternalAPI(domain, options);
+
     </script>
 
     <!-- Paho MQTT-->
     <!-- https://github.com/eclipse/paho.mqtt.javascript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/paho-mqtt.min.js"></script>
     <script>
-      // MQTT broker with websocket support
-      const MQTT_BROKER_HOST = '192.168.0.118';
-      const MQTT_BROKER_PORT = 9001;
-
-      const ROBOT_ID = '00119452440';
-
-      let client;
-
       /*
        * Connect to MQTT broker
        * ref: https://www.eclipse.org/paho/files/jsdoc/Paho.MQTT.Client.html
@@ -67,7 +128,7 @@
         client = new Paho.Client(MQTT_BROKER_HOST, MQTT_BROKER_PORT, 'jitsi-temi-web-client');
 
         // sniff and display messages on MQTT bus
-        // client.onMessageArrived = onMessageArrived;
+        client.onMessageArrived = onMessageArrived;
         
         let options = {
           // connection attempt timeout in seconds
@@ -76,14 +137,22 @@
           // on successful connection
           onSuccess: function() {
             console.log('Success');
-
-            // @TODO Write handlers
-            // client.subscribe('temi/#');
+            M.toast({
+              html: 'Successfully connected to MQTT broker',
+              displayLength: 2000,
+              classes: 'rounded'
+            })
+            client.subscribe('temi/#');
           },
 
           // on failed connection
           onFailure: function(message) {
             console.log(`Fail: ${message.errorMessage}`);
+            M.toast({
+              html: 'Failed to connect to MQTT broker',
+              displayLength: 3000,
+              classes: 'rounded'
+            })
           }
         };
 
@@ -92,49 +161,211 @@
       }
 
       /*
-       * Keyboard listener
-       *
-       * Reference
-       *  - https://keycode.info/
+       * General message callback
        */
-      document.addEventListener('keydown', function(event) {
-        switch (event.keyCode) {
-          case 37: // ArrowLeft
-          case 65: // a
-            console.log('[Keycode] ArrowLeft / a');
-            onTurnLeft()
+      function onMessageArrived(message) {
+        // console.log('[RECIEVE]')
+        // console.log(`Topic: ${message.destinationName}`)
+        // console.log(`Payload: ${message.payloadString}`)
+
+        // parse message
+        var topic_tree = message.destinationName.split("/")
+        var robot_id = topic_tree[1]
+        var type = topic_tree[2]
+        var category = topic_tree[3]
+
+        // console.log(`Robot-ID: ${robot_id}`)
+        // console.log(`Type: ${type}`)
+        // console.log(`Category: ${category}`)
+
+        // parse payload
+        switch(category) {
+          case 'info':
+            addRobot(robot_id)
+            updateRobotList(robot_id)
+            updateLocationList(robot_id, message.payloadString)
             break;
-          case 39: // ArrowRight
-          case 68: // d
-            console.log('[Keycode] ArrowRight / d');
-            onTurnRight()
+          default:
+            console.log(`[ERROR] Undefined category: ${category}`)
             break;
-          case 38: // ArrowUp
-          case 87: // w
-            console.log('[Keycode] ArrowUp / w');
-            onMoveForward()
-            break;
-          case 40: // ArrowDown
-          case 83: // s
-            console.log('[Keycode] ArrowDown / s');
-            onMoveBackward()
-            break;
+        }
+      }
+
+      /*
+       * Add robot to list
+       */
+      function addRobot(id) {
+        if (robot_list.indexOf(id) == -1) {
+          // if the ID does not already exists in the list
+          robot_list.push(id)
+          robot_list.sort()
+        }
+      }
+
+      /*
+       * Update robot list
+       */
+      function updateRobotList(id) {
+        // update select menu
+        let select_robot_list = document.getElementById('select-robot-list');
+
+        select_robot_list.innerHTML = '';
+
+        let option, att
+
+        for (id of robot_list) {
+          option = document.createElement('option')
+          option.appendChild(document.createTextNode(id))
+
+          if (selected_robot_id == id) {
+            att = document.createAttribute("selected");
+            att.value = "true";
+            option.setAttributeNode(att);
+          }
+
+          select_robot_list.insertBefore(option, select_robot_list.lastChild)
         }
 
-        if (event.ctrlKey) {
+        // show default text
+        option = document.createElement('option')
+        if (selected_robot_id == null) {
+          att = document.createAttribute("selected");
+          att.value = "true";
+          option.setAttributeNode(att);
+        }
+        att = document.createAttribute("disabled");
+        att.value = "disabled";
+        option.setAttributeNode(att);
+        option.appendChild(document.createTextNode('Select a robot'))
+        select_robot_list.insertBefore(option, select_robot_list.firstChild)
+      }
+
+      /*
+       * Update location list
+       */
+      function updateLocationList(id, payload) {
+        if (selected_robot_id == id) {
+          // console.log(`Update Locations for Robot-ID: ${selected_robot_id}`)
+
+          // update select menu
+          let select_location_list = document.getElementById('select-location-list');
+
+          select_location_list.innerHTML = '';
+
+          let option, att
+
+          let obj = JSON.parse(payload)
+          for (i=0; i < obj.locations.length; i++) {
+            var location = obj.locations[i]
+            option = document.createElement('option')
+            option.appendChild(document.createTextNode(location))
+
+            if (selected_location == location) {
+              att = document.createAttribute("selected");
+              att.value = "true";
+              option.setAttributeNode(att);
+            }
+
+            select_location_list.insertBefore(option, select_location_list.lastChild)
+          }
+
+          // show default text
+          option = document.createElement('option')
+          if (selected_location == null) {
+            att = document.createAttribute("selected");
+            att.value = "true";
+            option.setAttributeNode(att);
+          }
+
+          att = document.createAttribute("disabled");
+          att.value = "disabled";
+          option.setAttributeNode(att);
+          option.appendChild(document.createTextNode('Go to'))
+          select_location_list.insertBefore(option, select_location_list.firstChild)
+        }
+      }
+
+    </script>
+
+    <!-- Event Listeners -->
+    <script>
+      // @TODO Look into event delegation to use slide-out
+      document.getElementById("select-robot-list").addEventListener("click", onRobotSelect)
+      document.getElementById("select-location-list").addEventListener("click", onLocationSelect)
+
+      function onRobotSelect() {
+        let select_robot_list = document.getElementById("select-robot-list")
+        if (select_robot_list.length > 0) {
+          selected_robot_id = select_robot_list.options[select_robot_list.selectedIndex].text
+          console.log(`Selected Robot-ID: ${selected_robot_id}`)
+
+        // hangout existing call if there is one
+        // if (jitsi != null) {
+        //   jitsi.executeCommand('hangup');
+
+        // }
+
+        // // start a new call
+        // if (select_robot_list.selectedIndex != 0){
+        //   jitsi = startJitsi(robot_id)
+        // }
+        }
+
+      }
+
+      function onLocationSelect() {
+        let select_location_list = document.getElementById("select-location-list")
+        if (select_location_list.length > 0) {
+          selected_location = select_location_list.options[select_location_list.selectedIndex].text
+          console.log(`Selected Location: ${selected_location}`)
+        }
+      }
+
+      /*
+       * Keyboard listener
+       *
+       * Ref: https://keycode.info/
+       */
+      document.addEventListener('keydown', function(event) {
+        if (selected_robot_id != null) {
           switch (event.keyCode) {
-            case 70: // CTRL + f
-              console.log('[Keycode] CTRL + f');
-              onFollow();
+            case 37: // ArrowLeft
+            case 65: // a
+              console.log('[Keycode] ArrowLeft / a')
+              cmdTurnLeft(selected_robot_id)
+              break;
+            case 39: // ArrowRight
+            case 68: // d
+              console.log('[Keycode] ArrowRight / d')
+              cmdTurnRight(selected_robot_id)
+              break;
+            case 38: // ArrowUp
+            case 87: // w
+              console.log('[Keycode] ArrowUp / w')
+              cmdMoveForward(selected_robot_id)
+              break;
+            case 40: // ArrowDown
+            case 83: // s
+              console.log('[Keycode] ArrowDown / s')
+              cmdMoveBackward(selected_robot_id)
               break;
           }
+
+          if (event.ctrlKey) {
+            switch (event.keyCode) {
+              case 70: // CTRL + f
+                console.log('[Keycode] CTRL + f');
+                cmdFollow();
+                break;
+            }
+          } 
         }
-      });
+      })
 
       /**
        * Turn left
        */
-      function onTurnLeft() {
+      function cmdTurnLeft(robot_id) {
         console.log('[SEND] Turn Left');
 
         // write payload in JSON format
@@ -144,7 +375,7 @@
 
         // publish message
         let message = new Paho.Message(payload);
-        message.destinationName = 'temi/' + ROBOT_ID + '/command/move/turn_by';
+        message.destinationName = 'temi/' + robot_id + '/command/move/turn_by';
         message.qos = 0;
         client.send(message);
       }
@@ -152,7 +383,7 @@
       /**
        * Turn right
        */
-      function onTurnRight() {
+      function cmdTurnRight(robot_id) {
         console.log('[SEND] Turn Right');
 
         // write payload in JSON format
@@ -162,7 +393,7 @@
 
         // publish message
         let message = new Paho.Message(payload);
-        message.destinationName = 'temi/' + ROBOT_ID + '/command/move/turn_by';
+        message.destinationName = 'temi/' + robot_id + '/command/move/turn_by';
         message.qos = 0;
         client.send(message);
       }
@@ -170,7 +401,7 @@
       /**
        * Move forward
        */
-      function onMoveForward() {
+      function cmdMoveForward(robot_id) {
         console.log('[SEND] Move Forward');
 
         // write payload in JSON format
@@ -178,7 +409,7 @@
 
         // publish message
         let message = new Paho.Message(payload);
-        message.destinationName = 'temi/' + ROBOT_ID + '/command/move/forward';
+        message.destinationName = 'temi/' + robot_id + '/command/move/forward';
         message.qos = 0;
         client.send(message);
       }
@@ -186,7 +417,7 @@
       /**
        * Move backward
        */
-      function onMoveBackward() {
+      function cmdMoveBackward(robot_id) {
         console.log('[SEND] Move Backward');
 
         // write payload in JSON format
@@ -194,7 +425,7 @@
 
         // publish message
         let message = new Paho.Message(payload);
-        message.destinationName = 'temi/' + ROBOT_ID + '/command/move/backward';
+        message.destinationName = 'temi/' + robot_id + '/command/move/backward';
         message.qos = 0;
         client.send(message);
       }
@@ -202,7 +433,7 @@
       /**
        * Follow
        */
-      function onFollow() {
+      function cmdFollow(robot_id) {
         console.log('[SEND] Follow');
 
         // write payload in JSON format
@@ -210,7 +441,7 @@
 
         // publish message
         let message = new Paho.Message(payload);
-        message.destinationName = 'temi/' + ROBOT_ID + '/command/follow/unconstrained';
+        message.destinationName = 'temi/' + robot_id + '/command/follow/unconstrained';
         message.qos = 1;
         client.send(message);
       }
@@ -218,19 +449,15 @@
       /**
        * Go-to
        */
-      function onGoto() {
-        // let goto_list = document.getElementById('goto-list');
-        // let selection = goto_list.options[goto_list.selectedIndex].text;
-        // console.log(`[SEND][GoTo]: ${selection}`);
+      function cmdGoto(robot_id, location) {
+        console.log('[SEND] GoTo')
 
         // write payload in JSON format
-        // let payload = JSON.stringify({
-        //   location: selection
-        // });
+        let payload = JSON.stringify({'location': location})
 
-        // fill payload
+        // publish message
         let message = new Paho.Message(payload);
-        message.destinationName = 'temi/' + ROBOT_ID + '/command/locations/goto';
+        message.destinationName = 'temi/' + robot_id + '/command/locations/goto';
         message.qos = 1;
         client.send(message);
       }
