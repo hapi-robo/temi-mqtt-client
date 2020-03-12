@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 --
+"""Test webapp
 
-"""Publish MQTT servo messages.
-Publishes MQTT servo messages to MQTT broker.
-Example usage:
-    python test.py
+Usage:
+    python test_app.py
+
 """
 from datetime import datetime
 
@@ -16,30 +16,40 @@ import time
 CLIENT_ID = 'test-webapp'
 
 # MQTT broker
-MQTT_BROKER_HOST = '192.168.0.118';
-MQTT_BROKER_PORT = 1883;
+MQTT_BROKER_HOST = '192.168.0.118'
+MQTT_BROKER_PORT = 1883
 
 # connection parameters
 MQTT_BROKER_RETRY_ATTEMPT = 5 # number of retry attempts
 MQTT_BROKER_RETRY_TIMEOUT = 10 # [seconds]
 
+# topics
+TOPIC_ALL = 'temi/+/command/#'
 
-def mqtt_init():
-    """Setup and start MQTT client
+def on_connect(client, userdata, flags, rc):
+    """Connect to MQTT broker and subscribe to topics
 
     """
-    # create a new client instance
-    client = mqtt.Client(client_id = CLIENT_ID)
-    client.on_connect = on_connect
-    client.on_disconnect = on_disconnect
+    print("Successfully connected to {}:{} (rc:{})".format(MQTT_BROKER_HOST, MQTT_BROKER_PORT, str(rc)))
 
-    # connect to MQTT broker
-    mqtt_connect(client)
+    # list of subscribed topics
+    client.subscribe(topic=TOPIC_ALL, qos=0)
 
-    # start listening to topics
-    client.loop_start()
 
-    return client
+def on_disconnect(client, userdata, rc):
+    """Disconnect from MQTT broker
+
+    """
+    print("Disconnected from {}:{} (rc:{})".format(MQTT_BROKER_HOST, MQTT_BROKER_PORT, str(rc)))
+    client.loop_stop()
+
+
+def on_message(client, log_filename, message):
+    """Generic message callback
+
+    """
+    print("[{}] {}".format(datetime.now(), message.topic))
+    print("{}".format(message.payload))
 
 
 if __name__ == '__main__':
@@ -47,32 +57,33 @@ if __name__ == '__main__':
     client = mqtt.Client(client_id=CLIENT_ID)
 
     # attach callbacks
-    # client.on_publish = on_publish
+    client.on_connect = on_connect
+    client.on_disconnect = on_disconnect
+    client.message_callback_add(TOPIC_ALL, on_message)
 
     # connect to MQTT broker
+    print("Connecting to {}:{}".format(MQTT_BROKER_HOST, MQTT_BROKER_PORT))
     client.connect(
         host = MQTT_BROKER_HOST,
         port = MQTT_BROKER_PORT,
         keepalive = 60,
         bind_address = "")
 
-    # client.publish('temi/001192452440/status/info', json.dumps({
-    #     'battery_percentage': 95,
-    #     'locations': ['home base'], 
-    #     }), qos=0)
+    # start listening to topics
+    client.loop_start()
 
-    time.sleep(0.5)
+    # time.sleep(0.5)
     while True:
         client.publish('temi/001192452440/status/info', json.dumps({
             'timestamp': datetime.now().strftime("%Y%m%d_%H%M%S"),
-            'battery_percentage': 95,
+            'battery_percentage': 50,
             'locations': ['home base', 'a', 'b', 'c'], 
             }), qos=0)
-        time.sleep(3)
+        time.sleep(1)
 
         client.publish('temi/001192462420/status/info', json.dumps({
             'timestamp': datetime.now().strftime("%Y%m%d_%H%M%S"),
             'battery_percentage': 95,
-            'locations': ['home base', 'a', 'b', 'c'], 
+            'locations': ['home base', 'd', 'e', 'f'], 
             }), qos=0)
-        time.sleep(3)
+        time.sleep(1)
