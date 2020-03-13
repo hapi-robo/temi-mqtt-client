@@ -13,7 +13,7 @@ import json
 import time
 
 
-CLIENT_ID = 'test-webapp'
+CLIENT_ID = 'test-app'
 
 # MQTT broker
 MQTT_BROKER_HOST = '192.168.0.118'
@@ -74,14 +74,34 @@ if __name__ == '__main__':
 
     # time.sleep(0.5)
     while True:
-        client.publish('temi/001192452440/status/info', json.dumps({
+        # status messages
+        print("[{}] Publish Status".format(datetime.now().strftime("%Y%m%d_%H%M%S")))
+        client.publish('temi/00119452440/status/info', json.dumps({
             'timestamp': datetime.now().strftime("%Y%m%d_%H%M%S"),
             'battery_percentage': 50,
             'locations': ['home base', 'a', 'b', 'c'], 
             }), qos=0)
         time.sleep(1)
 
-        client.publish('temi/001192462420/status/info', json.dumps({
+        print("[{}] Publish Status".format(datetime.now().strftime("%Y%m%d_%H%M%S")))
+        client.publish('temi/00119462420/status/info', json.dumps({
+            'timestamp': datetime.now().strftime("%Y%m%d_%H%M%S"),
+            'battery_percentage': 95,
+            'locations': ['home base', 'd', 'e', 'f'], 
+            }), qos=0)
+        time.sleep(1)
+
+        # command messages
+        print("[{}] Publish Command".format(datetime.now().strftime("%Y%m%d_%H%M%S")))
+        client.publish('temi/00119452440/command/move/forward', json.dumps({
+            'timestamp': datetime.now().strftime("%Y%m%d_%H%M%S"),
+            'battery_percentage': 50,
+            'locations': ['home base', 'a', 'b', 'c'], 
+            }), qos=0)
+        time.sleep(1)
+
+        print("[{}] Publish Command".format(datetime.now().strftime("%Y%m%d_%H%M%S")))
+        client.publish('temi/00119452440/command/move/backward', json.dumps({
             'timestamp': datetime.now().strftime("%Y%m%d_%H%M%S"),
             'battery_percentage': 95,
             'locations': ['home base', 'd', 'e', 'f'], 
