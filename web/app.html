@@ -16,20 +16,6 @@
 
     <!-- Materialize CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-
-<!--     <style>
-      preloader-background {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: #eee;
-        position: fixed;
-        z-index: 100;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;  
-    </style> -->
   </head>
 
   <body onload="connectMQTT()" style="background-color:black;">
@@ -47,10 +33,6 @@
         <div class="row">
           <div class="col s12">
             <a id="robot-nav-btn" href="#" data-target="robot-nav" class="sidenav-trigger show-on-large"><i class="material-icons">menu</i></a>
-            <!-- <a href="#" class="brand-logo">Connect</a>
-            <ul class="right hide-on-med-and-down">
-              <li><a href="https://github.com/dogfalo/materialize/" target="_blank">Github</a></li>
-            </ul> -->
             <ul id="robot-menu" class="right" style="display:none">
               <li><a><i id="battery-state"></i></a></li>
               <li><a class="sidenav-trigger show-on-large" data-target="waypoint-nav"><i class="material-icons">location_on</i></a></li>
@@ -69,27 +51,6 @@
       <ul id="waypoint-nav" class="sidenav" style="background-color: rgba(232,232,232,0.7);"></ul>
     </div>
 
-<!--     <div class="container" style="width: 50%; height: 100vh">
-      <div id="preloader" class="progress">
-          <div class="indeterminate"></div>
-      </div>
-    </div>
- -->
-<!--     <div class="container">
-      <div id="preloader" class="preloader-wrapper small active">
-          <div class="spinner-layer spinner-green-only">
-            <div class="circle-clipper left">
-              <div class="circle"></div>
-            </div><div class="gap-patch">
-              <div class="circle"></div>
-            </div><div class="circle-clipper right">
-              <div class="circle"></div>
-            </div>
-        </div>
-      </div>
-    </div>
- -->
-    <!-- <div id="video-conference" style="width:400px;height:200px;background:#f4f4f4"></div> -->
     <div id="video-conference"></div>
     
     <!-- Footer-->
@@ -121,19 +82,6 @@
           onCloseStart: showWaypointNavBtn
         });
       });
-
-      // var collapsibleElem = document.querySelector('.collapsible')
-      // var collapsibleInstance = M.Collapsible.init(collapsibleElem, {})
-
-      // document.addEventListener('DOMContentLoaded', function() {
-      //   const elems = document.querySelectorAll('.dropdown-trigger');
-      //   const instances = M.Dropdown.init(elems, {
-      //     alignment: 'right',
-      //     constrainWidth: false,
-      //     coverTrigger: false,
-      //     hover: true
-      //   });
-      // });
 
     </script>
 
@@ -224,8 +172,11 @@
         cmdMoveFwd() {
           console.log('[SEND] Move Forward');
 
+          // write payload in JSON format
+          const payload = JSON.stringify({});
+
           // publish message
-          let message = new Paho.Message('');
+          let message = new Paho.Message(payload);
           message.destinationName = `temi/${this._id}/command/move/forward`;
           message.qos = 0;
           client.send(message);
@@ -234,9 +185,38 @@
         cmdMoveBwd() {
           console.log('[SEND] Move Backward');
 
+          // write payload in JSON format
+          const payload = JSON.stringify({});
+
           // publish message
-          let message = new Paho.Message('');
+          let message = new Paho.Message(payload);
           message.destinationName = `temi/${this._id}/command/move/backward`;
+          message.qos = 0;
+          client.send(message);
+        }
+
+        cmdTiltUp() {
+          console.log('[SEND] Tilt Up');
+
+          // write payload in JSON format
+          const payload = JSON.stringify({'angle': 5});
+
+          // publish message
+          let message = new Paho.Message(payload);
+          message.destinationName = `temi/${this._id}/command/move/tilt_by`;
+          message.qos = 0;
+          client.send(message);
+        }
+
+        cmdTiltDown() {
+          console.log('[SEND] Tilt Down');
+
+          // write payload in JSON format
+          const payload = JSON.stringify({'angle': -5});
+
+          // publish message
+          let message = new Paho.Message(payload);
+          message.destinationName = `temi/${this._id}/command/move/tilt_by`;
           message.qos = 0;
           client.send(message);
         }
@@ -244,8 +224,11 @@
         cmdFollow(enable = true) {
           console.log('[SEND] Follow');
 
+          // write payload in JSON format
+          const payload = JSON.stringify({});
+
           // publish message
-          let message = new Paho.Message('');
+          let message = new Paho.Message(payload);
           if (enable) {
             message.destinationName = `temi/${this._id}/command/follow/unconstrained`;
           } else {
@@ -266,7 +249,7 @@
 
           // publish message
           let message = new Paho.Message(payload);
-          message.destinationName = `temi/${this._id}/command/locations/goto`;
+          message.destinationName = `temi/${this._id}/command/waypoint/goto`;
           message.qos = 1;
           client.send(message);
         }
@@ -293,7 +276,7 @@
               }
             }
             console.log(`Open Video: ${id}`);
-            this._handle = true;
+            // this._handle = true;
             this._handle = new JitsiMeetExternalAPI(domain, options);
           }
         }
@@ -437,11 +420,11 @@
           // found.state = undefined;
           found.batteryPercentage = data.battery_percentage;
           found.waypointList.length = 0; // clear array
-          for (waypoint of data.locations) {
+          for (waypoint of data.waypoint_list) {
             // console.log(waypoint)
             found.waypointList.push(waypoint);
           }
-          // console.log(`Number of Locations: ${data.locations.length}`);
+          // console.log(`Number of Locations: ${data.waypoint_list.length}`);
         }
         // console.log(`Number of Robots: ${robotList.length}`);
       }
@@ -561,6 +544,9 @@
           // update battery state
           updateBatteryState(selectedRobot.batteryPercentage);
 
+          // hide robot-nav-btn
+          document.getElementById('robot-nav-btn').style = "display:none";
+
           // show robot menu
           document.getElementById('robot-menu').style = "display:block";
         }
@@ -592,23 +578,36 @@
           switch (e.keyCode) {
             case 37: // ArrowLeft
             case 65: // a
-              console.log('[Keycode] ArrowLeft / a')
-              selectedRobot.cmdTurnLeft()
+              console.log('[Keycode] ArrowLeft / a');
+              selectedRobot.cmdTurnLeft();
               break;
+
             case 39: // ArrowRight
             case 68: // d
-              console.log('[Keycode] ArrowRight / d')
-              selectedRobot.cmdTurnRight()
+              console.log('[Keycode] ArrowRight / d');
+              selectedRobot.cmdTurnRight();
               break;
+
             case 38: // ArrowUp
             case 87: // w
-              console.log('[Keycode] ArrowUp / w')
-              selectedRobot.cmdMoveFwd()
+              console.log('[Keycode] ArrowUp / w');
+              selectedRobot.cmdMoveFwd();
               break;
+
             case 40: // ArrowDown
             case 83: // s
-              console.log('[Keycode] ArrowDown / s')
-              selectedRobot.cmdMoveBwd()
+              console.log('[Keycode] ArrowDown / s');
+              selectedRobot.cmdMoveBwd();
+              break;
+
+            case 85: // u
+              console.log('[Keycode] u');
+              selectedRobot.cmdTiltUp();
+              break;
+
+            case 74: // j
+              console.log('[Keycode] j');
+              selectedRobot.cmdTiltDown();
               break;
           }
 
