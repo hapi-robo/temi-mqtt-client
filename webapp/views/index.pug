@@ -1,0 +1,25 @@
+extends layout
+
+block content
+
+  // Menu
+  // https://codepen.io/acodemax/pen/KjyXxb
+  nav.transparent.z-depth-0
+    .nav-wrapper
+      .row
+        .col.s12
+          a#robot-nav-btn.sidenav-trigger.show-on-large(href='#', data-target='robot-nav')
+            i.material-icons menu
+          ul#robot-menu.right(style='display:none')
+            li
+              a
+                i#battery-state
+            li
+              a.sidenav-trigger.show-on-large(data-target='waypoint-nav')
+                i.material-icons location_on
+  div
+    // <ul id="robot-nav" class="sidenav blue darken-4"></ul>
+    ul#robot-nav.sidenav(style='background-color: rgba(232,232,232,0.7);')
+  div
+    ul#waypoint-nav.sidenav(style='background-color: rgba(232,232,232,0.7);')
+  #video-conference

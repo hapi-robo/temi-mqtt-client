@@ -1,0 +1,43 @@
+doctype html
+html(lang='en', dir='ltr')
+  head
+    title #{title}
+    meta(charset='utf-8')
+
+    // Let browser know website is optimized for mobile
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+
+    // Favicon
+    link(rel='shortcut icon', type='image/x-icon', href='/favicon.ico')
+    
+    // FontAwesome
+    link(rel='stylesheet', href='https://use.fontawesome.com/releases/v5.7.2/css/all.css', integrity='sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr', crossorigin='anonymous')
+
+    // Import Google Icon Font
+    link(href='https://fonts.googleapis.com/icon?family=Material+Icons', rel='stylesheet')
+    
+    // Materialize CSS
+    link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css')
+  
+  body(onload='connectMQTT()', style='background-color:black;')
+
+    block content
+
+    // JavaScript at end of body for optimized loading
+    // Materialize JavaScript
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js')
+
+    // Jitsi
+    // https://github.com/jitsi/jitsi-meet/blob/master/doc/api.md
+    script(src='https://meet.jit.si/external_api.js')
+
+    // Paho MQTT
+    // https://github.com/eclipse/paho.mqtt.javascript
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/paho-mqtt.min.js')
+
+    // Custom Events
+    script(type='text/javascript', src='/js/events.js')
+    script(type='text/javascript', src='/js/robot.js')
+    script(type='text/javascript', src='/js/videoConference.js')
+    script(type='text/javascript', src='/js/mqtt.js')
+

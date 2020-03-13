@@ -1,0 +1,16 @@
+{
+  "name": "Connect",
+  "version": "0.0.1",
+  "description": "Jitsi-temi webapp",
+  "private": true,
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "author": "R. Oung",
+  "license": "MIT",
+  "dependencies": {
+    "express": "*",
+    "pug": "*"
+  }
+}
