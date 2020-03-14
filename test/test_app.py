@@ -80,7 +80,7 @@ if __name__ == '__main__':
         client.publish('temi/00119452440/status/info', json.dumps({
             'timestamp': datetime.now().strftime("%Y%m%d_%H%M%S"),
             'battery_percentage': 50,
-            'locations': ['home base', 'a', 'b', 'c'], 
+            'waypoint_list': ['home base', 'a', 'b', 'c'], 
             }), qos=0)
         time.sleep(1)
 
@@ -88,7 +88,7 @@ if __name__ == '__main__':
         client.publish('temi/00119462420/status/info', json.dumps({
             'timestamp': datetime.now().strftime("%Y%m%d_%H%M%S"),
             'battery_percentage': 95,
-            'locations': ['home base', 'd', 'e', 'f'], 
+            'waypoint_list': ['home base', 'd', 'e', 'f'], 
             }), qos=0)
         time.sleep(1)
 
@@ -97,7 +97,7 @@ if __name__ == '__main__':
         client.publish('temi/00119452440/command/move/forward', json.dumps({
             'timestamp': datetime.now().strftime("%Y%m%d_%H%M%S"),
             'battery_percentage': 50,
-            'locations': ['home base', 'a', 'b', 'c'], 
+            'waypoint_list': ['home base', 'a', 'b', 'c'], 
             }), qos=0)
         time.sleep(1)
 
@@ -105,6 +105,6 @@ if __name__ == '__main__':
         client.publish('temi/00119452440/command/move/backward', json.dumps({
             'timestamp': datetime.now().strftime("%Y%m%d_%H%M%S"),
             'battery_percentage': 95,
-            'locations': ['home base', 'd', 'e', 'f'], 
+            'waypoint_list': ['home base', 'd', 'e', 'f'], 
             }), qos=0)
         time.sleep(1)
