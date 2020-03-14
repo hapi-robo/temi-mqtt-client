@@ -8,18 +8,21 @@ block content
     .nav-wrapper
       .row
         .col.s12
-          a#robot-nav-btn.sidenav-trigger.show-on-large(href='#', data-target='robot-nav')
-            i.material-icons menu
-          ul#robot-menu.right(style='display:none')
+          ul#robot-menu.right(style='display:none;')
             li
               a
                 i#battery-state
             li
               a.sidenav-trigger.show-on-large(data-target='waypoint-nav')
                 i.material-icons location_on
-  div
-    // <ul id="robot-nav" class="sidenav blue darken-4"></ul>
-    ul#robot-nav.sidenav(style='background-color: rgba(232,232,232,0.7);')
+
+  #menu.row.valign-wrapper(style='height:100vh')
+    .input-field.col.s3.offset-s8
+      input#temi_id.validate(placeholder='temi-123', type='text')
+      label(for='temi_id') temi ID
+      #robot-nav.collection
+
   div
     ul#waypoint-nav.sidenav(style='background-color: rgba(232,232,232,0.7);')
+
   #video-conference

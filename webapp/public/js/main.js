@@ -1,5 +1,5 @@
-import { Robot } from './modules/robot';
-import { VideoConference } from './modules/videoConference';
+import { Robot } from './modules/robot.js';
+import { VideoConference } from './modules/videoConference.js';
 
 // global variables
 let selectedRobot;
@@ -9,66 +9,22 @@ let client;
 
 
 // DOCUMENT EVENT HANDLERS
-function showRobotNavBtn() {
-  document.querySelector('#robot-nav-btn').style = 'display:block';
-}
-
 function updateRobotNav() {
   const robotNav = document.querySelector('#robot-nav');
+  robotNav.className = 'collection';
 
   // clear list
   robotNav.textContent = '';
 
   // populate list
   robotList.forEach((robot) => {
-    const li = document.createElement('li');
     const a = document.createElement('a');
     a.id = robot.id;
-    a.className = 'sidenav-close white-text waves-effect';
-
-    const i = document.createElement('i');
-    i.className = 'material-icons white-text';
-    const iconName = document.createTextNode('link');
-
+    a.className = 'collection-item black white-text waves-effect';
     const text = document.createTextNode(robot.id);
+    a.append(text);
 
-    i.append(iconName);
-    a.appendChild(i);
-    a.appendChild(text);
-    li.appendChild(a);
-
-    robotNav.insertBefore(li, robotNav.firstChild);
-  });
-  // for (let robot of robotList) {
-  //   const li = document.createElement('li');
-  //   const a = document.createElement('a');
-  //   a.id = robot.id;
-  //   a.className = 'sidenav-close white-text waves-effect';
-
-  //   const i = document.createElement('i');
-  //   i.className = 'material-icons white-text';
-  //   const iconName = document.createTextNode('link');
-
-  //   const text = document.createTextNode(robot.id);
-
-  //   i.append(iconName);
-  //   a.appendChild(i);
-  //   a.appendChild(text);
-  //   li.appendChild(a);
-
-  //   robotNav.insertBefore(li, robotNav.firstChild);
-  // }
-
-  // hide robot-nav-btn
-  document.querySelector('#robot-nav-btn').style = 'display:none';
-}
-
-function showRobotNav() {
-  const elems = document.querySelector('#robot-nav');
-  M.Sidenav.init(elems, {
-    edge: 'left',
-    onOpenStart: updateRobotNav,
-    onCloseStart: showRobotNavBtn,
+    robotNav.insertBefore(a, robotNav.firstChild);
   });
 }
 
@@ -100,20 +56,6 @@ function updateWaypointNav() {
 
       waypointNav.insertBefore(li, waypointNav.firstChild);
     });
-    // for (let waypoint of selectedRobot.waypointList) {
-    //   // console.log(waypoint);
-    //   const li = document.createElement('li');
-    //   const a = document.createElement('a');
-    //   a.id = waypoint;
-    //   a.className = 'sidenav-close white-text waves-effect';
-
-    //   const text = document.createTextNode(waypoint);
-
-    //   a.appendChild(text);
-    //   li.appendChild(a);
-
-    //   waypointNav.insertBefore(li, waypointNav.firstChild);
-    // }
 
     // hide robot-nav-btn
     document.querySelector('#robot-menu').style = 'display:none';
@@ -209,7 +151,7 @@ function updateBatteryState(value) {
 }
 
 function selectRobot(e) {
-  // console.log(`Selected Robot: ${e.target.id}`);
+  console.log(`Selected Robot: ${e.target.id}`);
   const selection = robotList.find((r) => r.id === e.target.id);
 
   // check that the selection is valid
@@ -233,8 +175,8 @@ function selectRobot(e) {
     // update battery state
     updateBatteryState(selectedRobot.batteryPercentage);
 
-    // hide robot-nav-btn
-    document.querySelector('#robot-nav-btn').style = 'display:none';
+    // hide robot-nav
+    document.querySelector('#menu').style = 'display:none';
 
     // show robot menu
     document.querySelector('#robot-menu').style = 'display:block';
@@ -297,6 +239,7 @@ function onMessageArrived(message) {
       switch (category) {
         case 'info': {
           updateRobotList(robotID, message.payloadString);
+          updateRobotNav();
           break;
         }
         case 'locations': {
@@ -363,7 +306,6 @@ window.onload = connectMQTT('localhost', 9001);
 
 document.body.style = 'background-color:black';
 
-document.addEventListener('DOMContentLoaded', showRobotNav);
 document.addEventListener('DOMContentLoaded', showWaypointNav);
 document.addEventListener('keydown', keyboardEvent);
 
