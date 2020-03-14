@@ -1,11 +1,8 @@
-// global variables
-let selectedRobot;
-let robotList = new Array();
-
 class Robot {
-  constructor(id, name=undefined) {
+  constructor(id, client) {
     this._id = id;
-    this._name = name;
+    this._client = client;
+    this._name = undefined;
     this._ip_address = undefined;
     this._waypointList = [];
     this._waypoint = undefined;
@@ -64,7 +61,7 @@ class Robot {
     let message = new Paho.Message(payload);
     message.destinationName = `temi/${this._id}/command/move/turn_by`;
     message.qos = 0;
-    client.send(message);
+    this._client.send(message);
   }
 
   cmdTurnRight() {
@@ -77,7 +74,7 @@ class Robot {
     let message = new Paho.Message(payload);
     message.destinationName = `temi/${this._id}/command/move/turn_by`;
     message.qos = 0;
-    client.send(message);
+    this._client.send(message);
   }
 
   cmdMoveFwd() {
@@ -90,7 +87,7 @@ class Robot {
     let message = new Paho.Message(payload);
     message.destinationName = `temi/${this._id}/command/move/forward`;
     message.qos = 0;
-    client.send(message);
+    this._client.send(message);
   }
 
   cmdMoveBwd() {
@@ -103,7 +100,7 @@ class Robot {
     let message = new Paho.Message(payload);
     message.destinationName = `temi/${this._id}/command/move/backward`;
     message.qos = 0;
-    client.send(message);
+    this._client.send(message);
   }
 
   cmdTiltUp() {
@@ -116,7 +113,7 @@ class Robot {
     let message = new Paho.Message(payload);
     message.destinationName = `temi/${this._id}/command/move/tilt_by`;
     message.qos = 0;
-    client.send(message);
+    this._client.send(message);
   }
 
   cmdTiltDown() {
@@ -129,7 +126,7 @@ class Robot {
     let message = new Paho.Message(payload);
     message.destinationName = `temi/${this._id}/command/move/tilt_by`;
     message.qos = 0;
-    client.send(message);
+    this._client.send(message);
   }
 
   cmdFollow(enable = true) {
@@ -146,7 +143,7 @@ class Robot {
       message.destinationName = `temi/${this._id}/command/follow/stop`;
     }
     message.qos = 1;
-    client.send(message);
+    this._client.send(message);
   }
 
   cmdGoto(waypoint) {
@@ -162,6 +159,8 @@ class Robot {
     let message = new Paho.Message(payload);
     message.destinationName = `temi/${this._id}/command/waypoint/goto`;
     message.qos = 1;
-    client.send(message);
+    this._client.send(message);
   }
 }
+
+// export { Robot };

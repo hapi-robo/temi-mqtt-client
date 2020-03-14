@@ -41,5 +41,4 @@ class VideoConference {
   }
 }
 
-// global variables
-let vidCon = new VideoConference();
+// export { VideoConference };
