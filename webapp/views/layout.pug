@@ -19,7 +19,7 @@ html(lang='en', dir='ltr')
     // Materialize CSS
     link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css')
   
-  body(style='background-color:black;')
+  body()
 
     block content
 
@@ -36,8 +36,4 @@ html(lang='en', dir='ltr')
     script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/paho-mqtt.min.js')
 
     // Custom Events
-    //- script(type='module', src='/js/main.js')
-    script(type='text/javascript', src='/js/robot.js')
-    script(type='text/javascript', src='/js/videoConference.js')
-    script(type='text/javascript', src='/js/main.js')
-
+    script(type='module', src='/js/main.js')

@@ -41,3 +41,8 @@ docker run --restart unless-stopped -d -p 80:8080 connect/webapp
 
 ## Usage
 On the same computer, point your browser to [http://localhost](http://localhost).
+
+
+## Contributions
+* [ESLint](eslint.org) 
+	* [Airbnb JavaScript Style Guide](https://github.com/airbnb/javascript)
