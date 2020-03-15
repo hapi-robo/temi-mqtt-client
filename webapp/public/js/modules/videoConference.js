@@ -23,7 +23,7 @@ class VideoConference {
       };
       console.log(`Open Video: ${id}`);
       // this.#handle = true;
-      this.#handle = new JitsiMeetExternalAPI(domain, options);
+      // this.#handle = new JitsiMeetExternalAPI(domain, options);
       
       return this;
     }
