@@ -25,6 +25,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jitsi.meet.sdk.JitsiMeet;
+import org.jitsi.meet.sdk.JitsiMeetActivity;
 import org.jitsi.meet.sdk.JitsiMeetConferenceOptions;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -204,22 +205,9 @@ public class MainActivity extends AppCompatActivity implements
     public void onButtonClick(View v) {
         EditText hostNameView = findViewById(R.id.edit_text_host_name);
         String hostURI = "tcp://" + hostNameView.getText().toString().trim() + ":1883";
-        String roomName = "temi-" + sSerialNumber;
 
         // initialize MQTT
         initMqtt(hostURI, "temi-" + sSerialNumber);
-
-        if (roomName.length() > 0) {
-            // Build options object for joining the conference. The SDK will merge the default
-            // one we set earlier and this one when joining.
-            JitsiMeetConferenceOptions options
-                    = new JitsiMeetConferenceOptions.Builder()
-                    .setRoom(roomName)
-                    .build();
-            // Launch the new activity with the given options. The launch() method takes care
-            // of creating the required Intent and passing the options.
-//            JitsiMeetActivity.launch(this, options);
-        }
     }
 
     /**
@@ -322,25 +310,23 @@ public class MainActivity extends AppCompatActivity implements
         String robotID = topicTree[1];
         String type = topicTree[2];
         String category = topicTree[3];
-        String command = topicTree[4];
 
         Log.d(TAG, "Robot-ID: " + robotID);
         Log.d(TAG, "Type: " + type);
         Log.d(TAG, "Category: " + category);
-        Log.d(TAG, "Command: " + command);
 
         if (robotID.equals(sSerialNumber)) {
             switch (category) {
                 case "waypoint":
-                    parseWaypoint(command, payload);
+                    parseWaypoint(topicTree[4], payload);
                     break;
 
                 case "move":
-                    parseMove(command, payload);
+                    parseMove(topicTree[4], payload);
                     break;
 
                 case "call":
-                    Log.v(TAG, "[CMD][CALL");
+                    startCall();
                     break;
 
                 default:
@@ -425,5 +411,20 @@ public class MainActivity extends AppCompatActivity implements
                 Log.i(TAG, "[MOVE] Unknown Movement Command");
                 break;
         }
+    }
+
+    private void startCall() {
+        Log.v(TAG, "[CMD][CALL");
+
+        // Build options object for joining the conference. The SDK will merge the default
+        // one we set earlier and this one when joining.
+        JitsiMeetConferenceOptions options
+                = new JitsiMeetConferenceOptions.Builder()
+                .setRoom("temi-" + sSerialNumber)
+                .build();
+
+        // Launch the new activity with the given options. The launch() method takes care
+        // of creating the required Intent and passing the options.
+        JitsiMeetActivity.launch(this, options);
     }
 }
