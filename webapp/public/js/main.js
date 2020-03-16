@@ -20,7 +20,7 @@ function updateRobotNav() {
   robotList.forEach((robot) => {
     const a = document.createElement('a');
     a.id = robot.id;
-    a.className = 'collection-item black white-text waves-effect';
+    a.className = 'collection-item black white-text waves-effect center-align';
     const text = document.createTextNode(robot.id);
     a.append(text);
 
@@ -74,7 +74,18 @@ function showWaypointNav() {
 // https://keycode.info/
 function keyboardEvent(e) {
   if (selectedRobot === undefined) {
-    console.warn('No robot selected');
+    switch(e.keyCode) {
+      case 13: // Enter
+        console.log('[Keycode] Enter');
+        const robotID = document.querySelector('#temi_id').value;
+        console.log(`Robot-ID: ${robotID}`);
+        startVidCon(robotID);
+        break;
+
+      default:
+        console.warn('No robot selected');
+        break;
+    }
   } else {
     switch (e.keyCode) {
       case 37: // ArrowLeft
@@ -150,14 +161,15 @@ function updateBatteryState(value) {
   }
 }
 
-function selectRobot(e) {
-  console.log(`Selected Robot: ${e.target.id}`);
-  const selection = robotList.find((r) => r.id === e.target.id);
+function startVidCon(id) {
+  console.log("Starting Telepresence...");
+  const selection = robotList.find((r) => r.id === id);
 
   // check that the selection is valid
   if (selection !== undefined) {
     if (selectedRobot === undefined) { // no robot in use
       // start new video conference
+      selection.cmdCall(); // start the call on the robot's side
       vidCon.open(selection.id);
     } else { // robot is currently in use
       if (e.target.id !== selectedRobot.id) {
@@ -166,7 +178,8 @@ function selectRobot(e) {
       }
 
       // start new video conference
-      vidCon.open(selection.id);
+      selection.cmdCall(); // start the call on the robot's side
+      vidCon.open(selection.id); // start the call from the browser side
     }
 
     // assign robot selection
@@ -180,7 +193,18 @@ function selectRobot(e) {
 
     // show robot menu
     document.querySelector('#robot-menu').style = 'display:block';
+  } else {
+    M.toast({
+        html: 'Invalid ID',
+        displayLength: 2000,
+        classes: 'rounded',
+      });
   }
+}
+
+function selectRobot(e) {
+  console.log(`Selected Robot: ${e.target.id}`);
+  startVidCon(e.target.id);
 }
 
 function selectWaypoint(e) {
@@ -197,13 +221,10 @@ function updateRobotList(id, payload) {
 
   if (found === undefined) {
     console.log('Append');
-    // append new robot
     robotList.push(new Robot(id, client));
   } else {
-    const index = robotList.findIndex((e) => e.id === id);
-
     console.log('Update');
-    // update robot
+    const index = robotList.findIndex((e) => e.id === id);
     const data = JSON.parse(payload);
     robotList[index].batteryPercentage = data.battery_percentage;
     robotList[index].waypointList.length = 0; // clear array
@@ -303,6 +324,7 @@ function connectMQTT(host, port) {
 }
 
 window.onload = connectMQTT('localhost', 9001);
+// window.onload = connectMQTT('192.168.0.118', 9001);
 
 document.body.style = 'background-color:black';
 

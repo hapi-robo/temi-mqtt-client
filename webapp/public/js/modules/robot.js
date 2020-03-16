@@ -48,7 +48,7 @@ class Robot {
   }
 
   cmdTurnLeft() {
-    console.log('[SEND] Turn Left');
+    console.log('[CMD] Turn Left');
 
     // write payload in JSON format
     const payload = JSON.stringify({ angle: +30 });
@@ -61,7 +61,7 @@ class Robot {
   }
 
   cmdTurnRight() {
-    console.log('[SEND] Turn Left');
+    console.log('[CMD] Turn Left');
 
     // write payload in JSON format
     const payload = JSON.stringify({ angle: -30 });
@@ -74,7 +74,7 @@ class Robot {
   }
 
   cmdMoveFwd() {
-    console.log('[SEND] Move Forward');
+    console.log('[CMD] Move Forward');
 
     // write payload in JSON format
     const payload = JSON.stringify({});
@@ -87,7 +87,7 @@ class Robot {
   }
 
   cmdMoveBwd() {
-    console.log('[SEND] Move Backward');
+    console.log('[CMD] Move Backward');
 
     // write payload in JSON format
     const payload = JSON.stringify({});
@@ -100,7 +100,7 @@ class Robot {
   }
 
   cmdTiltUp() {
-    console.log('[SEND] Tilt Up');
+    console.log('[CMD] Tilt Up');
 
     // write payload in JSON format
     const payload = JSON.stringify({ angle: 5 });
@@ -113,7 +113,7 @@ class Robot {
   }
 
   cmdTiltDown() {
-    console.log('[SEND] Tilt Down');
+    console.log('[CMD] Tilt Down');
 
     // write payload in JSON format
     const payload = JSON.stringify({ angle: -5 });
@@ -126,7 +126,7 @@ class Robot {
   }
 
   cmdFollow(enable = true) {
-    console.log('[SEND] Follow');
+    console.log('[CMD] Follow');
 
     // write payload in JSON format
     const payload = JSON.stringify({});
@@ -143,7 +143,7 @@ class Robot {
   }
 
   cmdGoto(waypoint) {
-    console.log('[SEND] GoTo');
+    console.log('[CMD] GoTo');
 
     // save destination
     this.#destination = waypoint;
@@ -154,6 +154,19 @@ class Robot {
     // publish message
     const message = new Paho.Message(payload);
     message.destinationName = `temi/${this.#id}/command/waypoint/goto`;
+    message.qos = 1;
+    this.#client.send(message);
+  }
+
+  cmdCall() {
+    console.log('[CMD] Call');
+
+    // write payload in JSON format
+    const payload = JSON.stringify({});
+
+    // publish message
+    const message = new Paho.Message(payload);
+    message.destinationName = `temi/${this.#id}/command/call`;
     message.qos = 1;
     this.#client.send(message);
   }
