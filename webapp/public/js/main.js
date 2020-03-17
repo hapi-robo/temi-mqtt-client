@@ -209,7 +209,7 @@ function selectWaypoint(e) {
 function mouseEvent(e) {
   console.log(`x: ${e.offsetX} | y: ${e.offsetY}`);
 
-  const posX = e.offsetX / ;
+  const posX = e.offsetX;
   const posY = e.offsetY;
 
 }
@@ -240,7 +240,6 @@ function onMessageArrived(message) {
   // console.log(`Payload: ${message.payloadString}`);
 
   // parse message
-  // temi/123/status/locations/goto
   const topicTree = message.destinationName.split('/');
   const robotID = topicTree[1]; // [robot-id]
   const type = topicTree[2]; // [status, command]
@@ -323,10 +322,10 @@ function connectMQTT(host, port) {
 
 // @TODO Make this configurable
 // window.onload = connectMQTT('localhost', 9001);
-// window.onload = connectMQTT('192.168.0.118', 9001);
 window.onload = connectMQTT('192.168.0.177', 9001);
 
-document.body.style = 'background-color:black';
+// document.body.style = 'background-color:black';
+document.body.style.backgroundColor = 'black';
 
 document.addEventListener('DOMContentLoaded', showWaypointNav);
 document.addEventListener('keydown', keyboardEvent);

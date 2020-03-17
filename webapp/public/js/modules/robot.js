@@ -1,50 +1,50 @@
 // https://stackoverflow.com/questions/43796705/how-to-include-cdn-in-javascript-file-js
 
 class Robot {
-  #id;
-  #client;
-  #batteryPercentage;
-  #waypointList;
-  #destination
-  #volume;
+  // #id;
+  // #client;
+  // #batteryPercentage;
+  // #waypointList;
+  // #destination
+  // #volume;
 
   constructor(id, client) {
-    this.#id = id;
-    this.#client = client;
+    this._id = id;
+    this._client = client;
+    this._waypointList = [];
+    this._batteryPercentage = undefined;
+    this._destination = undefined;
     // this._name = undefined;
     // this._ip_address = undefined;
-    this.#waypointList = [];
     // this._waypoint = undefined;
     // this._state = undefined;
-    this.#batteryPercentage = undefined;
-    this.#destination = undefined;
   }
 
   get id() {
-    return this.#id;
+    return this._id;
   }
 
   get batteryPercentage() {
-    return this.#batteryPercentage;
+    return this._batteryPercentage;
   }
 
   set batteryPercentage(value) {
-    this.#batteryPercentage = value;
+    this._batteryPercentage = value;
   }
 
   get waypointList() {
-    return this.#waypointList;
+    return this._waypointList;
   }
 
   set waypointList(list) {
-    this.#waypointList.length = 0;
+    this._waypointList.length = 0;
     list.forEach((waypoint) => {
-      this.#waypointList.push(waypoint);
+      this._waypointList.push(waypoint);
     })
   }
 
   get destination() {
-    return this.#destination;
+    return this._destination;
   }
 
   cmdTurnLeft() {
@@ -55,9 +55,9 @@ class Robot {
 
     // publish message
     const message = new Paho.Message(payload);
-    message.destinationName = `temi/${this.#id}/command/move/turn_by`;
+    message.destinationName = `temi/${this._id}/command/move/turn_by`;
     message.qos = 0;
-    this.#client.send(message);
+    this._client.send(message);
   }
 
   cmdTurnRight() {
@@ -68,9 +68,9 @@ class Robot {
 
     // publish message
     const message = new Paho.Message(payload);
-    message.destinationName = `temi/${this.#id}/command/move/turn_by`;
+    message.destinationName = `temi/${this._id}/command/move/turn_by`;
     message.qos = 0;
-    this.#client.send(message);
+    this._client.send(message);
   }
 
   cmdMoveFwd() {
@@ -81,9 +81,9 @@ class Robot {
 
     // publish message
     const message = new Paho.Message(payload);
-    message.destinationName = `temi/${this.#id}/command/move/forward`;
+    message.destinationName = `temi/${this._id}/command/move/forward`;
     message.qos = 0;
-    this.#client.send(message);
+    this._client.send(message);
   }
 
   cmdMoveBwd() {
@@ -94,9 +94,9 @@ class Robot {
 
     // publish message
     const message = new Paho.Message(payload);
-    message.destinationName = `temi/${this.#id}/command/move/backward`;
+    message.destinationName = `temi/${this._id}/command/move/backward`;
     message.qos = 0;
-    this.#client.send(message);
+    this._client.send(message);
   }
 
   cmdTiltUp() {
@@ -107,9 +107,9 @@ class Robot {
 
     // publish message
     const message = new Paho.Message(payload);
-    message.destinationName = `temi/${this.#id}/command/move/tilt_by`;
+    message.destinationName = `temi/${this._id}/command/move/tilt_by`;
     message.qos = 0;
-    this.#client.send(message);
+    this._client.send(message);
   }
 
   cmdTiltDown() {
@@ -120,9 +120,9 @@ class Robot {
 
     // publish message
     const message = new Paho.Message(payload);
-    message.destinationName = `temi/${this.#id}/command/move/tilt_by`;
+    message.destinationName = `temi/${this._id}/command/move/tilt_by`;
     message.qos = 0;
-    this.#client.send(message);
+    this._client.send(message);
   }
 
   cmdFollow(enable = true) {
@@ -134,28 +134,28 @@ class Robot {
     // publish message
     const message = new Paho.Message(payload);
     if (enable) {
-      message.destinationName = `temi/${this.#id}/command/follow/unconstrained`;
+      message.destinationName = `temi/${this._id}/command/follow/unconstrained`;
     } else {
-      message.destinationName = `temi/${this.#id}/command/follow/stop`;
+      message.destinationName = `temi/${this._id}/command/follow/stop`;
     }
     message.qos = 1;
-    this.#client.send(message);
+    this._client.send(message);
   }
 
   cmdGoto(waypoint) {
     console.log('[CMD] Go-To');
 
     // save destination
-    this.#destination = waypoint;
+    this._destination = waypoint;
 
     // write payload in JSON format
     const payload = JSON.stringify({ location: waypoint });
 
     // publish message
     const message = new Paho.Message(payload);
-    message.destinationName = `temi/${this.#id}/command/waypoint/goto`;
+    message.destinationName = `temi/${this._id}/command/waypoint/goto`;
     message.qos = 1;
-    this.#client.send(message);
+    this._client.send(message);
   }
 
   cmdCall() {
@@ -166,9 +166,9 @@ class Robot {
 
     // publish message
     const message = new Paho.Message(payload);
-    message.destinationName = `temi/${this.#id}/command/call`;
+    message.destinationName = `temi/${this._id}/command/call`;
     message.qos = 1;
-    this.#client.send(message);
+    this._client.send(message);
   }
 
   // https://developer.android.com/reference/android/media/AudioManager#setStreamVolume(int,%20int,%20int)
@@ -176,16 +176,16 @@ class Robot {
     console.log('[CMD] Volume');
 
     // save destination
-    this.#volume = value;
+    this._volume = value;
 
     // write payload in JSON format
     const payload = JSON.stringify({ volume: volume });
 
     // publish message
     const message = new Paho.Message(payload);
-    message.destinationName = `temi/${this.#id}/command/volume/absolute`;
+    message.destinationName = `temi/${this._id}/command/volume/absolute`;
     message.qos = 1;
-    this.#client.send(message);
+    this._client.send(message);
   }
 }
 

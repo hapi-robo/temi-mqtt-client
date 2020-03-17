@@ -1,15 +1,15 @@
 class VideoConference {
-  #id;
-  #handle;
+  // #id;
+  // #handle;
 
   constructor() {
-    this.#id = undefined;
-    this.#handle = undefined;
+    this._id = undefined;
+    this._handle = undefined;
   }
 
   open(id) {
-    if (this.#handle === undefined) {
-      this.#id = id;
+    if (this._handle === undefined) {
+      this._id = id;
       const domain = 'meet.jit.si';
       const options = {
         roomName: `temi-${id}`,
@@ -22,19 +22,19 @@ class VideoConference {
         },
       };
       console.log(`Open Video: ${id}`);
-      // this.#handle = true;
-      // this.#handle = new JitsiMeetExternalAPI(domain, options);
+      // this._handle = true;
+      // this._handle = new JitsiMeetExternalAPI(domain, options);
       
       return this;
     }
   }
 
   close() {
-    if (this.#handle !== undefined) {
-      console.log(`Close Video: ${this.#id}`);
-      this.#handle.executeCommand('hangup');
-      this.#id = undefined;
-      this.#handle = undefined;
+    if (this._handle !== undefined) {
+      console.log(`Close Video: ${this._id}`);
+      this._handle.executeCommand('hangup');
+      this._id = undefined;
+      this._handle = undefined;
       // let val = document.getElementById('video-conference');
       // val.textContent = '';
       // console.log(val);
@@ -42,7 +42,7 @@ class VideoConference {
   }
 
   get handle() {
-    return this.#handle;
+    return this._handle;
   }
 
 
