@@ -2,7 +2,7 @@
 A free and open-source alternative to temi's default video-conferencing application.
 
 
-## tl;dr
+## TL;DR
 Install APK onto temi.
 ```
 adb connect <ip-address>
@@ -17,7 +17,7 @@ docker-compose up
 
 Start the `Connect` app on temi. Type in the IP-address of the MQTT broker and press `Connect`.
 
-In `Chrome`, type the IP-address of the web-server.
+In your web-browser, type the IP-address of the web-server.
 
 If everything is working correctly, you should see your temi's serial number appear. Click it to start tele-operations.
 
