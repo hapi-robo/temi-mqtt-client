@@ -205,8 +205,13 @@ function selectWaypoint(e) {
   console.log(`Selected Destination: ${selectedRobot.destination}`);
 }
 
+// https://stackoverflow.com/questions/17106665/the-mouseevent-offsetx-i-am-getting-is-much-larger-than-actual-canvas-size
 function mouseEvent(e) {
   console.log(`x: ${e.offsetX} | y: ${e.offsetY}`);
+
+  const posX = e.offsetX / ;
+  const posY = e.offsetY;
+
 }
 
 function updateRobotList(id, payload) {

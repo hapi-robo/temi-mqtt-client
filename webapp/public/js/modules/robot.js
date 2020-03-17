@@ -6,6 +6,7 @@ class Robot {
   #batteryPercentage;
   #waypointList;
   #destination
+  #volume;
 
   constructor(id, client) {
     this.#id = id;
@@ -17,7 +18,6 @@ class Robot {
     // this._state = undefined;
     this.#batteryPercentage = undefined;
     this.#destination = undefined;
-    // this._volume = undefined;
   }
 
   get id() {
@@ -143,7 +143,7 @@ class Robot {
   }
 
   cmdGoto(waypoint) {
-    console.log('[CMD] GoTo');
+    console.log('[CMD] Go-To');
 
     // save destination
     this.#destination = waypoint;
@@ -167,6 +167,23 @@ class Robot {
     // publish message
     const message = new Paho.Message(payload);
     message.destinationName = `temi/${this.#id}/command/call`;
+    message.qos = 1;
+    this.#client.send(message);
+  }
+
+  // https://developer.android.com/reference/android/media/AudioManager#setStreamVolume(int,%20int,%20int)
+  cmdVolume(volume) {
+    console.log('[CMD] Volume');
+
+    // save destination
+    this.#volume = value;
+
+    // write payload in JSON format
+    const payload = JSON.stringify({ volume: volume });
+
+    // publish message
+    const message = new Paho.Message(payload);
+    message.destinationName = `temi/${this.#id}/command/volume/absolute`;
     message.qos = 1;
     this.#client.send(message);
   }
