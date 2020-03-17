@@ -1,13 +1,6 @@
 // https://stackoverflow.com/questions/43796705/how-to-include-cdn-in-javascript-file-js
 
 class Robot {
-  // #id;
-  // #client;
-  // #batteryPercentage;
-  // #waypointList;
-  // #destination
-  // #volume;
-
   constructor(id, client) {
     this._id = id;
     this._client = client;

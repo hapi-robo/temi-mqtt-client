@@ -9,8 +9,8 @@ let client;
 
 
 // DOCUMENT EVENT HANDLERS
-function updateRobotNav() {
-  const robotNav = document.querySelector('#robot-nav');
+function updateRobotCollection() {
+  const robotNav = document.querySelector('#robot-collection');
   robotNav.className = 'collection';
 
   // clear list
@@ -26,10 +26,6 @@ function updateRobotNav() {
 
     robotNav.insertBefore(a, robotNav.firstChild);
   });
-}
-
-function showWaypointNavBtn() {
-  document.querySelector('#robot-menu').style = 'display:block';
 }
 
 function updateWaypointNav() {
@@ -70,9 +66,19 @@ function keyboardEvent(e) {
     switch(e.keyCode) {
       case 13: // Enter
         console.log('[Keycode] Enter');
-        const robotID = document.querySelector('#temi_id').value;
-        console.log(`Robot-ID: ${robotID}`);
-        startVidCon(robotID);
+        const id = document.querySelector('#temi_id').value;
+        console.log(`Robot-ID: ${id}`);
+
+        // check that the selection is valid
+        const selection = robotList.find((r) => r.id === id);
+        if (selection === undefined) {
+          M.toast({
+              html: 'Invalid ID',
+              displayLength: 2000,
+              classes: 'rounded',
+            });
+        }
+
         break;
 
       default:
@@ -154,50 +160,39 @@ function updateBatteryState(value) {
   }
 }
 
-function startVidCon(id) {
-  console.log("Starting Telepresence...");
-  const selection = robotList.find((r) => r.id === id);
+function startVidCon() {
+  document.querySelector('#video-btn').style.display = 'none';
 
+  // start new video conference
+  console.log("Starting Video Conference...");  
+  selectedRobot.cmdCall(); // start the call on the robot's side
+  vidCon.open(selectedRobot.id);
+}
+
+function selectRobot(e) {
+  console.log(`Selected Robot: ${e.target.id}`);
+  
   // check that the selection is valid
-  if (selection !== undefined) {
-    if (selectedRobot === undefined) { // no robot in use
-      // start new video conference
-      // selection.cmdCall(); // start the call on the robot's side
-      vidCon.open(selection.id);
-    } else { // robot is currently in use
-      if (e.target.id !== selectedRobot.id) {
-        // close video conference
-        vidCon.close();
-      }
-
-      // start new video conference
-      // selection.cmdCall(); // start the call on the robot's side
-      vidCon.open(selection.id); // start the call from the browser side
-    }
-
-    // assign robot selection
-    selectedRobot = selection;
-
-    // update battery state
-    updateBatteryState(selectedRobot.batteryPercentage);
-
-    // hide robot-nav
-    document.querySelector('#menu').style = 'display:none';
-
-    // show robot menu
-    document.querySelector('#robot-menu').style = 'display:block';
-  } else {
+  const selection = robotList.find((r) => r.id === e.target.id);
+  if (selection === undefined) {
     M.toast({
         html: 'Invalid ID',
         displayLength: 2000,
         classes: 'rounded',
       });
-  }
-}
+  } else {
+    // assign selected robot
+    selectedRobot = selection;
 
-function selectRobot(e) {
-  console.log(`Selected Robot: ${e.target.id}`);
-  startVidCon(e.target.id);
+    // hide robot-menu
+    document.querySelector('#robot-menu').style.display = 'none';
+
+    // show robot control panel
+    document.querySelector('#robot-ctrl-panel').style.display = 'block';
+
+    // update battery state
+    updateBatteryState(selection.batteryPercentage);
+  }
 }
 
 function selectWaypoint(e) {
@@ -257,7 +252,7 @@ function onMessageArrived(message) {
       switch (category) {
         case 'info': {
           updateRobotList(robotID, message.payloadString);
-          updateRobotNav();
+          updateRobotCollection();
           break;
         }
         case 'locations': {
@@ -324,12 +319,12 @@ function connectMQTT(host, port) {
 // window.onload = connectMQTT('localhost', 9001);
 window.onload = connectMQTT('192.168.0.177', 9001);
 
-// document.body.style = 'background-color:black';
 document.body.style.backgroundColor = 'black';
 
 document.addEventListener('DOMContentLoaded', showWaypointNav);
 document.addEventListener('keydown', keyboardEvent);
 
-document.querySelector('#robot-nav').addEventListener('click', selectRobot);
+document.querySelector('#robot-collection').addEventListener('click', selectRobot);
 document.querySelector('#waypoint-nav').addEventListener('click', selectWaypoint);
+document.querySelector('#video-btn').addEventListener('click', startVidCon);
 // document.querySelector('#video-conference').addEventListener('mousemove', mouseEvent);

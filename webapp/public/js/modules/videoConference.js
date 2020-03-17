@@ -1,7 +1,4 @@
 class VideoConference {
-  // #id;
-  // #handle;
-
   constructor() {
     this._id = undefined;
     this._handle = undefined;
@@ -22,8 +19,7 @@ class VideoConference {
         },
       };
       console.log(`Open Video: ${id}`);
-      // this._handle = true;
-      // this._handle = new JitsiMeetExternalAPI(domain, options);
+      this._handle = new JitsiMeetExternalAPI(domain, options);
       
       return this;
     }
@@ -35,9 +31,6 @@ class VideoConference {
       this._handle.executeCommand('hangup');
       this._id = undefined;
       this._handle = undefined;
-      // let val = document.getElementById('video-conference');
-      // val.textContent = '';
-      // console.log(val);
     }
   }
 
