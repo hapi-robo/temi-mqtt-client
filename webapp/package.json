@@ -1,0 +1,22 @@
+{
+  "name": "Connect",
+  "version": "0.0.1",
+  "description": "Jitsi-temi webapp",
+  "private": true,
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "author": "R. Oung",
+  "license": "MIT",
+  "dependencies": {
+    "express": "*",
+    "pug": "*"
+  },
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-plugin-import": "^2.20.1",
+    "prettier": "^1.19.1"
+  }
+}

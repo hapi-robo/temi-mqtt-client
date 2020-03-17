@@ -5,19 +5,37 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#000000"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     tools:context=".MainActivity">
 
     <Button
-        android:id="@+id/button4"
+        android:id="@+id/button_connect"
+        android:layout_width="200dp"
+        android:layout_height="55dp"
+        android:layout_marginStart="160dp"
+        android:layout_marginTop="300dp"
+        android:layout_marginEnd="160dp"
+        android:onClick="onButtonClick"
+        android:text="@string/button_connect"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/edit_text_host_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="161dp"
-        android:layout_marginEnd="162dp"
-        android:layout_marginBottom="342dp"
-        android:onClick="onButtonClick"
-        android:text="Connect"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="250dp"
+        android:autofillHints="Enter MQTT host address"
+        android:backgroundTint="#ff008577"
+        android:ems="10"
+        android:inputType="textUri"
+        android:text="@string/host_name"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

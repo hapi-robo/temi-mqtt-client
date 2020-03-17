@@ -2,8 +2,10 @@ package com.hapirobo.connect;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.robotemi.sdk.BatteryData;
@@ -39,140 +41,94 @@ public class MainActivity extends AppCompatActivity implements
         OnRobotReadyListener,
         OnBatteryStatusChangedListener,
         OnGoToLocationStatusChangedListener {
+    private static final String TAG = "DEBUG";
 
-    private static final String TAG = "MQTT";
+    private static Handler sHandler = new Handler();
+    private static Robot sRobot;
+    private static String sSerialNumber;
+    private MqttAndroidClient mMqttClient;
+    private Runnable periodicTask = new Runnable() {
+        // periodically publishes robot status to the MQTT broker.
+        @Override
+        public void run() {
+            sHandler.postDelayed(this, 3000);
 
-    private Robot robot;
-    private String serialNumber;
-    private MqttAndroidClient mqttClient;
+            try {
+                MainActivity.this.robotPublishStatus();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    };
 
+    /**
+     * Initializes robot instance and default Jitsi-meet conference options.
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // initialize MQTT
-        initMQTT("tcp://192.168.0.118:1883", "temi-android");
-
         // initialize robot
-        robot = Robot.getInstance();
+        sRobot = Robot.getInstance();
 
         // initialize default options for Jitsi Meet conferences.
-        URL serverURL;
+        URL serverUrl;
         try {
-            serverURL = new URL("https://meet.jit.si");
+            serverUrl = new URL("https://meet.jit.si");
         } catch (MalformedURLException e) {
             e.printStackTrace();
             throw new RuntimeException("Invalid server URL!");
         }
         JitsiMeetConferenceOptions defaultOptions
             = new JitsiMeetConferenceOptions.Builder()
-                .setServerURL(serverURL)
+                .setServerURL(serverUrl)
                 .setWelcomePageEnabled(false)
                 .build();
         JitsiMeet.setDefaultConferenceOptions(defaultOptions);
     }
 
+    /**
+     * Adds robot event listeners.
+     */
     @Override
     protected void onStart() {
         super.onStart();
-        robot.addOnRobotReadyListener(this);
-        robot.addOnBatteryStatusChangedListener(this);
-        robot.addOnGoToLocationStatusChangedListener(this);
+        sRobot.addOnRobotReadyListener(this);
+        sRobot.addOnBatteryStatusChangedListener(this);
+        sRobot.addOnGoToLocationStatusChangedListener(this);
     }
 
+    /**
+     * Removes robot event listeners.
+     */
     @Override
     protected void onStop() {
         super.onStop();
-
-        robot.removeOnRobotReadyListener(this);
-        robot.removeOnBatteryStatusChangedListener(this);
-        robot.removeOnGoToLocationStatusChangedListener(this);
+        sRobot.removeOnRobotReadyListener(this);
+        sRobot.removeOnBatteryStatusChangedListener(this);
+        sRobot.removeOnGoToLocationStatusChangedListener(this);
     }
 
-    public void onButtonClick(View v) {
-        String text = "temi-" + serialNumber;
-
-        if (text.length() > 0) {
-            // Build options object for joining the conference. The SDK will merge the default
-            // one we set earlier and this one when joining.
-            JitsiMeetConferenceOptions options
-                = new JitsiMeetConferenceOptions.Builder()
-                    .setRoom(text)
-                    .build();
-            // Launch the new activity with the given options. The launch() method takes care
-            // of creating the required Intent and passing the options.
-            JitsiMeetActivity.launch(this, options);
-        }
-    }
-
-    private void initMQTT(String hostURI, String clientID) {
-        mqttClient = new MqttAndroidClient(getApplicationContext(), hostURI, clientID);
-        mqttClient.setCallback(new MqttCallback() {
-            @Override
-            public void connectionLost(Throwable cause) {
-                Log.v(TAG, "Connection lost");
-                // this method is called when connection to server is lost
-            }
-
-            @Override
-            public void deliveryComplete(IMqttDeliveryToken token) {
-                // called when delivery for a message has been completed, and all acknowledgements have been received
-                Log.v(TAG, "Delivery complete");
-            }
-
-            @Override
-            public void messageArrived(String topic, MqttMessage message) throws JSONException {
-                // this method is called when a message arrives from the server
-                Log.v(TAG, topic);
-                Log.v(TAG, message.toString());
-                JSONObject payload = new JSONObject(message.toString());
-                parseMessage(topic, payload);
-            }
-        });
-
-        MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
-        mqttConnectOptions.setAutomaticReconnect(true);
-        mqttConnectOptions.setCleanSession(true);
-        mqttConnectOptions.setConnectionTimeout(10);
-
-        try {
-            mqttClient.connect(mqttConnectOptions, null, new IMqttActionListener() {
-                @Override
-                public void onSuccess(IMqttToken asyncActionToken) {
-                    Toast.makeText(MainActivity.this, "Successfully Connected", Toast.LENGTH_SHORT).show();
-                    try {
-                        mqttClient.subscribe("temi/+/command/#", 0);
-                    } catch (MqttException e) {
-                        e.printStackTrace();
-                    }
-
-                    try {
-                        robotPublishStatus();
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                @Override
-                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    Toast.makeText(MainActivity.this, "Failed to Connect", Toast.LENGTH_SHORT).show();
-                }
-            });
-        } catch (MqttException e) {
-            e.printStackTrace();
-        }
-    }
-
+    /**
+     * Configures robot after it is ready.
+     * @param isReady True if robot initialized correctly; False otherwise
+     */
     @Override
     public void onRobotReady(boolean isReady) {
         if (isReady) {
-            serialNumber = robot.getSerialNumber();
-            robot.hideTopBar();
-            Log.v(TAG, "[ROBOT][READY]");
+            sSerialNumber = sRobot.getSerialNumber();
+            sRobot.hideTopBar(); // hides temi's top menu bar
+            sRobot.toggleNavigationBillboard(true); // hides navigation billboard
+            Log.i(TAG, "[ROBOT][READY]");
         }
     }
 
+    /**
+     * Handles battery update events.
+     * @param batteryData Object containing battery state
+     */
     @Override
     public void onBatteryStatusChanged(@Nullable BatteryData batteryData) {
         JSONObject payload = new JSONObject();
@@ -191,13 +147,21 @@ public class MainActivity extends AppCompatActivity implements
 
         try {
             MqttMessage message = new MqttMessage(payload.toString().getBytes(StandardCharsets.UTF_8));
-            mqttClient.publish("temi/" + serialNumber + "/status/utils/battery", message);
-            Log.v(TAG, "[STATUS][BATTERY] " + batteryData.getBatteryPercentage() + "% | " + batteryData.isCharging());
+            if (mMqttClient != null) {
+                mMqttClient.publish("temi/" + sSerialNumber + "/status/utils/battery", message);
+            }
         } catch (MqttException e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * Handles go-to event updates.
+     * @param location Go-to location name
+     * @param status Current status
+     * @param descriptionId Description-identifier of the event
+     * @param description Verbose description of the event
+     */
     @Override
     public void onGoToLocationStatusChanged(@NotNull String location, @NotNull String status, int descriptionId, @NotNull String description) {
         JSONObject payload = new JSONObject();
@@ -228,136 +192,244 @@ public class MainActivity extends AppCompatActivity implements
 
         try {
             MqttMessage message = new MqttMessage(payload.toString().getBytes(StandardCharsets.UTF_8));
-            mqttClient.publish("temi/" + serialNumber + "/status/locations/goto", message);
-            Log.v(TAG, "[STATUS][GOTO] Location: " + location + " | Status: " + status);
+            mMqttClient.publish("temi/" + sSerialNumber + "/status/locations/goto", message);
         } catch (MqttException e) {
             e.printStackTrace();
         }
     }
 
-    private void parseMessage(String topic, JSONObject payload) throws JSONException {
-        String[] topicTree = topic.split("/");
-        if (topicTree.length <= 4) {
-            Log.d(TAG, "Invalid topic: " + topic);
-        }
+    /**
+     * Connects to MQTT broker and launches Jitsi-meet conference room.
+     * @param v View context
+     */
+    public void onButtonClick(View v) {
+        EditText hostNameView = findViewById(R.id.edit_text_host_name);
+        String hostURI = "tcp://" + hostNameView.getText().toString().trim() + ":1883";
 
-        String robotID = topicTree[1];
-        String type = topicTree[2];
-        String category = topicTree[3];
-        String command = topicTree[4];
+        // TODO if already connected, disconnect from broker and reconnect
 
-        Log.d(TAG, "Robot-ID: " + robotID);
-        Log.d(TAG, "Type: " + type);
-        Log.d(TAG, "Category: " + category);
-        Log.d(TAG, "Command: " + command);
-
-        if (robotID.equals(serialNumber)) {
-
-            switch (category) {
-                case "waypoint":
-                    parseWaypoint(command, payload);
-                    break;
-                case "move":
-                    parseMove(command, payload);
-                    break;
-                case "info":
-                    try {
-                        robotPublishStatus();
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                default:
-                    Log.d(TAG, "Invalid topic: " + topic);
-                    break;
-            }
-        } else {
-            Log.d(TAG, "This Robot-ID: " + serialNumber);
-        }
+        // initialize MQTT
+        initMqtt(hostURI, "temi-" + sSerialNumber);
     }
 
-    private void parseWaypoint(String command, JSONObject payload) throws JSONException {
-        String location_name = payload.getString("location");
-        Log.v(TAG, "[CMD][WAYPOINT] " + command + " | " + location_name);
-
-        switch (command) {
-            case "save":
-                robot.saveLocation(location_name);
-                break;
-            case "delete":
-                robot.deleteLocation(payload.getString(location_name));
-                break;
-            case "get":
-                // TBD
-                break;
-            case "goto":
-                // check that the location exists, then go to that location
-                for (String location : robot.getLocations()){
-                    if (location.equals(location_name.toLowerCase().trim())) {
-                        robot.goTo(location_name.toLowerCase().trim());
-                    }
-                }
-                break;
-            default:
-                Log.v(TAG, "[WAYPOINT] Unknown Locations Command");
-                break;
-        }
-    }
-
-    private void parseMove(String command, JSONObject payload) throws JSONException {
-        Log.v(TAG, "[CMD][MOVE] " + command);
-
-        switch (command) {
-            case "joystick":
-                float x = Float.parseFloat(payload.getString("x"));
-                float y = Float.parseFloat(payload.getString("y"));
-                robot.skidJoy(x, y);
-                break;
-            case "forward":
-                robot.skidJoy(+1.0F, 0.0F);
-                break;
-            case "backward":
-                robot.skidJoy(-1.0F, 0.0F);
-                break;
-            case "turn_by":
-                robot.turnBy(Integer.parseInt(payload.getString("angle")));
-                break;
-            case "tilt":
-                robot.tiltAngle(Integer.parseInt(payload.getString("angle")));
-                break;
-            case "tilt_by":
-                robot.tiltBy(Integer.parseInt(payload.getString("angle")));
-                break;
-            case "stop":
-                robot.stopMovement();
-                break;
-            default:
-                Log.v(TAG, "[MOVE] Unknown Movement Command");
-                break;
-        }
-    }
-
-    private void robotPublishStatus() throws JSONException {
+    /**
+     * Publish robot status information.
+     * @throws JSONException
+     */
+    public void robotPublishStatus() throws JSONException {
         JSONObject payload = new JSONObject();
         JSONArray waypointArray = new JSONArray();
 
-        List<String> waypointList = robot.getLocations();
+        List<String> waypointList = sRobot.getLocations();
 
         // collect all waypoints
         for (String waypoint : waypointList) {
             waypointArray.put(waypoint);
-            Log.v(TAG, waypoint);
         }
 
         // generate payload
         payload.put("waypoint_list", waypointArray);
-        payload.put("battery_percentage", Objects.requireNonNull(robot.getBatteryData()).getBatteryPercentage());
+        payload.put("battery_percentage", Objects.requireNonNull(sRobot.getBatteryData()).getBatteryPercentage());
 
         try {
             MqttMessage message = new MqttMessage(payload.toString().getBytes(StandardCharsets.UTF_8));
-            mqttClient.publish("temi/" + serialNumber + "/status/info", message);
+            mMqttClient.publish("temi/" + sSerialNumber + "/status/info", message);
         } catch (MqttException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Initializes MQTT client.
+     * @param hostUri Host name / URI
+     * @param clientId Identifier used to uniquely identify this client
+     */
+    private void initMqtt(String hostUri, String clientId) {
+        mMqttClient = new MqttAndroidClient(getApplicationContext(), hostUri, clientId);
+        mMqttClient.setCallback(new MqttCallback() {
+            @Override
+            public void connectionLost(Throwable cause) {
+                Toast.makeText(MainActivity.this, "Connection Lost", Toast.LENGTH_SHORT).show();
+                Log.i(TAG, "Connection Lost");
+                // this method is called when connection to server is lost
+            }
+
+            @Override
+            public void deliveryComplete(IMqttDeliveryToken token) {
+                // called when delivery for a message has been completed, and all acknowledgements have been received
+            }
+
+            @Override
+            public void messageArrived(String topic, MqttMessage message) throws JSONException {
+                // this method is called when a message arrives from the server
+                Log.i(TAG, topic);
+                Log.i(TAG, message.toString());
+                JSONObject payload = new JSONObject(message.toString());
+                parseMessage(topic, payload);
+            }
+        });
+
+        MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
+        mqttConnectOptions.setAutomaticReconnect(true);
+        mqttConnectOptions.setCleanSession(true);
+        mqttConnectOptions.setConnectionTimeout(10);
+
+        try {
+            mMqttClient.connect(mqttConnectOptions, null, new IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken asyncActionToken) {
+                    Toast.makeText(MainActivity.this, "Successfully Connected", Toast.LENGTH_SHORT).show();
+                    Log.i(TAG, "Successfully connected to MQTT broker");
+                    try {
+                        // subscribe to all command-type messages directed at this robot
+                        mMqttClient.subscribe("temi/" + sSerialNumber + "/command/#", 0);
+                    } catch (MqttException e) {
+                        e.printStackTrace();
+                    }
+
+                    // start a background task that periodically sends robot status information
+                    // to the MQTT broker
+                    sHandler.post(periodicTask);
+                }
+
+                @Override
+                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                    Toast.makeText(MainActivity.this, "Failed to Connect", Toast.LENGTH_SHORT).show();
+                    Log.i(TAG, "Failed to connect to MQTT broker");
+                }
+            });
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Parses MQTT messages received by this client.
+     * @param topic Message topic
+     * @param payload Message payload
+     * @throws JSONException
+     */
+    private void parseMessage(String topic, JSONObject payload) throws JSONException {
+        String[] topicTree = topic.split("/");
+
+        String robotID = topicTree[1];
+        String type = topicTree[2];
+        String category = topicTree[3];
+
+        Log.d(TAG, "Robot-ID: " + robotID);
+        Log.d(TAG, "Type: " + type);
+        Log.d(TAG, "Category: " + category);
+
+        if (robotID.equals(sSerialNumber)) {
+            switch (category) {
+                case "waypoint":
+                    parseWaypoint(topicTree[4], payload);
+                    break;
+
+                case "move":
+                    parseMove(topicTree[4], payload);
+                    break;
+
+                case "call":
+                    startCall();
+                    break;
+
+                default:
+                    Log.i(TAG, "Invalid topic: " + topic);
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Parses Waypoint messages.
+     * @param command Command type
+     * @param payload Message Payload
+     * @throws JSONException
+     */
+    private void parseWaypoint(String command, JSONObject payload) throws JSONException {
+        String locationName = payload.getString("location");
+
+        switch (command) {
+            case "save":
+                sRobot.saveLocation(locationName);
+                break;
+
+            case "delete":
+                sRobot.deleteLocation(payload.getString(locationName));
+                break;
+
+            case "goto":
+                // check that the location exists, then go to that location
+                for (String location : sRobot.getLocations()){
+                    if (location.equals(locationName.toLowerCase().trim())) {
+                        sRobot.goTo(locationName.toLowerCase().trim());
+                    }
+                }
+                break;
+
+            default:
+                Log.i(TAG, "[WAYPOINT] Unknown Locations Command");
+                break;
+        }
+    }
+
+    /**
+     * Parses Move messages.
+     * @param command Command type
+     * @param payload Message Payload
+     * @throws JSONException
+     */
+    private void parseMove(String command, JSONObject payload) throws JSONException {
+        switch (command) {
+            case "joystick":
+                float x = Float.parseFloat(payload.getString("x"));
+                float y = Float.parseFloat(payload.getString("y"));
+                sRobot.skidJoy(x, y);
+                break;
+
+            case "forward":
+                sRobot.skidJoy(+1.0F, 0.0F);
+                break;
+
+            case "backward":
+                sRobot.skidJoy(-1.0F, 0.0F);
+                break;
+
+            case "turn_by":
+                sRobot.turnBy(Integer.parseInt(payload.getString("angle")));
+                break;
+
+            case "tilt":
+                sRobot.tiltAngle(Integer.parseInt(payload.getString("angle")));
+                break;
+
+            case "tilt_by":
+                sRobot.tiltBy(Integer.parseInt(payload.getString("angle")));
+                break;
+
+            case "stop":
+                sRobot.stopMovement();
+                break;
+
+            default:
+                Log.i(TAG, "[MOVE] Unknown Movement Command");
+                break;
+        }
+    }
+
+    private void startCall() {
+        Log.v(TAG, "[CMD][CALL]");
+
+        // Build options object for joining the conference. The SDK will merge the default
+        // one we set earlier and this one when joining.
+        JitsiMeetConferenceOptions options
+                = new JitsiMeetConferenceOptions.Builder()
+                .setRoom("temi-" + sSerialNumber)
+                .build();
+
+        // Launch the new activity with the given options. The launch() method takes care
+        // of creating the required Intent and passing the options.
+        JitsiMeetActivity.launch(this, options);
     }
 }

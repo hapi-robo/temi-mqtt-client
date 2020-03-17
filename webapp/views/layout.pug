@@ -1,0 +1,50 @@
+doctype html
+html(lang='en', dir='ltr')
+  head
+    title #{title}
+    meta(charset='utf-8')
+
+    // Let browser know website is optimized for mobile
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+
+    // Favicon
+    // https://realfavicongenerator.net/
+    link(rel="apple-touch-icon", sizes="180x180", href="/icons/apple-touch-icon.png")
+    link(rel="icon", type="image/png", sizes="32x32", href="/icons/favicon-32x32.png")
+    link(rel="icon", type="image/png", sizes="16x16", href="/icons/favicon-16x16.png")
+    link(rel="manifest", href="/icons/site.webmanifest")
+    link(rel="mask-icon", href="/icons/safari-pinned-tab.svg", color="#00aba9")
+    link(rel="shortcut icon", href="/icons/favicon.ico")
+    meta(name="apple-mobile-web-app-title", content="Connect")
+    meta(name="application-name", content="Connect")
+    meta(name="msapplication-TileColor", content="#00aba9")
+    meta(name="msapplication-config", content="/icons/browserconfig.xml")
+    meta(name="theme-color", content="#ffffff")
+    
+    // FontAwesome
+    link(rel='stylesheet', href='https://use.fontawesome.com/releases/v5.7.2/css/all.css', integrity='sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr', crossorigin='anonymous')
+
+    // Import Google Icon Font
+    link(href='https://fonts.googleapis.com/icon?family=Material+Icons', rel='stylesheet')
+    
+    // Materialize CSS
+    link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css')
+  
+  body()
+
+    block content
+
+    // JavaScript at end of body for optimized loading
+    // Materialize JavaScript
+    script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js')
+
+    // Jitsi
+    // https://github.com/jitsi/jitsi-meet/blob/master/doc/api.md
+    script(type='text/javascript', src='https://meet.jit.si/external_api.js')
+
+    // Paho MQTT
+    // https://github.com/eclipse/paho.mqtt.javascript
+    script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/paho-mqtt.min.js')
+
+    // Custom Events
+    script(type='module', src='/js/main.js')

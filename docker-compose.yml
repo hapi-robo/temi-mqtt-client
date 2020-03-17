@@ -11,9 +11,7 @@ services:
       - config-volume:/usr/src/config
 
   mqtt_broker:
-    # https://github.com/ray-hrst/mosquitto.git
     build: ./mosquitto/docker/1.6
-    # image: arm32v6/eclipse-mosquitto
     depends_on:
       - config
     ports: 
@@ -22,9 +20,9 @@ services:
     volumes:
       - config-volume:/mosquitto/config/ # SOURCE:TARGET
 
-  # webapp:
-  #   build: ./webapp
-  #   depends_on:
-  #     - mqtt_broker
-  #   ports:
-  #     - "80:8080" # HOST:CONTAINER
+  webapp:
+    build: ./webapp
+    depends_on:
+      - mqtt_broker
+    ports:
+      - "80:8080" # HOST:CONTAINER

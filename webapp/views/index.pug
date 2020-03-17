@@ -1,0 +1,43 @@
+extends layout
+
+block content
+
+  div(style='height:100vh')
+
+    // robot control panel
+    nav.transparent.z-depth-0
+      .nav-wrapper
+        .row
+          .col.s12
+            ul#robot-ctrl-panel.right(style='display:none;')
+              li
+                a
+                  i#video-btn.fas.fa-video
+              li
+                a
+                  i#battery-state
+              li
+                a.modal-trigger.show-on-large(data-target='waypoint-menu')
+                  i.material-icons location_on
+
+    // robot selection menu
+    #robot-menu.row.valign-wrapper(style='height:80vh')
+      .input-field.col.s3.offset-s5
+        input#temi_id.validate.white-text(type='text')
+        label(for='temi_id') temi ID
+        #robot-collection.collection
+
+    // video conference div
+    #video-conference
+
+    // footer
+    .white-text(style='position:relative')
+      p(style='position:fixed; bottom:0; width:100%; text-align:center') © 2020 hapi-robo st, Inc. — All Rights Reserved.
+
+  // locations modal
+  #waypoint-menu.modal.bottom-sheet
+    .modal-content
+      h4 Select Location
+      ul#waypoint-nav.collection(style='background-color: rgba(232,232,232,0.5);')
+
+
