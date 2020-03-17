@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">Connect</string>
-    <string name="host_name">192.168.0.118</string>
+    <string name="host_name">192.168.0.177</string>
     <string name="button_connect">Connect</string>
 </resources>

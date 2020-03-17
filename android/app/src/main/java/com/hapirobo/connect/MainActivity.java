@@ -206,6 +206,8 @@ public class MainActivity extends AppCompatActivity implements
         EditText hostNameView = findViewById(R.id.edit_text_host_name);
         String hostURI = "tcp://" + hostNameView.getText().toString().trim() + ":1883";
 
+        // TODO if already connected, disconnect from broker and reconnect
+
         // initialize MQTT
         initMqtt(hostURI, "temi-" + sSerialNumber);
     }
@@ -248,6 +250,7 @@ public class MainActivity extends AppCompatActivity implements
             @Override
             public void connectionLost(Throwable cause) {
                 Toast.makeText(MainActivity.this, "Connection Lost", Toast.LENGTH_SHORT).show();
+                Log.i(TAG, "Connection Lost");
                 // this method is called when connection to server is lost
             }
 
@@ -276,6 +279,7 @@ public class MainActivity extends AppCompatActivity implements
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
                     Toast.makeText(MainActivity.this, "Successfully Connected", Toast.LENGTH_SHORT).show();
+                    Log.i(TAG, "Successfully connected to MQTT broker");
                     try {
                         // subscribe to all command-type messages directed at this robot
                         mMqttClient.subscribe("temi/" + sSerialNumber + "/command/#", 0);
@@ -291,6 +295,7 @@ public class MainActivity extends AppCompatActivity implements
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
                     Toast.makeText(MainActivity.this, "Failed to Connect", Toast.LENGTH_SHORT).show();
+                    Log.i(TAG, "Failed to connect to MQTT broker");
                 }
             });
         } catch (MqttException e) {
@@ -414,7 +419,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void startCall() {
-        Log.v(TAG, "[CMD][CALL");
+        Log.v(TAG, "[CMD][CALL]");
 
         // Build options object for joining the conference. The SDK will merge the default
         // one we set earlier and this one when joining.

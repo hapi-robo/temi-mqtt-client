@@ -12,11 +12,12 @@ block content
                 a
                   i#battery-state
               li
-                a.sidenav-trigger.show-on-large(data-target='waypoint-nav')
+                a.modal-trigger.show-on-large(data-target='waypoint-menu')
                   i.material-icons location_on
 
     #menu.row.valign-wrapper(style='height:80vh')
-      .input-field.col.s3.offset-s8
+      //- .input-field.col.s3.offset-s8
+      .input-field.col.s3.offset-s5
         input#temi_id.validate.white-text(type='text')
         label(for='temi_id') temi ID
         #robot-nav.collection
@@ -26,6 +27,9 @@ block content
     .white-text(style='position:relative')
       p(style='position:fixed; bottom:0; width:100%; text-align:center') © 2020 hapi-robo st, Inc. — All Rights Reserved.
 
-  div
-    ul#waypoint-nav.sidenav(style='background-color: rgba(232,232,232,0.5);')
+  #waypoint-menu.modal.bottom-sheet
+    .modal-content
+      h4 Select Location
+      ul#waypoint-nav.collection(style='background-color: rgba(232,232,232,0.5);')
+
 

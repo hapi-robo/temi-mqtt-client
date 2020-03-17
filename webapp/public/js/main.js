@@ -41,34 +41,27 @@ function updateWaypointNav() {
   if (selectedRobot === undefined) {
     console.warn('Robot not selected');
   } else {
-    // console.log(selectedRobot.id);
+    console.log(selectedRobot.id);
     selectedRobot.waypointList.forEach((waypoint) => {
-      // console.log(waypoint);
-      const li = document.createElement('li');
+      console.log(waypoint);
       const a = document.createElement('a');
       a.id = waypoint;
-      a.className = 'sidenav-close white-text waves-effect';
-
+      a.className = 'collection-item center-align waves-effect';
       const text = document.createTextNode(waypoint);
 
       a.appendChild(text);
-      li.appendChild(a);
 
-      waypointNav.insertBefore(li, waypointNav.firstChild);
+      waypointNav.insertBefore(a, waypointNav.firstChild);
     });
-
-    // hide robot-nav-btn
-    document.querySelector('#robot-menu').style = 'display:none';
   }
 }
 
 function showWaypointNav() {
-  const elems = document.querySelector('#waypoint-nav');
-  M.Sidenav.init(elems, {
-    edge: 'right',
-    onOpenStart: updateWaypointNav,
-    onCloseStart: showWaypointNavBtn,
+  const elems = document.querySelectorAll('.modal');
+  M.Modal.init(elems, {
+    onOpenStart: updateWaypointNav
   });
+
 }
 
 // https://keycode.info/
@@ -169,7 +162,7 @@ function startVidCon(id) {
   if (selection !== undefined) {
     if (selectedRobot === undefined) { // no robot in use
       // start new video conference
-      selection.cmdCall(); // start the call on the robot's side
+      // selection.cmdCall(); // start the call on the robot's side
       vidCon.open(selection.id);
     } else { // robot is currently in use
       if (e.target.id !== selectedRobot.id) {
@@ -178,7 +171,7 @@ function startVidCon(id) {
       }
 
       // start new video conference
-      selection.cmdCall(); // start the call on the robot's side
+      // selection.cmdCall(); // start the call on the robot's side
       vidCon.open(selection.id); // start the call from the browser side
     }
 
@@ -323,8 +316,10 @@ function connectMQTT(host, port) {
   client.connect(options);
 }
 
-window.onload = connectMQTT('localhost', 9001);
+// @TODO Make this configurable
+// window.onload = connectMQTT('localhost', 9001);
 // window.onload = connectMQTT('192.168.0.118', 9001);
+window.onload = connectMQTT('192.168.0.177', 9001);
 
 document.body.style = 'background-color:black';
 
