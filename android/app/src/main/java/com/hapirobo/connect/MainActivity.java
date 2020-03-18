@@ -192,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements
 
         try {
             MqttMessage message = new MqttMessage(payload.toString().getBytes(StandardCharsets.UTF_8));
-            mMqttClient.publish("temi/" + sSerialNumber + "/status/locations/goto", message);
+            mMqttClient.publish("temi/" + sSerialNumber + "/status/waypoint/goto", message);
         } catch (MqttException e) {
             e.printStackTrace();
         }
