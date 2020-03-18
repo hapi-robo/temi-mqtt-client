@@ -11,12 +11,12 @@ The project consists of 3 components:
 
 ## Folder Structure
 ```
-jitsi-temi				Root directory
-├─ android				Android application to be installed on temi
-├─ config				MQTT broker configuration files
-├─ mosquitto			MQTT broker
-├─ test					Various test scripts
-└─ webapp				NodeJS/Express web server and client application
+jitsi-temi              Root directory
+├─ android              Android application to be installed on temi
+├─ config               MQTT broker configuration files
+├─ mosquitto            MQTT broker
+├─ test                 Various test scripts
+└─ webapp               NodeJS/Express web server and client application
 ```
 
 
@@ -30,8 +30,8 @@ There are 2 main branches: `master` and `devel`. Releases are generated from the
 * [temi robot](https://www.robotemi.com/)
 * [Android Studio](https://developer.android.com/studio/)
 * Computer/Server with the following installed:
-	* [Docker](https://docs.docker.com/install/)
-	* [Docker Compose](https://docs.docker.com/compose/install/)
+    * [Docker](https://docs.docker.com/install/)
+    * [Docker Compose](https://docs.docker.com/compose/install/)
 * Client computer with [Chrome](https://www.google.com/chrome/) web-browser
 
 ### Build & Deploy Web Application Services
