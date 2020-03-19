@@ -1,10 +1,13 @@
 package com.hapirobo.connect;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -51,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements
         // periodically publishes robot status to the MQTT broker.
         @Override
         public void run() {
+            Log.v(TAG, "Publish status");
             sHandler.postDelayed(this, 3000);
 
             try {
@@ -112,6 +116,24 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     /**
+     * Disconnects MQTT client from broker.
+     */
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mMqttClient != null && mMqttClient.isConnected()) {
+            try {
+                Log.i(TAG, "[MQTT] Disconnecting MQTT client from broker");
+                mMqttClient.unsubscribe("temi/" + sSerialNumber + "/command/#");
+                mMqttClient.disconnect();
+                Log.i(TAG, "[MQTT] Done");
+            } catch (MqttException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
      * Configures robot after it is ready.
      * @param isReady True if robot initialized correctly; False otherwise
      */
@@ -146,8 +168,8 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         try {
-            MqttMessage message = new MqttMessage(payload.toString().getBytes(StandardCharsets.UTF_8));
-            if (mMqttClient != null) {
+            if (mMqttClient != null && mMqttClient.isConnected()) {
+                MqttMessage message = new MqttMessage(payload.toString().getBytes(StandardCharsets.UTF_8));
                 mMqttClient.publish("temi/" + sSerialNumber + "/status/utils/battery", message);
             }
         } catch (MqttException e) {
@@ -191,25 +213,35 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         try {
-            MqttMessage message = new MqttMessage(payload.toString().getBytes(StandardCharsets.UTF_8));
-            mMqttClient.publish("temi/" + sSerialNumber + "/status/waypoint/goto", message);
+            if (mMqttClient != null && mMqttClient.isConnected()) {
+                MqttMessage message = new MqttMessage(payload.toString().getBytes(StandardCharsets.UTF_8));
+                mMqttClient.publish("temi/" + sSerialNumber + "/status/waypoint/goto", message);
+            }
         } catch (MqttException e) {
             e.printStackTrace();
         }
     }
 
     /**
-     * Connects to MQTT broker and launches Jitsi-meet conference room.
+     * Connects to MQTT broker.
      * @param v View context
      */
     public void onButtonClick(View v) {
         EditText hostNameView = findViewById(R.id.edit_text_host_name);
-        String hostURI = "tcp://" + hostNameView.getText().toString().trim() + ":1883";
+        String hostUri = "tcp://" + hostNameView.getText().toString().trim() + ":1883";
 
-        // TODO if already connected, disconnect from broker and reconnect
+        // hide keyboard
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(hostNameView.getWindowToken(), 0);
+
 
         // initialize MQTT
-        initMqtt(hostURI, "temi-" + sSerialNumber);
+        if (mMqttClient != null && mMqttClient.isConnected() && hostUri.equals(mMqttClient.getServerURI())) {
+            Toast.makeText(MainActivity.this, "Already Connected", Toast.LENGTH_SHORT).show();
+            Log.i(TAG, "Already connected to MQTT broker");
+        } else {
+            initMqtt(hostUri, "temi-" + sSerialNumber);
+        }
     }
 
     /**
@@ -245,13 +277,15 @@ public class MainActivity extends AppCompatActivity implements
      * @param clientId Identifier used to uniquely identify this client
      */
     private void initMqtt(String hostUri, String clientId) {
+        Log.i(TAG, "Connecting to MQTT broker");
+
         mMqttClient = new MqttAndroidClient(getApplicationContext(), hostUri, clientId);
         mMqttClient.setCallback(new MqttCallback() {
             @Override
             public void connectionLost(Throwable cause) {
+                // this method is called when connection to server is lost
                 Toast.makeText(MainActivity.this, "Connection Lost", Toast.LENGTH_SHORT).show();
                 Log.i(TAG, "Connection Lost");
-                // this method is called when connection to server is lost
             }
 
             @Override
@@ -269,10 +303,22 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
 
+        // options that control how the client connects to a server
+        // https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttConnectOptions.html
         MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
+
+        // have the client automatically attempt to reconnect to the server if the connection is lost
         mqttConnectOptions.setAutomaticReconnect(true);
+
+        // client and server should forget the state across reconnects.
         mqttConnectOptions.setCleanSession(true);
+
+        // the maximum time interval the client will wait for the network connection to the MQTT server to be established [seconds]
         mqttConnectOptions.setConnectionTimeout(10);
+
+        // set the "Last Will and Testament" (LWT) for the connection
+        JSONObject payload = new JSONObject();
+        mqttConnectOptions.setWill("temi/" + sSerialNumber + "/lwt", payload.toString().getBytes(StandardCharsets.UTF_8), 1, false);
 
         try {
             mMqttClient.connect(mqttConnectOptions, null, new IMqttActionListener() {
