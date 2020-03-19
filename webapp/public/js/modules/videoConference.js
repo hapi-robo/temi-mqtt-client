@@ -11,7 +11,9 @@ class VideoConference {
       const options = {
         roomName: `temi-${id}`,
         // width: window.innerWidth,
-        height: window.innerHeight,
+        // height: window.innerHeight,
+        width:800,
+        height: 400,
         parentNode: document.getElementById('video-conference'),
         configOverwrite: {},
         interfaceConfigOverwrite: {

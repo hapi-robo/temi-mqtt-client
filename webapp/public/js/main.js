@@ -206,22 +206,25 @@ function mouseEvent(e) {
 
   const posX = e.offsetX;
   const posY = e.offsetY;
-
 }
 
 function updateRobotList(id, payload) {
-  const found = robotList.find((e) => e.id === id);
+  const index = robotList.findIndex((e) => e.id === id);
 
-  if (found === undefined) {
+  if (index === -1) {
     console.log('Append');
     robotList.push(new Robot(id, client));
+
+    const data = JSON.parse(payload);
+    robotList[robotList.length - 1].waypointList = data.waypoint_list;
+    robotList[robotList.length - 1].batteryPercentage = data.battery_percentage;
   } else {
     console.log('Update');
-    const index = robotList.findIndex((e) => e.id === id);
+    
     const data = JSON.parse(payload);
-    robotList[index].batteryPercentage = data.battery_percentage;
     robotList[index].waypointList.length = 0; // clear array
     robotList[index].waypointList = data.waypoint_list;
+    robotList[index].batteryPercentage = data.battery_percentage;
   }
   // console.log(`Number of Robots: ${robotList.length}`);
 }
@@ -325,3 +328,6 @@ document.querySelector('#robot-collection').addEventListener('click', selectRobo
 document.querySelector('#waypoint-nav').addEventListener('click', selectWaypoint);
 document.querySelector('#video-btn').addEventListener('click', startVidCon);
 // document.querySelector('#video-conference').addEventListener('mousemove', mouseEvent);
+
+// console.log(`Width x Height: ${screen.width} x ${screen.height}`)
+// console.log(`Width x Height: ${innerWidth} x ${innerHeight}`)
