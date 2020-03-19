@@ -14,8 +14,10 @@ import android.widget.Toast;
 import com.robotemi.sdk.BatteryData;
 import com.robotemi.sdk.Robot;
 import com.robotemi.sdk.listeners.OnBatteryStatusChangedListener;
+import com.robotemi.sdk.listeners.OnDetectionStateChangedListener;
 import com.robotemi.sdk.listeners.OnGoToLocationStatusChangedListener;
 import com.robotemi.sdk.listeners.OnRobotReadyListener;
+import com.robotemi.sdk.listeners.OnUserInteractionChangedListener;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
@@ -43,7 +45,9 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity implements
         OnRobotReadyListener,
         OnBatteryStatusChangedListener,
-        OnGoToLocationStatusChangedListener {
+        OnGoToLocationStatusChangedListener,
+        OnDetectionStateChangedListener,
+        OnUserInteractionChangedListener {
     private static final String TAG = "DEBUG";
 
     private static Handler sHandler = new Handler();
@@ -102,6 +106,8 @@ public class MainActivity extends AppCompatActivity implements
         sRobot.addOnRobotReadyListener(this);
         sRobot.addOnBatteryStatusChangedListener(this);
         sRobot.addOnGoToLocationStatusChangedListener(this);
+        sRobot.addOnDetectionStateChangedListener(this);
+        sRobot.addOnUserInteractionChangedListener(this);
     }
 
     /**
@@ -113,6 +119,8 @@ public class MainActivity extends AppCompatActivity implements
         sRobot.removeOnRobotReadyListener(this);
         sRobot.removeOnBatteryStatusChangedListener(this);
         sRobot.removeOnGoToLocationStatusChangedListener(this);
+        sRobot.removeDetectionStateChangedListener(this);
+        sRobot.removeOnUserInteractionChangedListener(this);
     }
 
     /**
@@ -215,7 +223,47 @@ public class MainActivity extends AppCompatActivity implements
         try {
             if (mMqttClient != null && mMqttClient.isConnected()) {
                 MqttMessage message = new MqttMessage(payload.toString().getBytes(StandardCharsets.UTF_8));
-                mMqttClient.publish("temi/" + sSerialNumber + "/status/waypoint/goto", message);
+                mMqttClient.publish("temi/" + sSerialNumber + "/event/waypoint/goto", message);
+            }
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onDetectionStateChanged(int state) {
+        JSONObject payload = new JSONObject();
+
+        try {
+            payload.put("state", state);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            if (mMqttClient != null && mMqttClient.isConnected()) {
+                MqttMessage message = new MqttMessage(payload.toString().getBytes(StandardCharsets.UTF_8));
+                mMqttClient.publish("temi/" + sSerialNumber + "/event/user/detection", message);
+            }
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onUserInteraction(boolean isInteracting) {
+        JSONObject payload = new JSONObject();
+
+        try {
+            payload.put("is_interacting", isInteracting);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            if (mMqttClient != null && mMqttClient.isConnected()) {
+                MqttMessage message = new MqttMessage(payload.toString().getBytes(StandardCharsets.UTF_8));
+                mMqttClient.publish("temi/" + sSerialNumber + "/event/user/interaction", message);
             }
         } catch (MqttException e) {
             e.printStackTrace();

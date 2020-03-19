@@ -255,9 +255,6 @@ function onMessageArrived(message) {
           updateRobotCollection();
           break;
         }
-        case 'locations': {
-          break;
-        }
         case 'utils': {
           break;
         }
