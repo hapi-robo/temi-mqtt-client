@@ -7,39 +7,79 @@
 
     <!--Let browser know website is optimized for mobile-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
   </head>
 
   <body>
-    <div id="video-conference">
-      <!-- <iframe id="youtube" width="560" height="315" src="https://www.youtube.com/embed/Y-JQ-RCyPpQ" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> -->
+    <div style="height:100vh;">
+
+      <!-- robot selection menu-->
+      <div class="row valign-wrapper teal" id="robot-menu" style="height:80vh">
+        <div class="input-field col l2 offset-l5 m4 offset-m4 s6 offset-s3">
+          <input class="validate white-text" id="temi_id" type="text" />
+          <label for="temi-id">temi ID</label>
+        </div>
+      </div>
     </div>
-    
+
+    <!-- <div class="row">
+      <div class="col s4 offset-s4" id="video-conference"></div>
+    </div> -->
+
     <!--JavaScript at end of body for optimized loading-->
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
     <!-- Jitsi-->
     <script src="https://meet.jit.si/external_api.js"></script>
     <script>
       const domain = "meet.jit.si"
+
+      // https://github.com/jitsi/jitsi-meet/blob/master/interface_config.js
+      // https://github.com/jitsi/jitsi-meet/blob/master/config.js
       const options = {
-        roomName: `temi-4738921059438602`,
-        width: 800,
-        height: 600,
+        roomName: `temi-4164126087`,
+        width: 400,
+        height: 300,
         parentNode: document.getElementById('video-conference'),
-        configOverwrite: {},
+        configOverwrite: {
+          enableNoAudioDetection: false
+        },
         interfaceConfigOverwrite: {
-            filmStripOnly: false
+          DEFAULT_BACKGROUND: '#000000',
+          INITIAL_TOOLBAR_TIMEOUT: 1000,
+          TOOLBAR_TIMEOUT: 1000,
+          TOOLBAR_ALWAYS_VISIBLE: false,
+          SHOW_JITSI_WATERMARK: false,
+          SHOW_WATERMARK_FOR_GUESTS: false,
+          TOOLBAR_BUTTONS: ['microphone', 'camera', 'closedcaptions', 'desktop', 'fullscreen', 'fodeviceselection', 'hangup', 'info', 'recording', 'sharedvideo', 'settings', 'filmstrip', 'invite', 'tileview', 'download'],
+          SETTINGS_SECTIONS: [ 'devices' ],
+          CLOSE_PAGE_GUEST_HINT: false,
+          SHOW_PROMOTIONAL_CLOSE_PAGE: false,
+          RANDOM_AVATAR_URL_PREFIX: false,
+          RANDOM_AVATAR_URL_SUFFIX: false,
+          ENABLE_FEEDBACK_ANIMATION: false,
+          DISABLE_FOCUS_INDICATOR: false,
+          DISABLE_DOMINANT_SPEAKER_INDICATOR: false,
+          MOBILE_APP_PROMO: false,
+          SHOW_CHROME_EXTENSION_BANNER: false
         }
       }
+
       const handle = new JitsiMeetExternalAPI(domain, options);
+      handle.executeCommand('displayName', 'Webapp Client');
 
-      // document.querySelector('#video-conference').addEventListener('mousemove', function (e) {
-      //   console.log(`x: ${e.offsetX} | y: ${e.offsetY}`);
-      // });
+      console.log('DEBUG')
+      handle.on('readyToClose', () => {
+        console.log('Ready to close');
+        // remove embedded Jitsi Meet Conference
+        handle.dispose();
+      })
 
-      let iframe = document.querySelector('#youtube');
-      console.log(iframe);
-      iframe.contentDocument.addEventListener('mousemove', function (e) {
-        console.log(`x: ${e.offsetX} | y: ${e.offsetY}`);
-      });
+      const iFrame = handle.getIFrame();
+      console.log(iFrame);
 
     </script>
   </body>

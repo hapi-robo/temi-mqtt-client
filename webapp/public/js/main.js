@@ -2,19 +2,19 @@ import { Robot } from './modules/robot.js';
 import { VideoConference } from './modules/videoConference.js';
 
 // global variables
-let selectedRobot;
 const robotList = [];
-const vidCon = new VideoConference();
+const videoCall = new VideoConference();
+let selectedRobot;
 let client;
 
 
 // DOCUMENT EVENT HANDLERS
 function updateRobotCollection() {
-  const robotNav = document.querySelector('#robot-collection');
-  robotNav.className = 'collection';
+  const robotCollection = document.querySelector('#robot-collection');
+  robotCollection.className = 'collection';
 
   // clear list
-  robotNav.textContent = '';
+  robotCollection.textContent = '';
 
   // populate list
   robotList.forEach((robot) => {
@@ -24,12 +24,36 @@ function updateRobotCollection() {
     const text = document.createTextNode(robot.id);
     a.append(text);
 
-    robotNav.insertBefore(a, robotNav.firstChild);
+    robotCollection.insertBefore(a, robotCollection.firstChild);
   });
 }
 
-function updateWaypointNav() {
-  const waypointNav = document.querySelector('#waypoint-nav');
+// mobile-only
+function updateWaypointCollection() {
+  const waypointCollection = document.querySelector('#waypoint-collection');
+  waypointCollection.className = 'collection';
+
+  // clear list
+  waypointCollection.textContent = '';
+
+  if (selectedRobot === undefined) {
+    console.warn('Robot not selected');
+  } else {
+    // populate list
+    selectedRobot.waypointList.forEach((waypoint) => {
+      const a = document.createElement('a');
+      a.id = waypoint;
+      a.className = 'collection-item black white-text waves-effect center-align';
+      const text = document.createTextNode(waypoint);
+      a.appendChild(text);
+      waypointCollection.insertBefore(a, waypointCollection.firstChild);
+    });
+  }
+}
+
+// desktop-only
+function updateWaypointModal() {
+  const waypointNav = document.querySelector('#waypoint-modal');
 
   // clear list
   waypointNav.textContent = '';
@@ -44,9 +68,7 @@ function updateWaypointNav() {
       a.id = waypoint;
       a.className = 'collection-item center-align waves-effect';
       const text = document.createTextNode(waypoint);
-
       a.appendChild(text);
-
       waypointNav.insertBefore(a, waypointNav.firstChild);
     });
   }
@@ -55,28 +77,61 @@ function updateWaypointNav() {
 function showWaypointNav() {
   const elems = document.querySelectorAll('.modal');
   M.Modal.init(elems, {
-    onOpenStart: updateWaypointNav
+    onOpenStart: updateWaypointModal,
   });
+}
 
+function showRobotMenu() {
+  console.log('Show Robot Menu');
+
+  // show robot menu
+  document.querySelector('#robot-menu').style.height = '80vh';
+  document.querySelector('#robot-menu').style.display = 'block';
+
+  // hide other menus
+  document.querySelector('#robot-ctrl-panel').style.display = 'none';
+}
+
+function showWaypointMenu() {
+  console.log('Show Waypoint Menu');
+
+  // show waypoint menu
+  document.querySelector('#waypoint-menu').style.display = 'block';
+  updateWaypointCollection();
+
+  // hide other menus
+  document.querySelector('#robot-menu').style.display = 'none';
+}
+
+function showCtrlPanel() {
+  console.log('Show Control Panel');
+
+  // show control panel
+  document.querySelector('#robot-ctrl-panel').style.display = 'block';
+  document.querySelector('#video-btn').className = 'btn-flat white-text';
+
+  // hide other menus
+  document.querySelector('#robot-menu').style.display = 'none';
 }
 
 // https://keycode.info/
 function keyboardEvent(e) {
   if (selectedRobot === undefined) {
-    switch(e.keyCode) {
+    const id = document.querySelector('#temi-id').value;
+    const selection = robotList.find((r) => r.id === id);
+
+    switch (e.keyCode) {
       case 13: // Enter
         console.log('[Keycode] Enter');
-        const id = document.querySelector('#temi_id').value;
         console.log(`Robot-ID: ${id}`);
 
         // check that the selection is valid
-        const selection = robotList.find((r) => r.id === id);
         if (selection === undefined) {
           M.toast({
-              html: 'Invalid ID',
-              displayLength: 2000,
-              classes: 'rounded',
-            });
+            html: 'Invalid ID',
+            displayLength: 2000,
+            classes: 'rounded',
+          });
         }
 
         break;
@@ -160,35 +215,41 @@ function updateBatteryState(value) {
   }
 }
 
-function startVidCon() {
-  document.querySelector('#video-btn').style.display = 'none';
+function startVideoCall() {
+  document.querySelector('#video-btn').className = 'btn-flat disabled';
 
   // start new video conference
-  console.log("Starting Video Conference...");  
+  console.log('Starting Video Conference...');
   selectedRobot.cmdCall(); // start the call on the robot's side
-  vidCon.open(selectedRobot.id);
+  videoCall.open(selectedRobot.id);
+  // TODO: This needs to be cleaned up
+  videoCall.handle.on('readyToClose', () => {
+    console.log('Closing Video Conference...');
+    videoCall.handle.dispose();
+    // videoCall.handle.close();
+    // TODO: end call on the robot's side; how to know if other users aren't using the robot?
+    showRobotMenu();
+  });
 }
 
 function selectRobot(e) {
   console.log(`Selected Robot: ${e.target.id}`);
-  
+
   // check that the selection is valid
   const selection = robotList.find((r) => r.id === e.target.id);
   if (selection === undefined) {
     M.toast({
-        html: 'Invalid ID',
-        displayLength: 2000,
-        classes: 'rounded',
-      });
+      html: 'Invalid ID',
+      displayLength: 2000,
+      classes: 'rounded',
+    });
   } else {
     // assign selected robot
     selectedRobot = selection;
 
-    // hide robot-menu
-    document.querySelector('#robot-menu').style.display = 'none';
-
-    // show robot control panel
-    document.querySelector('#robot-ctrl-panel').style.display = 'block';
+    // show waypoint menu
+    // showWaypointMenu(); // mobile
+    showCtrlPanel(); // desktop
 
     // update battery state
     updateBatteryState(selection.batteryPercentage);
@@ -198,14 +259,6 @@ function selectRobot(e) {
 function selectWaypoint(e) {
   selectedRobot.cmdGoto(e.target.id);
   console.log(`Selected Destination: ${selectedRobot.destination}`);
-}
-
-// https://stackoverflow.com/questions/17106665/the-mouseevent-offsetx-i-am-getting-is-much-larger-than-actual-canvas-size
-function mouseEvent(e) {
-  console.log(`x: ${e.offsetX} | y: ${e.offsetY}`);
-
-  const posX = e.offsetX;
-  const posY = e.offsetY;
 }
 
 function updateRobotList(id, payload) {
@@ -220,7 +273,7 @@ function updateRobotList(id, payload) {
     robotList[robotList.length - 1].batteryPercentage = data.battery_percentage;
   } else {
     console.log('Update');
-    
+
     const data = JSON.parse(payload);
     robotList[index].waypointList.length = 0; // clear array
     robotList[index].waypointList = data.waypoint_list;
@@ -233,9 +286,9 @@ function updateRobotList(id, payload) {
  * General message callback
  */
 function onMessageArrived(message) {
-  // console.log('[RECIEVE]');
-  // console.log(`Topic: ${message.destinationName}`);
-  // console.log(`Payload: ${message.payloadString}`);
+  console.log('[RECIEVE]');
+  console.log(`Topic: ${message.destinationName}`);
+  console.log(`Payload: ${message.payloadString}`);
 
   // parse message
   const topicTree = message.destinationName.split('/');
@@ -243,30 +296,51 @@ function onMessageArrived(message) {
   const type = topicTree[2]; // [status, command]
   const category = topicTree[3];
 
-  // console.log(`Robot-ID: ${robotID}`);
-  // console.log(`Type: ${type}`);
-  // console.log(`Category: ${category}`);
+  console.log(`Robot-ID: ${robotID}`);
+  console.log(`Type: ${type}`);
+  console.log(`Category: ${category}`);
 
   if (robotID === undefined) {
     console.warn('Message from undefined robot received');
   } else {
-    if (type === 'status') {
-      // parse payload
-      switch (category) {
-        case 'info': {
-          updateRobotList(robotID, message.payloadString);
-          updateRobotCollection();
-          break;
+    switch (type) {
+      case 'status':
+        // parse payload
+        switch (category) {
+          case 'info': {
+            updateRobotList(robotID, message.payloadString);
+            updateRobotCollection();
+            // updateWaypointCollection(); // mobile-only
+            break;
+          }
+          case 'utils': {
+            break;
+          }
+          default: {
+            console.warn(`Undefined category: ${category}`);
+            break;
+          }
         }
-        case 'utils': {
-          break;
-        }
-        default: {
-          console.warn(`Undefined category: ${category}`);
-          break;
-        }
-      }
+        break;
+
+      case 'command':
+        break;
+
+      default:
+        break;
     }
+  }
+}
+
+// called when the client loses its connection
+function onConnectionLost(responseObject) {
+  if (responseObject.errorCode !== 0) {
+    M.toast({
+      html: 'Connection Lost',
+      displayLength: 2000,
+      classes: 'rounded',
+    });
+    console.log(`onConnectionLost: ${responseObject.errorMessage}`);
   }
 }
 
@@ -284,27 +358,24 @@ function connectMQTT(host, port) {
 
   // sniff and display messages on MQTT bus
   client.onMessageArrived = onMessageArrived;
+  client.onConnectionLost = onConnectionLost;
 
   const options = {
-    // connection attempt timeout in seconds
     timeout: 3,
-
-    // on successful connection
+    reconnect: false,
     onSuccess: () => {
-      console.log('Success');
+      console.log('Successfully connected to MQTT broker');
       M.toast({
-        html: 'Successfully connected to MQTT broker',
+        html: 'Successfully Connected',
         displayLength: 2000,
         classes: 'rounded',
       });
       client.subscribe('temi/+/status/#');
     },
-
-    // on failed connection
     onFailure: (message) => {
       console.error(`Fail: ${message.errorMessage}`);
       M.toast({
-        html: 'Failed to connect to MQTT broker',
+        html: 'Failed to Connect',
         displayLength: 3000,
         classes: 'rounded',
       });
@@ -315,19 +386,17 @@ function connectMQTT(host, port) {
   client.connect(options);
 }
 
+document.body.style.backgroundColor = 'black';
+
 // @TODO Make this configurable
 // window.onload = connectMQTT('localhost', 9001);
 window.onload = connectMQTT('192.168.0.177', 9001);
-
-document.body.style.backgroundColor = 'black';
+window.onload = showRobotMenu();
 
 document.addEventListener('DOMContentLoaded', showWaypointNav);
 document.addEventListener('keydown', keyboardEvent);
 
 document.querySelector('#robot-collection').addEventListener('click', selectRobot);
-document.querySelector('#waypoint-nav').addEventListener('click', selectWaypoint);
-document.querySelector('#video-btn').addEventListener('click', startVidCon);
-// document.querySelector('#video-conference').addEventListener('mousemove', mouseEvent);
-
-// console.log(`Width x Height: ${screen.width} x ${screen.height}`)
-// console.log(`Width x Height: ${innerWidth} x ${innerHeight}`)
+document.querySelector('#video-btn').addEventListener('click', startVideoCall);
+document.querySelector('#waypoint-modal').addEventListener('click', selectWaypoint); // desktop-on
+document.querySelector('#waypoint-collection').addEventListener('click', selectWaypoint); // mobile-only
