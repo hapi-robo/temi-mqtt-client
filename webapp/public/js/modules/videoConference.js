@@ -15,10 +15,7 @@ class VideoConference {
         roomName: `temi-${id}`,
         width: 800,
         height: 600,
-        parentNode: document.getElementById('video-container'),
-        configOverwrite: {
-          enableNoAudioDetection: false
-        },
+        parentNode: document.querySelector('#video-container'),
         interfaceConfigOverwrite: {
           DEFAULT_BACKGROUND: '#000000',
           INITIAL_TOOLBAR_TIMEOUT: 1000,

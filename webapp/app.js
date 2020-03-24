@@ -11,6 +11,8 @@
 // required libraries
 const express = require("express");
 const path = require("path");
+const https = require("https");
+const fs = require("fs");
 
 // instantiate webapp
 const app = express();
@@ -26,6 +28,9 @@ app.set("view engine", "pug");
 // serve static files
 app.use(express.static(path.join(__dirname, "public")));
 
+/*
+ * Setup routes
+ */
 // mobile route
 app.get("/mobile", function(req, res) {
   res.render("mobile", {});
@@ -38,6 +43,9 @@ app.get("/", function(req, res) {
   });
 });
 
+/*
+ * Catch errors
+ */
 // catch 404 and forward to the error handler
 app.use((req, res, next) => {
   var err = new Error("Not Found");
@@ -59,10 +67,28 @@ app.use((err, req, res, next) => {
 /*
  * Start listening on the port
  */
+// HTTP
 app.listen(port, err => {
   if (err) {
     return console.log(`Something bad happened ${err}`);
+  } else {
+    console.log(`Server is listening on localhost:${port}`);
   }
-
-  console.log(`Server is listening on localhost:${port}`);
 });
+
+// HTTPS
+// https
+//   .createServer(
+//     {
+//       key: fs.readFileSync("./security/server.key"),
+//       cert: fs.readFileSync("./security/server.cert")
+//     },
+//     app
+//   )
+//   .listen(port, err => {
+//     if (err) {
+//       return console.log(`Something bad happened ${err}`);
+//     } else {
+//       console.log(`Server is listening on localhost:${port}`);
+//     }
+//   });

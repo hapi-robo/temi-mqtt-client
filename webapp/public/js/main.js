@@ -286,9 +286,9 @@ function updateRobotList(id, payload) {
  * General message callback
  */
 function onMessageArrived(message) {
-  console.log('[RECIEVE]');
-  console.log(`Topic: ${message.destinationName}`);
-  console.log(`Payload: ${message.payloadString}`);
+  // console.log('[RECIEVE]');
+  // console.log(`Topic: ${message.destinationName}`);
+  // console.log(`Payload: ${message.payloadString}`);
 
   // parse message
   const topicTree = message.destinationName.split('/');
@@ -296,9 +296,9 @@ function onMessageArrived(message) {
   const type = topicTree[2]; // [status, command]
   const category = topicTree[3];
 
-  console.log(`Robot-ID: ${robotID}`);
-  console.log(`Type: ${type}`);
-  console.log(`Category: ${category}`);
+  // console.log(`Robot-ID: ${robotID}`);
+  // console.log(`Type: ${type}`);
+  // console.log(`Category: ${category}`);
 
   if (robotID === undefined) {
     console.warn('Message from undefined robot received');
