@@ -90,7 +90,7 @@ function showRobotMenu() {
 
   // hide other menus
   document.querySelector('#robot-ctrl-panel').style.display = 'none';
-  document.querySelector('#tts-input').style.display = 'none';
+  document.querySelector('#text-input').style.display = 'none';
 }
 
 function showWaypointMenu() {
@@ -102,7 +102,7 @@ function showWaypointMenu() {
 
   // hide other menus
   document.querySelector('#robot-menu').style.display = 'none';
-  document.querySelector('#tts-input').style.display = 'none';
+  document.querySelector('#text-input').style.display = 'none';
 }
 
 function showCtrlPanel() {
@@ -111,7 +111,7 @@ function showCtrlPanel() {
   // show control panel
   document.querySelector('#robot-ctrl-panel').style.display = 'block';
   document.querySelector('#video-btn').className = 'btn-flat white-text';
-  document.querySelector('#tts-input').style.display = 'block';
+  document.querySelector('#text-input').style.display = 'block';
 
   // hide other menus
   document.querySelector('#robot-menu').style.display = 'none';
@@ -180,9 +180,9 @@ function keyboardEvent(e) {
 
       case 13: // Enter
         console.log('[Keycode] Enter');
-        const utterance = document.querySelector('#tts-input').value;
+        const utterance = document.querySelector('#utterance').value;
         selectedRobot.cmdTts(utterance);
-        document.querySelector('#tts-input').value = '';
+        document.querySelector('#utterance').value = '';
         break;
 
       default:
