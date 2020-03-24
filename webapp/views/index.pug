@@ -7,12 +7,14 @@ block content
     // robot selection menu
     div#robot-menu.row.valign-wrapper
       div.input-field.col.l2.offset-l5.m4.offset-m4.s6.offset-s3
-        input#temi_id.validate.white-text(type='text')
+        input#temi-id.validate.white-text(type='text')
         label(for='temi-id') temi ID
         div#robot-collection
 
     // control panel
     div#robot-ctrl-panel.container.center-align
+      a#home-btn.btn-flat.white-text
+        i.fas.fa-home
       a#video-btn.btn-flat.white-text
         i.fas.fa-video
       a.btn-flat.white-text.modal-trigger(data-target='waypoint-menu')
@@ -23,6 +25,12 @@ block content
     // video-call div
     div.row.valign-wrapper
       div#video-container.col.l6.offset-l3.s12.center-align
+
+    // text input
+    div.row
+      div.input-field.col.l2.offset-l5.m4.offset-m4.s6.offset-s3
+        input#tts-input.validate.white-text(type='text')
+        label(for='tts-input') Type to speak
 
     // footer
     div.white-text(style='position:relative')

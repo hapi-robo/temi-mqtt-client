@@ -47,7 +47,8 @@ dependencies {
 
     // Jitsi Meet
     // https://github.com/jitsi/jitsi-meet
-    implementation ('org.jitsi.react:jitsi-meet-sdk:2.5.1') { transitive = true }
+    // https://github.com/jitsi/jitsi-maven-repository/tree/master/releases/org/jitsi/react/jitsi-meet-sdk
+    implementation ('org.jitsi.react:jitsi-meet-sdk:2.6.1') { transitive = true }
 
     // paho-mqtt
     // https://github.com/eclipse/paho.mqtt.java

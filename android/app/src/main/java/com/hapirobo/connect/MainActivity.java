@@ -3,6 +3,7 @@ package com.hapirobo.connect;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -11,8 +12,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.facebook.react.modules.core.PermissionListener;
 import com.robotemi.sdk.BatteryData;
 import com.robotemi.sdk.Robot;
+import com.robotemi.sdk.TtsRequest;
 import com.robotemi.sdk.listeners.OnBatteryStatusChangedListener;
 import com.robotemi.sdk.listeners.OnDetectionStateChangedListener;
 import com.robotemi.sdk.listeners.OnGoToLocationStatusChangedListener;
@@ -30,8 +33,10 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jitsi.meet.sdk.JitsiMeet;
-import org.jitsi.meet.sdk.JitsiMeetActivity;
+import org.jitsi.meet.sdk.JitsiMeetActivityDelegate;
+import org.jitsi.meet.sdk.JitsiMeetActivityInterface;
 import org.jitsi.meet.sdk.JitsiMeetConferenceOptions;
+import org.jitsi.meet.sdk.JitsiMeetView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -43,6 +48,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements
+        JitsiMeetActivityInterface,
         OnRobotReadyListener,
         OnBatteryStatusChangedListener,
         OnGoToLocationStatusChangedListener,
@@ -51,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements
     private static final String TAG = "DEBUG";
 
     private static Handler sHandler = new Handler();
+    private static JitsiMeetView sView;
     private static Robot sRobot;
     private static String sSerialNumber;
     private MqttAndroidClient mMqttClient;
@@ -121,6 +128,8 @@ public class MainActivity extends AppCompatActivity implements
         sRobot.removeOnGoToLocationStatusChangedListener(this);
         sRobot.removeDetectionStateChangedListener(this);
         sRobot.removeOnUserInteractionChangedListener(this);
+
+        JitsiMeetActivityDelegate.onHostPause(this);
     }
 
     /**
@@ -129,6 +138,8 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        // disconnect MQTT client from broker
         if (mMqttClient != null && mMqttClient.isConnected()) {
             try {
                 Log.i(TAG, "[MQTT] Disconnecting MQTT client from broker");
@@ -139,6 +150,11 @@ public class MainActivity extends AppCompatActivity implements
                 e.printStackTrace();
             }
         }
+
+        // remote Jitsi view
+        sView.dispose();
+        sView = null;
+        JitsiMeetActivityDelegate.onHostDestroy(this);
     }
 
     /**
@@ -428,6 +444,14 @@ public class MainActivity extends AppCompatActivity implements
                     startCall();
                     break;
 
+                case "hangup":
+                    hangupCall();
+                    break;
+
+                case "tts":
+                    sRobot.speak(TtsRequest.create(payload.getString("utterance"), true));
+                    break;
+
                 default:
                     Log.i(TAG, "Invalid topic: " + topic);
                     break;
@@ -512,18 +536,78 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    /**
+     * Start video-call
+     */
     private void startCall() {
         Log.v(TAG, "[CMD][CALL]");
 
-        // Build options object for joining the conference. The SDK will merge the default
-        // one we set earlier and this one when joining.
+        // build options object for joining the conference
+        // the SDK will merge the default one we set earlier and this one when joining
         JitsiMeetConferenceOptions options
                 = new JitsiMeetConferenceOptions.Builder()
                 .setRoom("temi-" + sSerialNumber)
                 .build();
 
-        // Launch the new activity with the given options. The launch() method takes care
-        // of creating the required Intent and passing the options.
-        JitsiMeetActivity.launch(this, options);
+        // Launch the new view with the given options
+        sView = new JitsiMeetView(this);
+        sView.join(options);
+        setContentView(sView);
+    }
+
+    /**
+     * Hangup video call
+     */
+    private void hangupCall() {
+        Log.v(TAG, "[CMD][HANGUP]");
+
+        sView.leave();
+        sView.dispose();
+        sView = null;
+        JitsiMeetActivityDelegate.onHostDestroy(this);
+
+        // set main menu
+        setContentView(R.layout.activity_main);
+    }
+
+    @Override
+    protected void onActivityResult(
+            int requestCode,
+            int resultCode,
+            Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        JitsiMeetActivityDelegate.onActivityResult(
+                this, requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onBackPressed() {
+        JitsiMeetActivityDelegate.onBackPressed();
+    }
+
+    @Override
+    public void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        JitsiMeetActivityDelegate.onNewIntent(intent);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(
+            final int requestCode,
+            final String[] permissions,
+            final int[] grantResults) {
+        JitsiMeetActivityDelegate.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        JitsiMeetActivityDelegate.onHostResume(this);
+    }
+
+    @Override
+    public void requestPermissions(String[] strings, int i, PermissionListener permissionListener) {
+
     }
 }

@@ -47,6 +47,7 @@ class VideoConference {
     if (this._handle !== undefined) {
       console.log(`Close Video: ${this._id}`);
       this._handle.executeCommand('hangup');
+      this._handle.dispose();
       this._id = undefined;
       this._handle = undefined;
     }

@@ -90,6 +90,7 @@ function showRobotMenu() {
 
   // hide other menus
   document.querySelector('#robot-ctrl-panel').style.display = 'none';
+  document.querySelector('#tts-input').style.display = 'none';
 }
 
 function showWaypointMenu() {
@@ -101,6 +102,7 @@ function showWaypointMenu() {
 
   // hide other menus
   document.querySelector('#robot-menu').style.display = 'none';
+  document.querySelector('#tts-input').style.display = 'none';
 }
 
 function showCtrlPanel() {
@@ -109,6 +111,7 @@ function showCtrlPanel() {
   // show control panel
   document.querySelector('#robot-ctrl-panel').style.display = 'block';
   document.querySelector('#video-btn').className = 'btn-flat white-text';
+  document.querySelector('#tts-input').style.display = 'block';
 
   // hide other menus
   document.querySelector('#robot-menu').style.display = 'none';
@@ -133,7 +136,6 @@ function keyboardEvent(e) {
             classes: 'rounded',
           });
         }
-
         break;
 
       default:
@@ -174,6 +176,13 @@ function keyboardEvent(e) {
       case 74: // j
         console.log('[Keycode] j');
         selectedRobot.cmdTiltDown();
+        break;
+
+      case 13: // Enter
+        console.log('[Keycode] Enter');
+        const utterance = document.querySelector('#tts-input').value;
+        selectedRobot.cmdTts(utterance);
+        document.querySelector('#tts-input').value = '';
         break;
 
       default:
@@ -225,9 +234,9 @@ function startVideoCall() {
   // TODO: This needs to be cleaned up
   videoCall.handle.on('readyToClose', () => {
     console.log('Closing Video Conference...');
-    videoCall.handle.dispose();
-    // videoCall.handle.close();
-    // TODO: end call on the robot's side; how to know if other users aren't using the robot?
+    videoCall.close();
+    // TODO: how to know if other users aren't using the robot?
+    selectedRobot.cmdHangup();
     showRobotMenu();
   });
 }
@@ -397,6 +406,7 @@ document.addEventListener('DOMContentLoaded', showWaypointNav);
 document.addEventListener('keydown', keyboardEvent);
 
 document.querySelector('#robot-collection').addEventListener('click', selectRobot);
+document.querySelector('#home-btn').addEventListener('click', showRobotMenu);
 document.querySelector('#video-btn').addEventListener('click', startVideoCall);
 document.querySelector('#waypoint-modal').addEventListener('click', selectWaypoint); // desktop-on
 document.querySelector('#waypoint-collection').addEventListener('click', selectWaypoint); // mobile-only
