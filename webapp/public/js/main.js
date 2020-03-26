@@ -82,25 +82,25 @@ function keyboardEvent(e) {
   } else {
     switch (e.keyCode) {
       case 37: // ArrowLeft
-      case 65: // a
+      // case 65: // a
         console.log('[Keycode] ArrowLeft / a');
         selectedRobot.cmdTurnLeft();
         break;
 
       case 39: // ArrowRight
-      case 68: // d
+      // case 68: // d
         console.log('[Keycode] ArrowRight / d');
         selectedRobot.cmdTurnRight();
         break;
 
       case 38: // ArrowUp
-      case 87: // w
+      // case 87: // w
         console.log('[Keycode] ArrowUp / w');
         selectedRobot.cmdMoveFwd();
         break;
 
       case 40: // ArrowDown
-      case 83: // s
+      // case 83: // s
         console.log('[Keycode] ArrowDown / s');
         selectedRobot.cmdMoveBwd();
         break;

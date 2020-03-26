@@ -16,8 +16,8 @@ import time
 CLIENT_ID = 'test-listener'
 
 # MQTT broker
-MQTT_BROKER_HOST = 'localhost'
-# MQTT_BROKER_HOST = '192.168.0.118'
+# MQTT_BROKER_HOST = 'localhost'
+MQTT_BROKER_HOST = '192.168.0.177'
 MQTT_BROKER_PORT = 1883
 
 # connection parameters
