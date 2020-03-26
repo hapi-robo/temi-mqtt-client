@@ -168,12 +168,12 @@ function keyboardEvent(e) {
         selectedRobot.cmdMoveBwd();
         break;
 
-      case 85: // u
+      case 187: // =
         console.log('[Keycode] u');
         selectedRobot.cmdTiltUp();
         break;
 
-      case 74: // j
+      case 189: // -
         console.log('[Keycode] j');
         selectedRobot.cmdTiltDown();
         break;
