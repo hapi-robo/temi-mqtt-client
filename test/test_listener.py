@@ -17,6 +17,7 @@ CLIENT_ID = 'test-listener'
 
 # MQTT broker
 # MQTT_BROKER_HOST = 'localhost'
+# MQTT_BROKER_HOST = '192.168.0.118'
 MQTT_BROKER_HOST = '192.168.0.177'
 MQTT_BROKER_PORT = 1883
 
@@ -25,7 +26,7 @@ MQTT_BROKER_RETRY_ATTEMPT = 5 # number of retry attempts
 MQTT_BROKER_RETRY_TIMEOUT = 10 # [seconds]
 
 # topics
-TOPIC_ALL = 'temi/+/command/#'
+TOPIC_ALL = 'temi/+/event/#'
 
 def on_connect(client, userdata, flags, rc):
     """Connect to MQTT broker and subscribe to topics

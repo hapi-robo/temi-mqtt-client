@@ -1,51 +1,61 @@
 class VideoConference {
-  #id;
-  #handle;
-
   constructor() {
-    this.#id = undefined;
-    this.#handle = undefined;
+    this._id = undefined;
+    this._handle = undefined;
   }
 
   open(id) {
-    if (this.#handle === undefined) {
-      this.#id = id;
+    if (this._handle === undefined) {
+      this._id = id;
       const domain = 'meet.jit.si';
+
+      // https://github.com/jitsi/jitsi-meet/blob/master/interface_config.js
+      // https://github.com/jitsi/jitsi-meet/blob/master/config.js
       const options = {
         roomName: `temi-${id}`,
-        // width: window.innerWidth,
-        height: window.innerHeight,
-        parentNode: document.getElementById('video-conference'),
-        configOverwrite: {},
+        width: 800,
+        height: 600,
+        parentNode: document.querySelector('#video-container'),
         interfaceConfigOverwrite: {
-          filmStripOnly: false,
-        },
-      };
+          DEFAULT_BACKGROUND: '#000000',
+          INITIAL_TOOLBAR_TIMEOUT: 1000,
+          TOOLBAR_TIMEOUT: 1000,
+          TOOLBAR_ALWAYS_VISIBLE: false,
+          SHOW_JITSI_WATERMARK: false,
+          SHOW_WATERMARK_FOR_GUESTS: false,
+          TOOLBAR_BUTTONS: ['microphone', 'camera', 'closedcaptions', 'desktop', 'fullscreen', 'fodeviceselection', 'hangup', 'info', 'recording', 'sharedvideo', 'settings', 'filmstrip', 'invite', 'tileview', 'download'],
+          SETTINGS_SECTIONS: [ 'devices' ],
+          CLOSE_PAGE_GUEST_HINT: false,
+          SHOW_PROMOTIONAL_CLOSE_PAGE: false,
+          RANDOM_AVATAR_URL_PREFIX: false,
+          RANDOM_AVATAR_URL_SUFFIX: false,
+          ENABLE_FEEDBACK_ANIMATION: false,
+          DISABLE_FOCUS_INDICATOR: false,
+          DISABLE_DOMINANT_SPEAKER_INDICATOR: false,
+          MOBILE_APP_PROMO: false,
+          SHOW_CHROME_EXTENSION_BANNER: false
+        }
+      }
       console.log(`Open Video: ${id}`);
-      // this.#handle = true;
-      // this.#handle = new JitsiMeetExternalAPI(domain, options);
-      
+      this._handle = new JitsiMeetExternalAPI(domain, options);
+
       return this;
     }
   }
 
   close() {
-    if (this.#handle !== undefined) {
-      console.log(`Close Video: ${this.#id}`);
-      this.#handle.executeCommand('hangup');
-      this.#id = undefined;
-      this.#handle = undefined;
-      // let val = document.getElementById('video-conference');
-      // val.textContent = '';
-      // console.log(val);
+    if (this._handle !== undefined) {
+      console.log(`Close Video: ${this._id}`);
+      this._handle.executeCommand('hangup');
+      this._handle.dispose();
+      this._id = undefined;
+      this._handle = undefined;
     }
   }
 
   get handle() {
-    return this.#handle;
+    return this._handle;
   }
-
-
 }
 
 export { VideoConference };

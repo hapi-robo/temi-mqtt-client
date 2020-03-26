@@ -2,34 +2,44 @@ extends layout
 
 block content
 
-  div(style='height:100vh')
-    nav.transparent.z-depth-0
-      .nav-wrapper
-        .row
-          .col.s12
-            ul#robot-menu.right(style='display:none;')
-              li
-                a
-                  i#battery-state
-              li
-                a.modal-trigger.show-on-large(data-target='waypoint-menu')
-                  i.material-icons location_on
+  div(style='height:100vh;')
 
-    #menu.row.valign-wrapper(style='height:80vh')
-      //- .input-field.col.s3.offset-s8
-      .input-field.col.s3.offset-s5
-        input#temi_id.validate.white-text(type='text')
-        label(for='temi_id') temi ID
-        #robot-nav.collection
+    // robot selection menu
+    div#robot-menu.row.valign-wrapper
+      div.input-field.col.l2.offset-l5.m4.offset-m4.s6.offset-s3
+        input#temi-id.validate.white-text(type='text')
+        label(for='temi-id') temi ID
+        div#robot-collection
 
-    #video-conference
+    // control panel
+    div#robot-ctrl-panel.container.center-align
+      a#home-btn.btn-flat.white-text
+        i.fas.fa-home
+      a#video-btn.btn-flat.white-text
+        i.fas.fa-video
+      a.btn-flat.white-text.modal-trigger(data-target='waypoint-menu')
+        i.material-icons location_on
+      a.btn-flat.white-text
+        i#battery-state
 
-    .white-text(style='position:relative')
+    // video-call div
+    div.row.valign-wrapper
+      div#video-container.col.l6.offset-l3.s12.center-align
+
+    // text input
+    div#text-input.row
+      div.input-field.col.l2.offset-l5.m4.offset-m4.s6.offset-s3
+        input#utterance.validate.white-text(type='text')
+        label(for='utterance') Type to speak
+
+    // footer
+    div.white-text(style='position:relative')
       p(style='position:fixed; bottom:0; width:100%; text-align:center') © 2020 hapi-robo st, Inc. — All Rights Reserved.
 
-  #waypoint-menu.modal.bottom-sheet
+
+  // locations modal
+  div#waypoint-menu.modal(style='width:30%;padding:0')
     .modal-content
-      h4 Select Location
-      ul#waypoint-nav.collection(style='background-color: rgba(232,232,232,0.5);')
+      ul#waypoint-modal.collection
 
 

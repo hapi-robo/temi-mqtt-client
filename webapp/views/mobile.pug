@@ -1,0 +1,23 @@
+extends layout
+
+block content
+
+  // robot selection menu
+  div#robot-menu(style='display:none')
+    div.row.valign-wrapper(style='height:80vh')
+      div.input-field.col.l2.offset-l5.m4.offset-m4.s6.offset-s3
+        input#temi_id.validate.white-text(type='text')
+        label(for='temi-id') temi ID
+        div#robot-collection
+
+  // waypoint selection menu
+  div#waypoint-menu(style='display:none')
+    div.row.valign-wrapper(style='height:80vh')
+      div.input-field.col.l2.offset-l5.m4.offset-m4.s6.offset-s3
+        div.center-align.white-text
+          //- i#battery-state
+        div#waypoint-collection
+
+  // footer
+  div.white-text(style='position:relative')
+    p(style='position:fixed; bottom:0; width:100%; text-align:center') © 2020 hapi-robo st, Inc. — All Rights Reserved.

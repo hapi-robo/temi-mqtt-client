@@ -1,6 +1,8 @@
-# Connect Webapp
+# Connect Web Application
 
-This is a webapp built on Node.js/Express.
+This is a web application built on Node.js/Express. It uses the [Materialize](https://materializecss.com/) front-end framework for styling, [Eclipse Paho JavaScript Client](https://www.eclipse.org/paho/clients/js/) for communicating with the MQTT broker over WebSockets, and the [Jitsi-Meet API](https://github.com/jitsi/jitsi-meet/blob/master/doc/api.md) for video-conferencing.
+
+The instructions provided below are for building and deploying the web application standalone. For running the complete project, it is recommended to use Docker Compose from the root directory.
 
 ## Prerequisites
 

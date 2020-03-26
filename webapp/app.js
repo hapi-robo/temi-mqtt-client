@@ -9,34 +9,46 @@
  */
 
 // required libraries
-const express = require('express');
-const path = require('path');
+const express = require("express");
+const path = require("path");
+const https = require("https");
+const fs = require("fs");
 
 // instantiate webapp
 const app = express();
 const port = 8080;
 
-
 /*
  * Setup webapp
  */
 // setup template engine
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
+app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "pug");
 
 // serve static files
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 
-// setup routes
-app.get('/', function(req, res) {
-  res.render('index', {
-    title: ' Connect'
+/*
+ * Setup routes
+ */
+// mobile route
+app.get("/mobile", function(req, res) {
+  res.render("mobile", {});
+});
+
+// desktop route
+app.get("/", function(req, res) {
+  res.render("index", {
+    title: " Connect"
   });
 });
 
+/*
+ * Catch errors
+ */
 // catch 404 and forward to the error handler
 app.use((req, res, next) => {
-  var err = new Error('Not Found');
+  var err = new Error("Not Found");
   err.status = 404;
   next(err);
 });
@@ -45,21 +57,38 @@ app.use((req, res, next) => {
 app.use((err, req, res, next) => {
   // set locals, only providing error in development
   res.locals.message = err.message;
-  res.locals.error = req.app.get('env') == 'development' ? err : {};
+  res.locals.error = req.app.get("env") == "development" ? err : {};
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.render("error");
 });
-
 
 /*
  * Start listening on the port
  */
-app.listen(port, (err) => {
+// HTTP
+app.listen(port, err => {
   if (err) {
-    return console.log(`Something bad happened ${err}`)
+    return console.log(`Something bad happened ${err}`);
+  } else {
+    console.log(`Server is listening on localhost:${port}`);
   }
-
-  console.log(`Server is listening on localhost:${port}`)
 });
+
+// HTTPS
+// https
+//   .createServer(
+//     {
+//       key: fs.readFileSync("./security/server.key"),
+//       cert: fs.readFileSync("./security/server.cert")
+//     },
+//     app
+//   )
+//   .listen(port, err => {
+//     if (err) {
+//       return console.log(`Something bad happened ${err}`);
+//     } else {
+//       console.log(`Server is listening on localhost:${port}`);
+//     }
+//   });
