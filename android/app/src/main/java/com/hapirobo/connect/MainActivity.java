@@ -33,6 +33,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jitsi.meet.sdk.JitsiMeet;
+import org.jitsi.meet.sdk.JitsiMeetActivity;
 import org.jitsi.meet.sdk.JitsiMeetActivityDelegate;
 import org.jitsi.meet.sdk.JitsiMeetActivityInterface;
 import org.jitsi.meet.sdk.JitsiMeetConferenceOptions;
@@ -48,7 +49,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements
-        JitsiMeetActivityInterface,
+//        JitsiMeetActivityInterface,
         OnRobotReadyListener,
         OnBatteryStatusChangedListener,
         OnGoToLocationStatusChangedListener,
@@ -152,9 +153,9 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         // remote Jitsi view
-        sView.dispose();
-        sView = null;
-        JitsiMeetActivityDelegate.onHostDestroy(this);
+//        sView.dispose();
+//        sView = null;
+//        JitsiMeetActivityDelegate.onHostDestroy(this);
     }
 
     /**
@@ -550,9 +551,10 @@ public class MainActivity extends AppCompatActivity implements
                 .build();
 
         // Launch the new view with the given options
-        sView = new JitsiMeetView(this);
-        sView.join(options);
-        setContentView(sView);
+//        sView = new JitsiMeetView(this);
+//        sView.join(options);
+//        setContentView(sView);
+        JitsiMeetActivity.launch(this, options);
     }
 
     /**
@@ -570,44 +572,44 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main);
     }
 
-    @Override
-    protected void onActivityResult(
-            int requestCode,
-            int resultCode,
-            Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        JitsiMeetActivityDelegate.onActivityResult(
-                this, requestCode, resultCode, data);
-    }
+//    @Override
+//    protected void onActivityResult(
+//            int requestCode,
+//            int resultCode,
+//            Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//        JitsiMeetActivityDelegate.onActivityResult(
+//                this, requestCode, resultCode, data);
+//    }
 
-    @Override
-    public void onBackPressed() {
-        JitsiMeetActivityDelegate.onBackPressed();
-    }
+//    @Override
+//    public void onBackPressed() {
+//        JitsiMeetActivityDelegate.onBackPressed();
+//    }
 
-    @Override
-    public void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        JitsiMeetActivityDelegate.onNewIntent(intent);
-    }
+//    @Override
+//    public void onNewIntent(Intent intent) {
+//        super.onNewIntent(intent);
+//        JitsiMeetActivityDelegate.onNewIntent(intent);
+//    }
 
-    @Override
-    public void onRequestPermissionsResult(
-            final int requestCode,
-            final String[] permissions,
-            final int[] grantResults) {
-        JitsiMeetActivityDelegate.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
+//    @Override
+//    public void onRequestPermissionsResult(
+//            final int requestCode,
+//            final String[] permissions,
+//            final int[] grantResults) {
+//        JitsiMeetActivityDelegate.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//
+//        JitsiMeetActivityDelegate.onHostResume(this);
+//    }
 
-        JitsiMeetActivityDelegate.onHostResume(this);
-    }
-
-    @Override
-    public void requestPermissions(String[] strings, int i, PermissionListener permissionListener) {
-
-    }
+//    @Override
+//    public void requestPermissions(String[] strings, int i, PermissionListener permissionListener) {
+//
+//    }
 }
