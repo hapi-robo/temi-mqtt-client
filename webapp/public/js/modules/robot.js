@@ -164,6 +164,32 @@ class Robot {
     this._client.send(message);
   }
 
+  cmdHangup() {
+    console.log('[CMD] Hangup');
+
+    // write payload in JSON format
+    const payload = JSON.stringify({});
+
+    // publish message
+    const message = new Paho.Message(payload);
+    message.destinationName = `temi/${this._id}/command/hangup`;
+    message.qos = 1;
+    this._client.send(message);
+  }
+
+  cmdTts(utterance) {
+    console.log('[CMD] TTS');
+
+    // write payload in JSON format
+    const payload = JSON.stringify({ utterance: utterance });
+
+    // publish message
+    const message = new Paho.Message(payload);
+    message.destinationName = `temi/${this._id}/command/tts`;
+    message.qos = 1;
+    this._client.send(message);
+  }
+
   // https://developer.android.com/reference/android/media/AudioManager#setStreamVolume(int,%20int,%20int)
   cmdVolume(volume) {
     console.log('[CMD] Volume');
