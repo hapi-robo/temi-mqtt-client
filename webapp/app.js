@@ -1,94 +1,57 @@
 /**
  * Main backend NodeJS file.
  *
- * Starts an HTTP server.
- *
- * Reference:
- *  https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs/skeleton_website
- *
  */
-
-// required libraries
 const express = require("express");
 const path = require("path");
-const https = require("https");
-const fs = require("fs");
+const cookieSession = require('cookie-session');
+const passport = require('passport');
+
+const authRoutes = require('./routes/auth-routes');
+const profileRoutes = require('./routes/profile-routes');
+const passportSetup = require('./config/passport-setup');
+const mongoose = require('mongoose');
+const keys = require('./config/keys');
+
+// constants
+const port = 8080;
 
 // instantiate webapp
 const app = express();
-const port = 8080;
 
-/*
- * Setup webapp
- */
 // setup template engine
-app.set("views", path.join(__dirname, "views"));
-app.set("view engine", "pug");
+app.set("view engine", "ejs");
 
 // serve static files
 app.use(express.static(path.join(__dirname, "public")));
 
-/*
- * Setup routes
- */
-// mobile route
-app.get("/mobile", function(req, res) {
-  res.render("mobile", {});
+// set up session cookies
+app.use(cookieSession({
+    maxAge: 24 * 60 * 60 * 1000,
+    keys: [keys.session.cookieKey]
+}));
+
+// initialize passport and cookie session
+app.use(passport.initialize());
+app.use(passport.session());
+
+// connect to mongodb
+mongoose.connect(keys.mongodb.dbURI, {useNewUrlParser: true, useUnifiedTopology: true});
+
+// set up routes
+app.use('/auth', authRoutes);
+app.use('/profile', profileRoutes);
+
+// create home route
+app.get("/", (req, res) => {
+  res.render('home', { user: req.user });
 });
 
-// desktop route
-app.get("/", function(req, res) {
-  res.render("index", {
-    title: " Connect"
-  });
-});
-
-/*
- * Catch errors
- */
-// catch 404 and forward to the error handler
-app.use((req, res, next) => {
-  var err = new Error("Not Found");
-  err.status = 404;
-  next(err);
-});
-
-// catch errors handler and render error page
-app.use((err, req, res, next) => {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get("env") == "development" ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render("error");
-});
-
-/*
- * Start listening on the port
- */
-// HTTP
+// start listening on the port
 app.listen(port, err => {
   if (err) {
     return console.log(`Something bad happened ${err}`);
   } else {
-    console.log(`Server is listening on localhost:${port}`);
+    console.log(`Server is listening on ${port}`);
   }
 });
-
-// HTTPS
-// https
-//   .createServer(
-//     {
-//       key: fs.readFileSync("./security/server.key"),
-//       cert: fs.readFileSync("./security/server.cert")
-//     },
-//     app
-//   )
-//   .listen(port, err => {
-//     if (err) {
-//       return console.log(`Something bad happened ${err}`);
-//     } else {
-//       console.log(`Server is listening on localhost:${port}`);
-//     }
-//   });

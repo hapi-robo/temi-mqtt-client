@@ -12,3 +12,4 @@ android/build
 android/captures
 android/.externalNativeBuild
 android/.cxx
+webapp/config/keys.js
