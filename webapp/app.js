@@ -6,12 +6,13 @@ const express = require("express");
 const path = require("path");
 const cookieSession = require('cookie-session');
 const passport = require('passport');
+const mongoose = require('mongoose');
+
+const passportSetup = require('./config/passport-setup');
+const keys = require('./config/keys');
 
 const authRoutes = require('./routes/auth-routes');
-const profileRoutes = require('./routes/profile-routes');
-const passportSetup = require('./config/passport-setup');
-const mongoose = require('mongoose');
-const keys = require('./config/keys');
+const consoleRoutes = require('./routes/console-routes');
 
 // constants
 const port = 8080;
@@ -40,7 +41,7 @@ mongoose.connect(keys.mongodb.dbURI, {useNewUrlParser: true, useUnifiedTopology:
 
 // set up routes
 app.use('/auth', authRoutes);
-app.use('/profile', profileRoutes);
+app.use('/console', consoleRoutes);
 
 // create home route
 app.get("/", (req, res) => {

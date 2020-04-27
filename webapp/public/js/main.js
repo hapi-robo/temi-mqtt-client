@@ -395,7 +395,7 @@ function connectMQTT(host, port) {
   client.connect(options);
 }
 
-document.body.style.backgroundColor = 'black';
+// document.body.style.backgroundColor = 'black';
 
 // @TODO Make this configurable
 // window.onload = connectMQTT('localhost', 9001);

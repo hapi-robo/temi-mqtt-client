@@ -21,7 +21,7 @@ router.get('/github', passport.authenticate('github', {
 // hand control to passport to use code to grab profile info
 router.get('/github/redirect', 
 	passport.authenticate('github', { failureRedirect: '/login' }), 
-	(req, res) => { res.redirect('/profile'); }
+	(req, res) => { res.redirect('/console'); }
 	);
 
 // auth with azure
@@ -31,7 +31,7 @@ router.get('/azure', passport.authenticate('azure_ad_oauth2'));
 // hand control to passport to use code to grab profile info
 router.get('/azure/redirect', 
 	passport.authenticate('azure_ad_oauth2', { failureRedirect: '/login' }), 
-	(req, res) => { res.redirect('/profile'); }
+	(req, res) => { res.redirect('/console'); }
 	);
 
 module.exports = router;

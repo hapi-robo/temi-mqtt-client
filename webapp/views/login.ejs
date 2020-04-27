@@ -1,14 +1,38 @@
 <%- include('header') -%>
 
 <body>
-  <ul class="nav justify-content-end">
-    <li class="nav-item"><a class="nav-link" href="/">Homepage</a></li>  
-    <li class="nav-item"><a class="nav-link" href="/auth/logout">Logout</a></li>
-    <li class="nav-item"><a class="nav-link" href="/auth/login">Login</a></li>
-  </ul>
+  <nav class="navbar navbar-light bg-light">
+    <a class="navbar-brand" href="/">
+      <img src="/logo.svg" width="30" height="30" class="d-inline-block align-top" alt="">
+      Connect
+    </a>
+  </nav>
 
-  <a class="btn btn-primary" href="/auth/github" role="button">Github</a>
-  <a class="btn btn-primary" href="/auth/azure" role="button">Azure</a>
+  <br>
+
+  <!-- Sign in buttons -->
+  <div class="container text-center">
+<!--     <div class="row">
+      <div class="col">
+        <a class="btn btn-outline-dark" href="/auth/github" role="button">
+          <i class="fab fa-github"></i>
+          Sign in with Github
+        </a>
+      </div>
+    </div> -->
+    <!-- https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-add-branding-in-azure-ad-apps -->
+    <div class="row">
+      <div class="col">
+        <!-- <a class="btn btn-outline-dark" href="/auth/github" role="button">
+          <img src="/img/ms-symbollockup_mssymbol_19.svg">
+          Sign in with Microsoft
+        </a> -->
+        <a href="/auth/github">
+          <img src="/img/ms-symbollockup_signin_light.svg">
+        </a>
+      </div>
+    </div>
+  </div>
 
 </body>
 
