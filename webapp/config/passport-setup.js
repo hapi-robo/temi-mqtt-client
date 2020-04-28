@@ -54,6 +54,7 @@ passport.use(
     callbackURL: '/auth/azure/redirect'
   }, 
   (accessToken, refreshToken, params, profile, cb) => {
+    console.log(params);
     const waadProfile = jwt.decode(params.id_token);
     console.log(waadProfile);
 
@@ -67,7 +68,10 @@ passport.use(
         // if not, create user in our db
         // reference: https://docs.microsoft.com/en-us/azure/active-directory/develop/id-tokens
         new User({
-          username: waadProfile.name,
+          userName: waadProfile.name,
+          firstName: waadProfile.given_name,
+          lastName: waadProfile.family_name,
+          email: waadProfile.upn,
           azureId: waadProfile.sub
         }).save().then((newUser) => {
          console.log(`New user created: ${newUser}`);

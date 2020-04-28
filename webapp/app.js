@@ -45,7 +45,7 @@ app.use('/console', consoleRoutes);
 
 // create home route
 app.get("/", (req, res) => {
-  res.render('home', { user: req.user });
+  res.render('login', { user: req.user });
 });
 
 // start listening on the port

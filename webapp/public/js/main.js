@@ -8,7 +8,6 @@ let selectedRobot;
 let client;
 
 
-// DOCUMENT EVENT HANDLERS
 function updateRobotCollection() {
   const robotCollection = document.querySelector('#robot-collection');
   robotCollection.className = 'collection';
@@ -28,30 +27,6 @@ function updateRobotCollection() {
   });
 }
 
-// mobile-only
-function updateWaypointCollection() {
-  const waypointCollection = document.querySelector('#waypoint-collection');
-  waypointCollection.className = 'collection';
-
-  // clear list
-  waypointCollection.textContent = '';
-
-  if (selectedRobot === undefined) {
-    console.warn('Robot not selected');
-  } else {
-    // populate list
-    selectedRobot.waypointList.forEach((waypoint) => {
-      const a = document.createElement('a');
-      a.id = waypoint;
-      a.className = 'collection-item black white-text waves-effect center-align';
-      const text = document.createTextNode(waypoint);
-      a.appendChild(text);
-      waypointCollection.insertBefore(a, waypointCollection.firstChild);
-    });
-  }
-}
-
-// desktop-only
 function updateWaypointModal() {
   const waypointNav = document.querySelector('#waypoint-modal');
 
@@ -319,7 +294,6 @@ function onMessageArrived(message) {
           case 'info': {
             updateRobotList(robotID, message.payloadString);
             updateRobotCollection();
-            // updateWaypointCollection(); // mobile-only
             break;
           }
           case 'utils': {
@@ -344,12 +318,8 @@ function onMessageArrived(message) {
 // called when the client loses its connection
 function onConnectionLost(responseObject) {
   if (responseObject.errorCode !== 0) {
-    M.toast({
-      html: 'Connection Lost',
-      displayLength: 2000,
-      classes: 'rounded',
-    });
     console.log(`onConnectionLost: ${responseObject.errorMessage}`);
+    // TODO: add toast message: https://getbootstrap.com/docs/4.2/components/toasts/
   }
 }
 
@@ -365,7 +335,6 @@ function connectMQTT(host, port) {
   const id = `user-${d.getTime()}`;
   client = new Paho.Client(host, port, id);
 
-  // sniff and display messages on MQTT bus
   client.onMessageArrived = onMessageArrived;
   client.onConnectionLost = onConnectionLost;
 
@@ -374,20 +343,12 @@ function connectMQTT(host, port) {
     reconnect: false,
     onSuccess: () => {
       console.log('Successfully connected to MQTT broker');
-      M.toast({
-        html: 'Successfully Connected',
-        displayLength: 2000,
-        classes: 'rounded',
-      });
+      // TODO: add toast message: https://getbootstrap.com/docs/4.2/components/toasts/
       client.subscribe('temi/+/status/#');
     },
     onFailure: (message) => {
       console.error(`Fail: ${message.errorMessage}`);
-      M.toast({
-        html: 'Failed to Connect',
-        displayLength: 3000,
-        classes: 'rounded',
-      });
+      // TODO: add toast message: https://getbootstrap.com/docs/4.2/components/toasts/
     },
   };
 
@@ -395,11 +356,9 @@ function connectMQTT(host, port) {
   client.connect(options);
 }
 
-// document.body.style.backgroundColor = 'black';
-
 // @TODO Make this configurable
-// window.onload = connectMQTT('localhost', 9001);
-window.onload = connectMQTT('192.168.0.177', 9001);
+window.onload = connectMQTT('localhost', 9001);
+// window.onload = connectMQTT('192.168.0.177', 9001);
 window.onload = showRobotMenu();
 
 document.addEventListener('DOMContentLoaded', showWaypointNav);
