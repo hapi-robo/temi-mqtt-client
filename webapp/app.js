@@ -2,8 +2,11 @@
  * Main backend NodeJS file.
  *
  */
-const express = require("express");
-const path = require("path");
+const http = require('http');
+const https = require('https');
+const fs = require('fs');
+const express = require('express');
+const path = require('path');
 const cookieSession = require('cookie-session');
 const passport = require('passport');
 const mongoose = require('mongoose');
@@ -16,17 +19,23 @@ const apiRoutes = require('./routes/api-routes');
 const authRoutes = require('./routes/auth-routes');
 const consoleRoutes = require('./routes/console-routes');
 
+// CA certificates
+const ssl_options = {
+    key: fs.readFileSync(path.join(__dirname, 'ssl', 'localhost.key')),
+    cert: fs.readFileSync(path.join(__dirname, 'ssl', 'localhost.crt')),
+};
+
 // constants
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 5000;
 
 // instantiate webapp
 const app = express();
 
 // setup template engine
-app.set("view engine", "ejs");
+app.set('view engine', 'ejs');
 
 // serve static files
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // set up session cookies
 app.use(cookieSession({
@@ -53,9 +62,10 @@ app.use('/auth', authRoutes);
 app.use('/console', consoleRoutes);
 
 // create home route
-app.get("/", (req, res) => {
+app.get('/', (req, res) => {
   res.render('login');
 });
 
-// start listening on the port
-app.listen(port, () => console.log(`Server is listening on ${port}`));
+// start server
+// http.createServer(app).listen(port, () => console.log(`Server is listening on port ${port}`));
+https.createServer(ssl_options, app).listen(port, () => console.log(`Server is listening on port ${port}`));

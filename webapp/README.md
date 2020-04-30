@@ -49,3 +49,11 @@ docker run --restart unless-stopped -d -p 80:8080 connect/webapp
 ## Usage
 
 On the same computer, point your browser to [http://localhost](http://localhost).
+
+## Self-Signed Certificate
+* [Certificates for localhost](https://letsencrypt.org/docs/certificates-for-localhost/)
+* [Firefox Certificates Can't be Installed](https://security.stackexchange.com/questions/163199/firefox-certificate-can-t-be-installed)
+	```
+	openssl pkcs12 -export -in localhost.crt -inkey localhost.key -out localhost.p12
+	```
+* [How to Fix Mozilla Firefox Error](https://aboutssl.org/how-to-fix-mozilla-pkix-self-signed-cert-error/)

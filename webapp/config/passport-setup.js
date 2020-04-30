@@ -47,6 +47,7 @@ passport.use(
   })
 );
 
+// https://portal.azure.com/
 passport.use(
   new AzureStrategy({
     clientID: keys.azure.clientID,
