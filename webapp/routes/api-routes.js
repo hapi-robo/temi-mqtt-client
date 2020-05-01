@@ -1,22 +1,13 @@
 const router = require('express').Router();
 const User = require('../models/user-model');
 
-// @route   GET api/users
-// @desc    Get all users
-// @access  Public
-// router.get('/users', (req, res) => {
-//   User.findById(req.query.id)
-//     .then(user => res.json(user.robots))
-//     .catch(err => res.status(404).json({ success: false }))
-// });
-
 // @route   GET api/robots
 // @desc    Get all robots
 // @access  Public
 router.get('/robots', (req, res) => {
   User.findById(req.query.id)
     .then(user => res.json(user.robots))
-    .catch(err => res.status(404).json({ success: false }))
+    .catch(err => res.status(404).json({ success: false }));
 });
 
 // @route   POST api/robots

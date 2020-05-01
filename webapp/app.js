@@ -19,6 +19,9 @@ const apiRoutes = require('./routes/api-routes');
 const authRoutes = require('./routes/auth-routes');
 const consoleRoutes = require('./routes/console-routes');
 
+const mqttClient = require('./modules/mqtt-client');
+
+
 // CA certificates
 const ssl_options = {
     key: fs.readFileSync(path.join(__dirname, 'ssl', 'localhost.key')),
@@ -53,7 +56,7 @@ app.use(bodyParser.json());
 // connect to mongodb
 mongoose
   .connect(keys.mongodb.dbURI, {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false})
-  .then(() => console.log('MongoDB Connected...'))
+  .then(() => console.log('Connected to MongoDB...'))
   .catch(err => console.log(err));
 
 // set up routes

@@ -8,25 +8,6 @@ let selectedRobot;
 let client;
 
 
-function updateRobotCollection() {
-  const robotCollection = document.querySelector('#robot-collection');
-  robotCollection.className = 'collection';
-
-  // clear list
-  robotCollection.textContent = '';
-
-  // populate list
-  robotList.forEach((robot) => {
-    const a = document.createElement('a');
-    a.id = robot.id;
-    a.className = 'collection-item black white-text waves-effect center-align';
-    const text = document.createTextNode(robot.id);
-    a.append(text);
-
-    robotCollection.insertBefore(a, robotCollection.firstChild);
-  });
-}
-
 function selectRobot(e) {
   console.log(`Selected Robot: ${e.target.id}`);
 
@@ -324,7 +305,7 @@ function onConnectionLost(responseObject) {
  * Connect to MQTT broker
  * ref: https://www.eclipse.org/paho/files/jsdoc/Paho.MQTT.Client.html
  */
-function connectMQTT(host, port) {
+function connectMqtt(host, port) {
   console.log(`Connecting to ${host}:${port}`);
 
   // unique identifier
@@ -353,20 +334,15 @@ function connectMQTT(host, port) {
   client.connect(options);
 }
 
-// function init() {
-//   const id = 
-// }
+window.onload = connectMqtt('localhost', 9001);
 
-// @TODO Make this configurable
-window.onload = init();
-window.onload = connectMQTT('localhost', 9001);
-// window.onload = connectMQTT('192.168.0.177', 9001);
-window.onload = showRobotMenu();
+// window.onload = connectMqtt('192.168.0.177', 9001);
+// window.onload = showRobotMenu();
 
-document.addEventListener('DOMContentLoaded', showWaypointNav);
-document.addEventListener('keydown', keyboardEvent);
+// document.addEventListener('DOMContentLoaded', showWaypointNav);
+// document.addEventListener('keydown', keyboardEvent);
 
-document.querySelector('#robot-collection').addEventListener('click', selectRobot);
-document.querySelector('#home-btn').addEventListener('click', showRobotMenu);
-document.querySelector('#video-btn').addEventListener('click', startVideoCall);
-document.querySelector('#waypoint-modal').addEventListener('click', selectWaypoint);
+// document.querySelector('#robot-collection').addEventListener('click', selectRobot);
+// document.querySelector('#home-btn').addEventListener('click', showRobotMenu);
+// document.querySelector('#video-btn').addEventListener('click', startVideoCall);
+// document.querySelector('#waypoint-modal').addEventListener('click', selectWaypoint);

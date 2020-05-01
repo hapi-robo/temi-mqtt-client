@@ -32,11 +32,11 @@
       <div class="col" style="margin-top:20%">
         <div class="input-group mb-3">
           <div class="input-group-prepend">
-            <span class="input-group-text" id="basic-addon1">Serial Number</span>
+            <span class="input-group-text">Serial Number</span>
           </div>
-          <input type="text" class="form-control">
+          <input id="input-serial-number" type="text" class="form-control">
           <div class="input-group-append">
-            <button class="btn btn-outline-secondary" type="button">Add</button>
+            <button id="btn-add-robot" class="btn btn-outline-secondary" type="button">Add</button>
           </div>
         </div>
       </div>
@@ -45,31 +45,21 @@
 
   <!-- Robot List -->
   <div class="container">
-    <div class="list-group">
-      <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
-        <div class="d-flex w-100 justify-content-between">
-          <h5 class="mb-1">Kitchen</h5>
-          <small>Charging</small>
-        </div>
-        <small class="text-muted">00119260361</small>
-      </a>
+    <div id="list-robot" class="list-group">
+  </div>
 
-      <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
-        <div class="d-flex w-100 justify-content-between">
-          <h5 class="mb-1">Meeting Room</h5>
-          <small>Going to Door</small>
-        </div>
-        <small class="text-muted">00119260362</small>
-      </a>
-      
-      <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
-        <div class="d-flex w-100 justify-content-between">
-          <h5 class="mb-1">Nick Name</h5>
-          <small>State</small>
-        </div>
-        <small class="text-muted">Serial Number</small>
-      </a>
-    </div>
+  <!-- TEMPLATE -->
+  <div class="container">
+    <a id="Serial Number" class="list-group-item list-group-item-action flex-column align-items-start">
+      <div class="d-flex w-100 justify-content-between">
+        <h5>Name</h5>
+        <small>State</small>
+      </div>
+      <div class="d-flex w-100 justify-content-between">
+        <small>Serial Number</small>
+        <p>Hello</p>
+      </div>
+    </a>
   </div>
 
 <!--   <div style="height:100vh;"></div> -->
@@ -130,16 +120,8 @@
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 
-  <!-- Jitsi-->
-  <!-- https://github.com/jitsi/jitsi-meet/blob/master/doc/api.md-->
-  <!-- <script type="text/javascript" src="https://meet.jit.si/external_api.js"></script>
- -->
-  <!-- Paho MQTT-->
-  <!-- https://github.com/eclipse/paho.mqtt.javascript-->
-  <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/paho-mqtt.min.js"></script>
-   -->
-  <!-- Custom Events-->
-  <!-- <script type="module" src="/js/main.js"></script> -->
+  <!-- Custom -->
+  <script type="module" src="/js/robot-list.js"></script>
 </body>
 
 </html>
