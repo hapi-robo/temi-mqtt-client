@@ -2,7 +2,7 @@
  * Main backend NodeJS file.
  *
  */
-const http = require('http');
+const http = require('http'); // remove
 const https = require('https');
 const fs = require('fs');
 const express = require('express');

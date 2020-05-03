@@ -1,0 +1,13 @@
+/* Chat */
+.chat-container {
+	overflow: hidden;
+}
+
+.chat-messages {
+	max-height: 400px;
+	overflow-y: scroll;
+}
+
+.chat-messages .message {
+	border-radius: 5px;
+}

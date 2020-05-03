@@ -1,6 +1,6 @@
 // select robot
 function selectRobot(e) {
-  console.log(e.target);  
+  console.log(e.target);
   console.log(e.target.offsetParent);
   console.log(e.target.offsetParent.id);
 }
@@ -18,7 +18,8 @@ function displayRobots(list) {
     const a = document.createElement('a');
     a.id = robot.serialNumber;
     if (robot.state === 'Offline') {
-      a.className = 'list-group-item list-group-item-action flex-column align-items-start disabled';
+      a.className = 'list-group-item list-group-item-action flex-column align-items-start';
+      // a.className = 'list-group-item list-group-item-action flex-column align-items-start disabled';
     } else {      
       a.className = 'list-group-item list-group-item-action flex-column align-items-start';
     }
@@ -42,6 +43,18 @@ function displayRobots(list) {
 
     a.appendChild(div);
     a.appendChild(serialNumber);
+    
+    a.addEventListener('click', (e) => {
+      console.log(`click: ${e.target.id}`);
+    });
+
+    a.addEventListener('mouseover', (e) => {
+      console.log(`mouseover: ${e.target.id}`);
+    });
+
+    a.addEventListener('mouseout', (e) => {
+      console.log(`mouseout: ${e.target.id}`);
+    });
 
     robotListGroup.insertBefore(a, robotListGroup.firstChild);
   });
@@ -71,7 +84,7 @@ function addRobot() {
 
 // initialize robot list
 function init() {
-  fetch('/console/get_robots', {
+  fetch('/console/robot/get', {
     method: 'GET',
   })
     .then(res => res.json())
@@ -82,4 +95,21 @@ function init() {
 window.onload = init();
 
 document.querySelector('#btn-add-robot').addEventListener('click', addRobot);
-document.querySelector('#list-robot').addEventListener('click', selectRobot);
+// document.querySelector('#list-robot').addEventListener('click', selectRobot);
+// document.querySelector('#test').addEventListener('click', selectRobot);
+
+document.querySelector('#list-tab').addEventListener('click', function (e) {
+  console.log(e.target.id);
+
+  // const a = document.getElementById(e.target.id);
+  // a.className += ' list-group-item-primary'
+  // console.log(`click`)
+})
+
+// document.querySelector('#list-home-list').addEventListener('mouseover', function (e) {
+//   console.log(`mouseover`);
+// })
+
+// document.querySelector('#list-home-list').addEventListener('mouseout', function (e) {
+//   console.log(`mouseout`);
+// })

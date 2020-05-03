@@ -4,11 +4,11 @@ const mqtt = require('mqtt');
 const keys = require('../config/keys');
 
 
-// const client = mqtt.connect('mqtt://localhost');
-const client = mqtt.connect(keys.mqtt.host, {
-  username: keys.mqtt.username,
-  password: keys.mqtt.password
-});
+const client = mqtt.connect('mqtt://localhost'); // local development
+// const client = mqtt.connect(keys.mqtt.host, {
+//   username: keys.mqtt.username,
+//   password: keys.mqtt.password
+// });
 
 // successful connection
 client.on('connect', () => {
