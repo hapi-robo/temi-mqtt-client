@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const RobotSchema = new Schema({
+const DeviceSchema = new Schema({
     name: {
         type: String,
         required: true,
@@ -12,7 +12,7 @@ const RobotSchema = new Schema({
     },
     date: {
         type: Date,
-        default: Date.now
+        default: Date.now()
     }
 });
 
@@ -45,7 +45,7 @@ const UserSchema = new Schema({
     	type: String,
     	required: false
     },
-    robots: [RobotSchema]
+    devices: [DeviceSchema]
 });
 
 const User = mongoose.model('user', UserSchema);

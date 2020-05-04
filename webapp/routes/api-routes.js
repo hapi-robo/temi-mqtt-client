@@ -1,53 +1,53 @@
 const router = require('express').Router();
 const User = require('../models/user-model');
 
-// @route   GET api/robots
-// @desc    Get all robots
+// @route   GET api/devices
+// @desc    Get all devices
 // @access  Public
-router.get('/robots', (req, res) => {
+router.get('/devices', (req, res) => {
   User.findById(req.query.id)
-    .then(user => res.json(user.robots))
-    .catch(err => res.status(404).json({ success: false }));
+    .then(user => res.json(user.devices))
+    .catch(err => res.status(404).json({ 'success': false }));
 });
 
-// @route   POST api/robots
-// @desc    Add robot
+// @route   POST api/devices
+// @desc    Add device
 // @access  Public
-router.post('/robots', (req, res) => {
-  // @TODO check parameters
-  const newRobot = { 'name': req.body.name, 'serialNumber': req.body.serialNumber };
-  User.find({ _id: req.query.id, 'robots.serialNumber': req.body.serialNumber })
-    .then(user => {
-      if (user === undefined || user.length === 0) {
-        console.log('Adding robot')
-        User.update({ _id: req.query.id }, { $push: { robots: newRobot } })
-          .then(user => res.json(newRobot));
+router.post('/devices', (req, res) => {
+  const newDevice = { 'name': req.body.name, 'serialNumber': req.body.serialNumber };
+  
+  User.find({ _id: req.query.id, 'devices.serialNumber': req.body.serialNumber })
+    .then(dev => {
+      if (dev === undefined || dev.length === 0) {
+        console.log('Adding device')
+        User.updateOne({ _id: req.query.id }, { $push: { devices: newDevice } })
+          .then(() => res.json({ 'success': true }))
+          .catch(err => res.status(404).json({ 'success': false }));
       } else {
-        console.log('Robot already exists');
+        console.log('Device already exists');
         res.json({ exists: true });
       }
     })
-    .catch(err => res.status(404).json({ success: false }));
+    .catch(err => res.status(404).json({ 'success': false }));
 });
 
-// @route   DELETE api/robots
-// @desc    Delete robot
+// @route   DELETE api/devices
+// @desc    Delete device
 // @access  Public
-router.delete('/robots', (req, res) => {
-  // @TODO check parameters
-  User.find({ _id: req.query.id, 'robots.serialNumber': req.query.serialNumber })
-    .then(user => {
-      if (user === undefined || user.length === 0) {
-        console.log('Robot does not exist');
+router.delete('/devices', (req, res) => {
+  User.find({ _id: req.query.id, 'devices.serialNumber': req.query.serialNumber })
+    .then(dev => {
+      if (dev === undefined || dev.length === 0) {
+        console.log('Device does not exist');
           res.json({ exists: false });
       } else {
-        console.log('Robot exists');
-          User.findByIdAndUpdate(req.query.id, { $pull: { 'robots': { serialNumber: req.query.serialNumber } } })
-            .then(user => res.json({ success: true }))
-            .catch(err => res.status(404).json(user.robots));
+        console.log('Device exists');
+          User.findByIdAndUpdate(req.query.id, { $pull: { 'devices': { serialNumber: req.query.serialNumber } } })
+            .then(() => res.json({ 'success': true }))
+            .catch(err => res.status(404).json({ 'success': false }));
         }
       })
-    .catch(err => res.status(404).json({ success: false }));
+    .catch(err => res.status(404).json({ 'success': false }));
 });
 
 module.exports = router;

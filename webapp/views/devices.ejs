@@ -1,0 +1,52 @@
+<%- include('header') -%>
+
+<body>
+  <%- include('navbar') -%>
+
+  <master class="m-3">
+    <div class="container">
+
+      <!-- Add Device -->
+      <div class="row">
+        <div class="col">
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <span class="input-group-text">Serial Number</span>
+            </div>
+            <input id="input-serial-number" type="text" class="form-control">
+            <div class="input-group-append">
+              <button id="btn-add-device" class="btn btn-outline-secondary" type="button">Add</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Device List -->
+      <div class="row">
+        <div class="col">
+          <div id="list-device" class="list-group"></div>
+        </div>
+      </div>
+
+    </div>
+  </master>
+
+  <!-- footer-->
+  <div class="white-text" style="position:relative">
+    <small style="position:fixed; bottom:0; width:100%; text-align:center">© 2020 hapi-robo st, Inc. — All Rights Reserved.</small>
+  </div>
+  
+
+  <!-- JavaScript at end of body for optimized loading-->
+
+  <!-- Bootstrap Javascript -->
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <!-- Custom -->
+  <script src="/js/devices.js"></script>
+
+</body>
+
+</html>

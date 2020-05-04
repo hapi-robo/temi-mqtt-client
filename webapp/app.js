@@ -18,6 +18,7 @@ const keys = require('./config/keys');
 const apiRoutes = require('./routes/api-routes');
 const authRoutes = require('./routes/auth-routes');
 const consoleRoutes = require('./routes/console-routes');
+const devicesRoutes = require('./routes/devices-routes');
 
 const mqttClient = require('./modules/mqtt-client');
 
@@ -63,6 +64,7 @@ mongoose
 app.use('/api', apiRoutes);
 app.use('/auth', authRoutes);
 app.use('/console', consoleRoutes);
+app.use('/devices', devicesRoutes);
 
 // create home route
 app.get('/', (req, res) => {
@@ -70,5 +72,5 @@ app.get('/', (req, res) => {
 });
 
 // start server
-// http.createServer(app).listen(port, () => console.log(`Server is listening on port ${port}`));
-https.createServer(ssl_options, app).listen(port, () => console.log(`Server is listening on port ${port}`));
+http.createServer(app).listen(port, () => console.log(`Server is listening on port ${port}`));
+// https.createServer(ssl_options, app).listen(port, () => console.log(`Server is listening on port ${port}`));
