@@ -72,5 +72,5 @@ app.get('/', (req, res) => {
 });
 
 // start server
-http.createServer(app).listen(port, () => console.log(`Server is listening on port ${port}`));
-// https.createServer(ssl_options, app).listen(port, () => console.log(`Server is listening on port ${port}`));
+// http.createServer(app).listen(port, () => console.log(`Server is listening on port ${port}`));
+https.createServer(ssl_options, app).listen(port, () => console.log(`Server is listening on port ${port}`));

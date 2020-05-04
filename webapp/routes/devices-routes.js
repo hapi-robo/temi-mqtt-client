@@ -19,11 +19,13 @@ const authCheck = (req, res, next) => {
   }
 };
 
+// render device page
 router.get('/', authCheck, (req, res) => {
   res.render('devices', { user: req.user });
 });
 
 //-------------------------------------------------------
+// Device Routes
 
 // @route   GET devices/get
 // @desc    Get all devices
@@ -45,7 +47,7 @@ router.post('/add', authCheck, (req, res) => {
   }
 
   // construct new device
-  const newDevice = { 'name': 'untitled', 'serialNumber': req.body.serialNumber };
+  const newDevice = { 'name': req.body.name, 'serialNumber': req.body.serialNumber };
 
   // find and add new device
   User.find({ _id: req.user.id, 'devices.serialNumber': req.body.serialNumber })
@@ -96,6 +98,42 @@ router.delete('/delete', authCheck, (req, res) => {
         }
       })
     .catch(err => res.status(404).json({ 'success': false }));
+});
+
+//-------------------------------------------------------
+// Device Location Routes
+
+// @route   GET devices/get
+// @desc    Get all locations
+// @access  OAuth
+router.get('/location/get', authCheck, (req, res) => {
+  console.log('Get locations');
+  console.log(req.query.serialNumber);
+
+  // get device from memory
+  res.json({ 'success': false })
+});
+
+// @route   POST devices/add
+// @desc    Add device
+// @access  OAuth
+router.post('/location/add', authCheck, (req, res) => {
+  console.log('Add location');
+  console.log(req.query.serialNumber);
+
+  // get device from memory
+  res.json({ 'success': false })
+});
+
+// @route   DELETE devices/delete
+// @desc    Delete device
+// @access  OAuth
+router.delete('/location/delete', authCheck, (req, res) => {
+  console.log('Delete locations');
+  console.log(req.query.serialNumber);
+
+  // get device from memory
+  res.json({ 'success': false })
 });
 
 module.exports = router;

@@ -7,19 +7,23 @@
     <div class="container">
 
       <!-- Add Device -->
-      <div class="row">
-        <div class="col">
-          <div class="input-group mb-3">
-            <div class="input-group-prepend">
-              <span class="input-group-text">Serial Number</span>
-            </div>
-            <input id="input-serial-number" type="text" class="form-control">
-            <div class="input-group-append">
-              <button id="btn-add-device" class="btn btn-outline-secondary" type="button">Add</button>
+      <form id="form-add-device">
+        <div class="form-row align-items-center">
+          <div class="col-sm-4 my-1">
+            <label class="sr-only" for="inline-form-device-name">Name</label>
+            <input type="text" class="form-control" id="deviceName" placeholder="Device Name">
+          </div>
+          <div class="col-sm-4 my-1">
+            <label class="sr-only" for="inline-form-serial-number">Serial Number</label>
+            <div class="input-group">
+              <input type="text" class="form-control" id="serialNumber" placeholder="Serial Number" minlength="11" maxlength="11" size="11">
             </div>
           </div>
+          <div class="col-auto my-1">
+            <button type="submit" class="btn btn-secondary">Add</button>
+          </div>
         </div>
-      </div>
+      </form>
 
       <!-- Device List -->
       <div class="row">

@@ -1,4 +1,4 @@
-// Output device to DOM
+// output device to DOM
 function outputDevice(device) {
   const a = document.createElement('a');
   a.id = device.serialNumber;
@@ -16,7 +16,7 @@ function outputDevice(device) {
   document.querySelector(`#device-${device.serialNumber}`).addEventListener('click', removeDevice);
 }
 
-// Display robots in a list
+// display device in a list
 function displayDevices(list) {
   const deviceListView = document.querySelector('#list-device');
 
@@ -24,7 +24,6 @@ function displayDevices(list) {
   deviceListView.textContent = '';
 
   list.forEach(device => {
-    console.log(`${device.name} ${device.serialNumber} ${device.batteryPercentage} ${device.state}`);
     outputDevice(device);
   });
 }
@@ -40,10 +39,14 @@ function getDevices() {
 }
 
 // add device to database
-function addDevice() {
+function addDevice(event) {
+  event.preventDefault();
+
   console.log(`Adding device...`);
+
   const data = {
-    serialNumber: document.querySelector('#input-serial-number').value
+    name: event.target.elements.deviceName.value,
+    serialNumber: event.target.elements.serialNumber.value
   };
 
   fetch('/devices/add', {
@@ -59,6 +62,8 @@ function addDevice() {
         console.log(`Device already exists`);
       } else {
         displayDevices(obj);
+        event.target.elements.deviceName.value = '';
+        event.target.elements.serialNumber.value = '';
       }
     })
     .catch(err => console.error(err));
@@ -86,10 +91,14 @@ function removeDevice(event) {
 // initialize device list
 function init() {
   getDevices();
+
+  // clear inputs
+  document.querySelector('#deviceName').value = '';  
+  document.querySelector('#serialNumber').value = '';
 }
 
 // window event listeners
 window.onload = init();
 
 // document event listeners
-document.querySelector('#btn-add-device').addEventListener('click', addDevice);
+document.querySelector('#form-add-device').addEventListener('submit', addDevice);
