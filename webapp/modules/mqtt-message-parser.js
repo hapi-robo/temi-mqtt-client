@@ -1,26 +1,26 @@
 const mqttClient = require('./mqtt-client');
-const Robot = require('./robot');
+const Device = require('./device');
 
-const robotListAll = [];
+const deviceListAll = [];
 
-function updateRobotListAll(serialNumber, payload) {
-  const robot = robotListAll.find(robot => robot.serialNumber === serialNumber);
+function updateDeviceListAll(serialNumber, payload) {
+  const device = deviceListAll.find(device => device.serialNumber === serialNumber);
   const data = JSON.parse(payload);
 
-  if (robot === undefined) {
+  if (device === undefined) {
     // append to list
     console.log('Append');
-    robotListAll.push(new Robot(serialNumber, data));
+    deviceListAll.push(new Device(serialNumber, data));
   } else {
-    if (!robot.isEqual(data)) {
+    if (!device.isEqual(data)) {
       // update parameters
       console.log('Update');
-      robot.update(data);
+      device.update(data);
     }
   }
 
-  // console.log(robotListAll);
-  // console.log(`List Length: ${robotListAll.length}`);
+  // console.log(deviceListAll);
+  // console.log(`List Length: ${deviceListAll.length}`);
 }
 
 // message even handler
@@ -33,10 +33,10 @@ mqttClient.on('message', (topic, message, packet) => {
 
   switch (category) {
     case 'info': {
-      updateRobotListAll(serialNumber, message);
+      // @TODO Use socket.io to update console data
+      updateDeviceListAll(serialNumber, message);
     }
   }
 });
 
-// @TODO Consider using redis to store robotListAll locally
-module.exports = robotListAll;
+module.exports = deviceListAll;

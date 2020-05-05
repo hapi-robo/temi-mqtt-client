@@ -10,7 +10,7 @@ function arraysEqual(a, b) {
   return true;
 }
 
-class Robot {
+class Device {
   // constructor
   constructor(serialNumber, obj = {}) {
     // identification
@@ -76,4 +76,4 @@ class Robot {
   }
 }
 
-module.exports = Robot;
+module.exports = Device;

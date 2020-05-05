@@ -9,88 +9,85 @@
         <div class="list-group" id="list-device"></div>
       </div>
       <div class="col-10">
-        <div class="row">
-          <div class="col-3">
-            <p class="font-weight-bold">Serial Number</p>
-            <p class="font-weight-bold">Status</p>
-            <p class="font-weight-bold">Battery</p>
-          </div>
-          <div class="col-3">
-            <p>00119462420</p>
-            <p>Online</p>
-            <p>95%</p>
-          </div>
-          <div class="col-6">
-            <div class="d-flex">
-              <button type="button" class="btn btn-secondary mb-2 ml-auto disabled"><i class="fas fa-edit"></i> Edit</button>
+        <div id="div-device-details">
+          <div class="row">
+            <div class="col-3">
+              <p class="font-weight-bold">Serial Number</p>
+              <p class="font-weight-bold">Status</p>
+              <p class="font-weight-bold">Battery</p>
             </div>
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
-              </div>
-              <select class="custom-select" id="input-goto-select">
-                <option selected>Choose Location...</option>
-                <option value="1">Kitchen</option>
-                <option value="2">Meeting Room</option>
-                <option value="3">Entrance</option>
-                <option value="4">Home Base</option>
-              </select>
-              <div class="input-group-append">
-                <button class="btn btn-outline-secondary" type="button">Go</button>
-              </div>
+            <div class="col-3">
+              <p id="device-serial"></p>
+              <p id="device-battery"></p>
             </div>
-          </div>
-        </div>
-
-        <div class="row mt-3">
-          <!-- Video Container -->
-          <div class="col-6 video-container">
-            <div class="m-2" id="video-container">
-              <img/>
-            </div>
-          </div>
-
-          <!-- Chat Container -->
-<!--           <div class="col-6 chat-container">
-            <div class="chat-messages p-3">
-              <div class="message p-2 mb-2 bg-light">
-                <small class="font-weight-bold text-primary mb-1">Raymond Oung <span class="text-secondary">9:18 am</span></small>
-                <p>Hello, how are you doing?</p>
-              </div>
-              <div class="message p-2 mb-2 bg-light">
-                <small class="font-weight-bold text-success mb-1">temi <span class="text-secondary">9:18 am</span></small>
-                <p>I'm doing well.</p>
-              </div>
-              <div class="message p-2 mb-2 bg-light">
-                <small class="font-weight-bold text-primary mb-1">Raymond Oung <span class="text-secondary">9:19 am</span></small>
-                <p>Can I help you today?</p>
-              </div>
-              <div class="message p-2 mb-2 bg-light">
-                <small class="font-weight-bold text-success mb-1">temi <span class="text-secondary">9:19 am</span></small>
-                <p>Yes, where is the meeting room?</p>
-              </div>
-              <div class="message p-2 mb-2 bg-light">
-                <small class="font-weight-bold text-primary mb-1">Raymond Oung <span class="text-secondary">9:20 am</span></small>
-                <p>Over by the bathroom.</p>
-              </div>
-            </div>
-    
-            <div class="row mt-3">
-              <div class="input-group mb-3">
-                <input id="input-message" type="text" placeholder="Enter Message" required autocomplete="off" class="form-control">
+            <div class="col-6">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                </div>
+                <select class="custom-select" id="input-goto-select">
+                  <option selected>Choose Location...</option>
+                  <option value="1">Kitchen</option>
+                  <option value="2">Meeting Room</option>
+                  <option value="3">Entrance</option>
+                  <option value="4">Home Base</option>
+                </select>
                 <div class="input-group-append">
-                  <button id="btn-send-message" class="btn btn-outline-secondary" type="button"><i class="fas fa-paper-plane"></i> Send</button>
+                  <button class="btn btn-secondary" type="button">Go</button>
                 </div>
               </div>
             </div>
+          </div>
 
-          </div> -->
+          <div class="row mt-3">
+            <!-- Video Container -->
+            <div class="col-6 video-container">
+              <div class="m-2" id="video-container">
+                <img/>
+              </div>
+            </div>
 
+            <!-- Chat Container -->
+  <!--           <div class="col-6 chat-container">
+              <div class="chat-messages p-3">
+                <div class="message p-2 mb-2 bg-light">
+                  <small class="font-weight-bold text-primary mb-1">Raymond Oung <span class="text-secondary">9:18 am</span></small>
+                  <p>Hello, how are you doing?</p>
+                </div>
+                <div class="message p-2 mb-2 bg-light">
+                  <small class="font-weight-bold text-success mb-1">temi <span class="text-secondary">9:18 am</span></small>
+                  <p>I'm doing well.</p>
+                </div>
+                <div class="message p-2 mb-2 bg-light">
+                  <small class="font-weight-bold text-primary mb-1">Raymond Oung <span class="text-secondary">9:19 am</span></small>
+                  <p>Can I help you today?</p>
+                </div>
+                <div class="message p-2 mb-2 bg-light">
+                  <small class="font-weight-bold text-success mb-1">temi <span class="text-secondary">9:19 am</span></small>
+                  <p>Yes, where is the meeting room?</p>
+                </div>
+                <div class="message p-2 mb-2 bg-light">
+                  <small class="font-weight-bold text-primary mb-1">Raymond Oung <span class="text-secondary">9:20 am</span></small>
+                  <p>Over by the bathroom.</p>
+                </div>
+              </div>
+      
+              <div class="row mt-3">
+                <div class="input-group mb-3">
+                  <input id="input-message" type="text" placeholder="Enter Message" required autocomplete="off" class="form-control">
+                  <div class="input-group-append">
+                    <button id="btn-send-message" class="btn btn-outline-secondary" type="button"><i class="fas fa-paper-plane"></i> Send</button>
+                  </div>
+                </div>
+              </div>
+
+            </div> -->
+
+          </div>
         </div>
       </div>
     </div>
   </div>
-
 
   <!-- footer-->
   <div class="white-text" style="position:relative">
@@ -109,7 +106,11 @@
   <!-- https://github.com/jitsi/jitsi-meet/blob/master/doc/api.md-->
 <!--   <script type="text/javascript" src="https://meet.jit.si/external_api.js"></script> -->
 
+  <!-- Socket.IO -->
+  <script src="/socket.io/socket.io.js"></script>
+
   <!-- Custom -->
+  <script src="/js/gamepad.js"></script>
   <script src="/js/console.js"></script>
 
   <script>

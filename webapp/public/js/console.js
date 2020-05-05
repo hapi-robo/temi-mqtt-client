@@ -1,10 +1,11 @@
 // global variables
+let consoleSocket = io();
 let selectedDevices = [];
 
-// output device details to DOM
-function outputDeviceDetails(device) {
-
-}
+// device information
+consoleSocket.on('device', data => {
+  console.log(data);
+});
 
 // output device to DOM
 function outputDevice(device) {
@@ -12,11 +13,12 @@ function outputDevice(device) {
   a.id = device.serialNumber;
   a.className = 'list-group-item';
   a.innerHTML =`${device.name}`;
-  
+
   a.addEventListener('click', event => {
     if (a.className.search("active") > -1) {
       a.className = 'list-group-item';
 
+      // @TODO only when CTRL is pressed
       // remove device from selection
       const index = selectedDevices.indexOf(device.serialNumber);
       if (index > -1) {
@@ -25,21 +27,32 @@ function outputDevice(device) {
     } else {
       a.className = 'list-group-item text-light active';
 
+      // @TODO only when CTRL is pressed
       // add device to selection
       selectedDevices.push(device.serialNumber);
     }
+
+    // show device details
+    document.querySelector('#device-serial').innerHTML = a.id;
+
+    if (selectedDevices.length === 1) {
+      document.querySelector('#div-device-details').style.display = 'block';
+    } else {
+      document.querySelector('#div-device-details').style.display = 'none';
+    }
+
     console.log(selectedDevices);
   });
 
   a.addEventListener('mouseover', event => {
     if (a.className.search("active") === -1) {
-      a.className = 'list-group-item bg-light';
+      a.className = 'list-group-item';
     }
   });
 
   a.addEventListener('mouseout', event => {
     if (a.className.search("active") === -1) {
-      a.className = 'list-group-item bg-white';
+      a.className = 'list-group-item';
     }
   });
   
@@ -70,6 +83,7 @@ function getDevices() {
 
 // initialize device list
 function init() {
+  document.querySelector('#div-device-details').style.display = 'none';
   getDevices();
 }
 

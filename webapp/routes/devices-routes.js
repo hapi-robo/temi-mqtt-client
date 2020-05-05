@@ -1,9 +1,7 @@
 const router = require('express').Router();
 
 const User = require('../models/user-model');
-
-const Robot = require('../modules/robot');
-const robotListAll = require('../modules/mqtt-message-parser');
+const deviceListAll = require('../modules/mqtt-message-parser');
 
 
 // constants
