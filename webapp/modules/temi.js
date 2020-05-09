@@ -1,4 +1,6 @@
-class Commander {
+// temi MQTT commander class
+
+class Temi {
   constructor(client) {
     this.client = client;
   }
@@ -11,6 +13,7 @@ class Commander {
     } else {
       const topic = `temi/${id}/command/move/turn_by`;
       const payload = JSON.stringify({ angle: 30 * Math.sign(value) });
+
       this.client.publish(topic, payload, { qos: 0 });
     }
   }
@@ -21,10 +24,10 @@ class Commander {
     let topic;
     if (Math.sign(value) > 0) {
       topic = `temi/${id}/command/move/forward`;
-      this.client.publish(topic, '', { qos: 0 });
+      this.client.publish(topic, "{}", { qos: 0 });
     } else if (Math.sign(value) < 0) {
       topic = `temi/${id}/command/move/backward`;
-      this.client.publish(topic, '', { qos: 0 });
+      this.client.publish(topic, "{}", { qos: 0 });
     } else {
       // do nothing
     }
@@ -42,8 +45,20 @@ class Commander {
     }
   }
 
+  tiltBy(id, value) {
+    console.log(`[CMD] Tilt-by: ${value}`);
+
+    if (value === 0) {
+      // do nothing
+    } else {
+      const topic = `temi/${id}/command/move/tilt_by`;
+      const payload = JSON.stringify({ angle: 15 * Math.sign(value) });
+      this.client.publish(topic, payload, { qos: 0 });
+    }
+  }
+
   tiltUp(id) {
-    console.log('[CMD] Tilt Up');
+    console.log("[CMD] Tilt Up");
 
     const topic = `temi/${id}/command/move/tilt_by`;
     const payload = JSON.stringify({ angle: 5 });
@@ -52,7 +67,7 @@ class Commander {
   }
 
   tiltDown(id) {
-    console.log('[CMD] Tilt Down');
+    console.log("[CMD] Tilt Down");
 
     const topic = `temi/${id}/command/move/tilt_by`;
     const payload = JSON.stringify({ angle: -5 });
@@ -70,7 +85,7 @@ class Commander {
       topic = `temi/${id}/command/follow/stop`;
     }
 
-    this.client.publish(topic, '', { qos: 1 });
+    this.client.publish(topic, "{}", { qos: 1 });
   }
 
   goto(id, waypoint) {
@@ -83,19 +98,19 @@ class Commander {
   }
 
   call(id) {
-    console.log('[CMD] Call');
+    console.log("[CMD] Call");
 
     const topic = `temi/${id}/command/call`;
 
-    this.client.publish(topic, '', { qos: 1 });
+    this.client.publish(topic, "{}", { qos: 1 });
   }
 
   hangup(id) {
-    console.log('[CMD] Hangup');
+    console.log("[CMD] Hangup");
 
     const topic = `temi/${id}/command/hangup`;
 
-    this.client.publish(topic, '', { qos: 1 });
+    this.client.publish(topic, "{}", { qos: 1 });
   }
 
   tts(id, utterance) {
@@ -118,4 +133,4 @@ class Commander {
   }
 }
 
-module.exports = Commander;
+module.exports = Temi;

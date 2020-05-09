@@ -1,7 +1,3 @@
-/**
- * Main backend NodeJS file.
- *
- */
 const http = require('http'); // debug
 const https = require('https');
 const fs = require('fs');
@@ -13,15 +9,17 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const socketio = require('socket.io');
 
-const passportSetup = require('./config/passport-setup');
 const keys = require('./config/keys');
+const passportSetup = require('./config/passport-setup');
 
 // const apiRoutes = require('./routes/api-routes');
 const authRoutes = require('./routes/auth-routes');
+const commandRoutes = require('./routes/command-routes');
 const consoleRoutes = require('./routes/console-routes');
 const devicesRoutes = require('./routes/devices-routes');
 
 const mqttClient = require('./modules/mqtt-client');
+const Temi = require('./modules/temi');
 
 
 // constants
@@ -29,17 +27,12 @@ const port = process.env.PORT || 5000;
 
 // CA certificates
 const ssl_options = {
-    key: fs.readFileSync(path.join(__dirname, 'ssl', 'localhost.key')),
-    cert: fs.readFileSync(path.join(__dirname, 'ssl', 'localhost.crt')),
+  key: fs.readFileSync(path.join(__dirname, 'ssl', 'localhost.key')),
+  cert: fs.readFileSync(path.join(__dirname, 'ssl', 'localhost.crt')),
 };
 
 // instantiate webapp
 const app = express();
-
-// create server and websocket connection
-// const server = http.createServer(app)
-const server = https.createServer(ssl_options, app)
-const io = socketio(server);
 
 // setup template engine
 app.set('view engine', 'ejs');
@@ -69,16 +62,24 @@ mongoose
 // set up routes
 // app.use('/api', apiRoutes);
 app.use('/auth', authRoutes);
+app.use('/command', commandRoutes);
 app.use('/console', consoleRoutes);
 app.use('/devices', devicesRoutes);
 
 // create home route
 app.get('/', (req, res) => {
-  res.render('login');
+  res.render('login', { user: req.user });
 });
 
+// create server and websocket connection
+// const server = http.createServer(app);
+const server = https.createServer(ssl_options, app);
+const io = socketio(server);
+
 // socket.io handlers
-io.on('connection', socket => { 
+io.on('connection', socket => {
+  const temi = new Temi(mqttClient);
+
   console.log('Socket.IO connection registered...'); 
   
   // disconnection event
@@ -88,12 +89,39 @@ io.on('connection', socket => {
 
   // gamepad event
   socket.on('gamepad', data => {
-    console.log(data);
-    // mqttClient.publish()
+    const obj = JSON.parse(data);
+
+    // parse and forward to MQTT
+    if ('translate' in obj) {
+      // temi.translate(..., data.translate);
+    }
+
+    if ('rotate' in obj) {
+      // temi.rotate(..., data.rotate);
+    }
+
+    if ('tilt' in obj) {
+      // temi.tilt(..., data.tilt);
+    }
   });
 
-  // test
-  socket.emit('device', { a: 1, b: 2});
+  // keyboard event
+  socket.on('keyboard', data => {
+    console.log(data);
+
+    // parse and forward to MQTT
+    if ('rotate' in data) {
+      temi.rotate(data.serialNumber, data.rotate);
+    }
+    
+    if ('translate' in data) {
+      temi.translate(data.serialNumber, data.translate);
+    }
+
+    if ('tilt' in data) {
+      temi.tiltBy(data.serialNumber, data.tilt);
+    }
+  });
 });
 
 // start server

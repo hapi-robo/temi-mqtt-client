@@ -26,16 +26,28 @@ class Device {
   // check if parameters are identical
   isEqual(obj) {
     // identification
-    if (this.name !== obj['name']) { return false }
-    if (this.ip !== obj['ip']) { return false }
+    if (this.name !== obj["name"]) {
+      return false;
+    }
+    if (this.ip !== obj["ip"]) {
+      return false;
+    }
 
     // state
-    if (this.state !== obj['state']) { return false }
-    if (this.batteryPercentage !== obj['batteryPercentage']) { return false }
+    if (this.state !== obj["state"]) {
+      return false;
+    }
+    if (this.batteryPercentage !== obj["battery_percentage"]) {
+      return false;
+    }
 
     // navigation
-    if (this.destination !== obj['destination']) { return false }
-    if (!arraysEqual(this.waypointList, obj['waypointList'])) { return false }
+    if (this.destination !== obj["destination"]) {
+      return false;
+    }
+    if (!arraysEqual(this.waypointList, obj["waypoint_list"])) {
+      return false;
+    }
 
     return true;
   }
@@ -43,16 +55,28 @@ class Device {
   // update parameters
   update(obj) {
     // identification
-    if (obj['name']) { this.name = obj['name']; }
-    if (obj['ip']) { this.ip = obj['ip'] }
+    if (obj["name"]) {
+      this.name = obj["name"];
+    }
+    if (obj["ip"]) {
+      this.ip = obj["ip"];
+    }
 
     // state
-    if (obj['state']) { this.state = obj['state'] }
-    if (obj['batteryPercentage']) { this.batteryPercentage = obj['batteryPercentage'] }
+    if (obj["state"]) {
+      this.state = obj["state"];
+    }
+    if (obj["battery_percentage"]) {
+      this.batteryPercentage = obj["battery_percentage"];
+    }
 
     // navigation
-    if (obj['destination']) { this.destination = obj['destination'] }
-    if (obj['waypointList']) { this.waypointList = obj['waypointList'] }
+    if (obj["destination"]) {
+      this.destination = obj["destination"];
+    }
+    if (obj["waypoint_list"]) {
+      this.waypointList = obj["waypoint_list"];
+    }
 
     // timestamp
     this.date = Date.now();
@@ -61,7 +85,7 @@ class Device {
   // reset parameters
   reset() {
     // identification
-    this.name = 'Untitled';
+    this.name = "Untitled";
     this.ip = undefined;
 
     // state

@@ -3,17 +3,29 @@
 <body>
   <%- include('navbar') -%>
 
-  <div class="m-3">
+  <!-- Display when no devices available -->
+  <div id="container-no-devices" class="container text-center" style="display:none">
     <div class="row">
+      <div class="col mt-5">
+        <a class="btn btn-secondary" href="/devices" role="button">Add some devices</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="m-2">
+    <div class="row">
+      <!-- Device List -->
       <div class="col-2">
         <div class="list-group" id="list-device"></div>
       </div>
+      <!-- End of Device List -->
+
+      <!-- Device Information -->
       <div class="col-10">
-        <div id="div-device-details">
+        <div id="div-device-details" style="display:none">
           <div class="row">
             <div class="col-3">
               <p class="font-weight-bold">Serial Number</p>
-              <p class="font-weight-bold">Status</p>
               <p class="font-weight-bold">Battery</p>
             </div>
             <div class="col-3">
@@ -21,71 +33,38 @@
               <p id="device-battery"></p>
             </div>
             <div class="col-6">
+              <!-- Goto List -->
               <div class="input-group">
                 <div class="input-group-prepend">
                   <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
                 </div>
-                <select class="custom-select" id="input-goto-select">
-                  <option selected>Choose Location...</option>
-                  <option value="1">Kitchen</option>
-                  <option value="2">Meeting Room</option>
-                  <option value="3">Entrance</option>
-                  <option value="4">Home Base</option>
-                </select>
+                <select class="custom-select" id="select-goto"></select>
                 <div class="input-group-append">
-                  <button class="btn btn-secondary" type="button">Go</button>
+                  <button class="btn btn-secondary" type="button" id="btn-goto">Go</button>
                 </div>
               </div>
+              <!-- End of Goto List -->
+            </div> 
+          </div>
+
+          <div class="row mt-2">
+            <div class="col">
+              <button class="btn btn-secondary" type="button" id="btn-video"><i class="fas fa-video"></i> Video</button>
             </div>
           </div>
 
-          <div class="row mt-3">
-            <!-- Video Container -->
-            <div class="col-6 video-container">
-              <div class="m-2" id="video-container">
-                <img/>
-              </div>
+          <!-- Video Container -->
+          <div class="row mt-2">
+            <div class="col">
+              <div id="div-video"></div>
             </div>
-
-            <!-- Chat Container -->
-  <!--           <div class="col-6 chat-container">
-              <div class="chat-messages p-3">
-                <div class="message p-2 mb-2 bg-light">
-                  <small class="font-weight-bold text-primary mb-1">Raymond Oung <span class="text-secondary">9:18 am</span></small>
-                  <p>Hello, how are you doing?</p>
-                </div>
-                <div class="message p-2 mb-2 bg-light">
-                  <small class="font-weight-bold text-success mb-1">temi <span class="text-secondary">9:18 am</span></small>
-                  <p>I'm doing well.</p>
-                </div>
-                <div class="message p-2 mb-2 bg-light">
-                  <small class="font-weight-bold text-primary mb-1">Raymond Oung <span class="text-secondary">9:19 am</span></small>
-                  <p>Can I help you today?</p>
-                </div>
-                <div class="message p-2 mb-2 bg-light">
-                  <small class="font-weight-bold text-success mb-1">temi <span class="text-secondary">9:19 am</span></small>
-                  <p>Yes, where is the meeting room?</p>
-                </div>
-                <div class="message p-2 mb-2 bg-light">
-                  <small class="font-weight-bold text-primary mb-1">Raymond Oung <span class="text-secondary">9:20 am</span></small>
-                  <p>Over by the bathroom.</p>
-                </div>
-              </div>
-      
-              <div class="row mt-3">
-                <div class="input-group mb-3">
-                  <input id="input-message" type="text" placeholder="Enter Message" required autocomplete="off" class="form-control">
-                  <div class="input-group-append">
-                    <button id="btn-send-message" class="btn btn-outline-secondary" type="button"><i class="fas fa-paper-plane"></i> Send</button>
-                  </div>
-                </div>
-              </div>
-
-            </div> -->
-
           </div>
+          <!-- End of Video Container -->
+
         </div>
       </div>
+      <!-- End of Device Information -->
+
     </div>
   </div>
 
@@ -104,45 +83,16 @@
 
   <!-- Jitsi-->
   <!-- https://github.com/jitsi/jitsi-meet/blob/master/doc/api.md-->
-<!--   <script type="text/javascript" src="https://meet.jit.si/external_api.js"></script> -->
+  <script type="text/javascript" src="https://meet.jit.si/external_api.js"></script>
 
   <!-- Socket.IO -->
   <script src="/socket.io/socket.io.js"></script>
 
   <!-- Custom -->
-  <script src="/js/gamepad.js"></script>
   <script src="/js/console.js"></script>
-
-  <script>
-    // https://github.com/jitsi/jitsi-meet/blob/master/interface_config.js
-    // https://github.com/jitsi/jitsi-meet/blob/master/config.js
-    const options = {
-      roomName: `temi-4164126087`,
-      width: 640,
-      height: 480,
-      parentNode: document.querySelector('#video-container'),
-      interfaceConfigOverwrite: {
-        DEFAULT_BACKGROUND: '#ffffff',
-        INITIAL_TOOLBAR_TIMEOUT: 1000,
-        TOOLBAR_TIMEOUT: 1000,
-        TOOLBAR_ALWAYS_VISIBLE: false,
-        SHOW_JITSI_WATERMARK: false,
-        SHOW_WATERMARK_FOR_GUESTS: false,
-        TOOLBAR_BUTTONS: ['microphone', 'camera', 'closedcaptions', 'fullscreen', 'fodeviceselection', 'hangup', 'filmstrip', 'tileview'],
-        SETTINGS_SECTIONS: [ 'devices' ],
-        CLOSE_PAGE_GUEST_HINT: false,
-        SHOW_PROMOTIONAL_CLOSE_PAGE: false,
-        RANDOM_AVATAR_URL_PREFIX: false,
-        RANDOM_AVATAR_URL_SUFFIX: false,
-        ENABLE_FEEDBACK_ANIMATION: false,
-        DISABLE_FOCUS_INDICATOR: false,
-        DISABLE_DOMINANT_SPEAKER_INDICATOR: false,
-        MOBILE_APP_PROMO: false,
-        SHOW_CHROME_EXTENSION_BANNER: false
-      }
-    }
-    // const videoHandle = new JitsiMeetExternalAPI('meet.jit.si', options);
-  </script>
+  <script src="/js/keyboard.js"></script>
+  <script src="/js/gamepad.js"></script>
+  <script src="/js/video.js"></script>
 </body>
 
 </html>

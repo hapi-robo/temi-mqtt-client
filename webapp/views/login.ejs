@@ -1,14 +1,7 @@
 <%- include('header') -%>
 
 <body>
-  <nav class="navbar navbar-light bg-light">
-    <a class="navbar-brand" href="/">
-      <img src="/logo.svg" width="30" height="30" class="d-inline-block align-top" alt="">
-      Connect
-    </a>
-  </nav>
-
-  <br>
+  <%- include('navbar') -%>
 
   <!-- Sign in buttons -->
   <div class="container text-center">
@@ -20,9 +13,10 @@
         </a>
       </div>
     </div> -->
+    
     <!-- https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-add-branding-in-azure-ad-apps -->
     <div class="row">
-      <div class="col" style="margin-top:40%">
+      <div class="col mt-5">
         <a href="/auth/azure">
           <img src="/img/ms-symbollockup_signin_light.svg">
         </a>

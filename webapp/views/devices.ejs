@@ -3,23 +3,23 @@
 <body>
   <%- include('navbar') -%>
 
-  <master class="m-3">
+  <master class="m-2">
     <div class="container">
 
       <!-- Add Device -->
       <form id="form-add-device">
         <div class="form-row align-items-center">
-          <div class="col-sm-4 my-1">
+          <div class="col-sm-5 my-2">
             <label class="sr-only" for="inline-form-device-name">Name</label>
             <input type="text" class="form-control" id="deviceName" placeholder="Device Name">
           </div>
-          <div class="col-sm-4 my-1">
+          <div class="col-sm-5 my-2">
             <label class="sr-only" for="inline-form-serial-number">Serial Number</label>
             <div class="input-group">
               <input type="text" class="form-control" id="serialNumber" placeholder="Serial Number" minlength="11" maxlength="11" size="11">
             </div>
           </div>
-          <div class="col-auto my-1">
+          <div class="col-auto my-2">
             <button type="submit" class="btn btn-secondary">Add</button>
           </div>
         </div>
