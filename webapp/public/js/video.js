@@ -1,3 +1,5 @@
+let videoHandle;
+
 // show video
 function openVideo() {
   console.log("Starting Video Call...");
@@ -43,9 +45,9 @@ function openVideo() {
     },
   };
 
-  const videoHandle = new JitsiMeetExternalAPI("meet.jit.si", options);
+  videoHandle = new JitsiMeetExternalAPI("meet.jit.si", options);
 
-  // console.log(videoHandle.getIFrame());
+  console.log(videoHandle.getIFrame());
 }
 
 // @TODO Not yet used
@@ -54,6 +56,12 @@ function closeVideo(handle) {
 
   handle.executeCommand("hangup");
   handle.dispose();
+}
+
+
+window.onresize = () => {
+  console.log(window.innerHeight * 0.6);
+  videoHandle.getIFrame().style.height = `${window.innerHeight * 0.6}px`; 
 }
 
 document.querySelector("#btn-video").addEventListener("click", openVideo);

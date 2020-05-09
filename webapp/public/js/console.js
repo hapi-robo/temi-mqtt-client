@@ -1,65 +1,72 @@
-// global variables
+const deviceList = document.querySelector("#list-device");
 let selectedSerialNumberList = [];
 
-// display devices in a list
-function deviceListView(list) {
-  const listDevice = document.querySelector("#list-device");
 
+function onDeviceCick(e) {
+  const serialNumber = e.target.id;
+
+  // add device to selection list
+  if (this.className.search("active") > -1) {
+    this.className = "list-group-item";
+
+    // @TODO only when CTRL is pressed
+    // remove device from selection
+    const index = selectedSerialNumberList.indexOf(serialNumber);
+    if (index > -1) {
+      selectedSerialNumberList.splice(index, 1);
+    }
+  } else {
+    this.className = "list-group-item text-light active";
+
+    // @TODO only when CTRL is pressed
+    // add device to selection
+    selectedSerialNumberList.push(serialNumber);
+  }
+
+  // show device details
+  const deviceDetails = document.querySelector("#div-device-details");
+  if (selectedSerialNumberList.length === 1) {
+    sessionStorage.setItem("selectedSerialNumber", serialNumber);
+    deviceDetails.style.display = "block";
+    showDeviceInfo(this.id);
+  } else {
+    sessionStorage.setItem("selectedSerialNumber", null);
+    deviceDetails.style.display = "none";
+  }
+}
+
+function onDeviceHoverIn() {
+  if (this.className.search("active") === -1) {
+    this.className = "list-group-item";
+  }
+}
+
+function onDeviceHoverOut() {
+  if (this.className.search("active") === -1) {
+    this.className = "list-group-item";
+  }
+}
+
+function displayDeviceElement(dev) {
+  const a = document.createElement("a");
+  a.id = dev.serialNumber;
+  a.className = "list-group-item";
+  a.innerHTML = `${dev.name}`;
+
+  a.addEventListener("click", onDeviceCick);
+  a.addEventListener("mouseover", onDeviceHoverIn);
+  a.addEventListener("mouseout", onDeviceHoverOut);
+
+  deviceList.appendChild(a);
+}
+
+// display devices in a list
+function displayDeviceList(list) {
   // reset list
-  listDevice.textContent = "";
+  deviceList.textContent = '';
 
   // append each device element
-  list.forEach((device) => {
-    // output device to DOM
-    const a = document.createElement("a");
-    a.id = device.serialNumber;
-    a.className = "list-group-item";
-    a.innerHTML = `${device.name}`;
-
-    a.addEventListener("click", (event) => {
-      if (a.className.search("active") > -1) {
-        a.className = "list-group-item";
-
-        // @TODO only when CTRL is pressed
-        // remove device from selection
-        const index = selectedSerialNumberList.indexOf(device.serialNumber);
-        if (index > -1) {
-          selectedSerialNumberList.splice(index, 1);
-        }
-      } else {
-        a.className = "list-group-item text-light active";
-
-        // @TODO only when CTRL is pressed
-        // add device to selection
-        selectedSerialNumberList.push(device.serialNumber);
-      }
-
-      // show device details
-      const deviceDetails = document.querySelector("#div-device-details");
-      if (selectedSerialNumberList.length === 1) {
-        sessionStorage.setItem("selectedSerialNumber", event.target.id);
-        deviceDetails.style.display = "block";
-        showDeviceInfo(a.id);
-      } else {
-        sessionStorage.setItem("selectedSerialNumber", null);
-        deviceDetails.style.display = "none";
-      }
-    });
-
-    a.addEventListener("mouseover", (event) => {
-      if (a.className.search("active") === -1) {
-        a.className = "list-group-item";
-      }
-    });
-
-    a.addEventListener("mouseout", (event) => {
-      if (a.className.search("active") === -1) {
-        a.className = "list-group-item";
-      }
-    });
-
-    listDevice.appendChild(a);
-  });
+  list.forEach((dev) => displayDeviceElement(dev));
 }
 
 // display device information
@@ -111,7 +118,7 @@ function showDeviceList() {
     .then((res) => res.json())
     .then((obj) => {
       if (obj.length > 0) {
-        deviceListView(obj);
+        displayDeviceList(obj);
       } else {
         // no devices to display, show "add device button"
         console.log("No devices to display");
@@ -160,11 +167,3 @@ window.onload = init();
 
 // element event listener
 document.querySelector("#btn-goto").addEventListener("click", cmdGoto);
-
-// window.onresize = () => {
-//   const width = document.querySelector('#video-container').offsetWidth;
-//   const height = document.querySelector('#video-container').offsetHeight;
-
-//   console.log(`w: ${width} x h: ${height}`);
-//   console.log(`w: ${window.innerWidth} x h: ${window.innerHeight}`);
-// }

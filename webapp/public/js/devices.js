@@ -25,11 +25,11 @@ function displayDeviceElement(dev) {
 
 // display devices in a list
 function displayDeviceList(list) {
-  deviceList.textContent = "";
+  // reset list
+  deviceList.textContent = '';
 
-  list.forEach((dev) => {
-    displayDeviceElement(dev);
-  });
+  // append each device element
+  list.forEach((dev) => displayDeviceElement(dev));
 }
 
 // get devices from database
