@@ -5,32 +5,28 @@ const Device = require("./device");
 
 const deviceListAll = [];
 
-function onEventWaypoint(serialNumber, payload) {
-  console.log(serialNumber);
+function onEventWaypoint(serial, payload) {
+  console.log(serial);
   console.log(payload);
 }
 
-function onEventUser(serialNumber, payload) {
-  console.log(serialNumber);
+function onEventUser(serial, payload) {
+  console.log(serial);
   console.log(payload);
 }
 
-function onStatusInfo(serialNumber, payload) {
-  const device = deviceListAll.find(
-    (device) => device.serialNumber === serialNumber
-  );
+function onStatusInfo(serial, payload) {
+  const device = deviceListAll.find(dev => dev.serialNumber === serial);
   const data = JSON.parse(payload);
 
   if (typeof device === "undefined") {
     // append to list
     console.log("Append device");
-    deviceListAll.push(new Device(serialNumber, data));
-  } else {
-    if (!device.isEqual(data)) {
-      // update parameters
-      console.log("Update device parameters");
-      device.update(data);
-    }
+    deviceListAll.push(new Device(serial, data));
+  } else if (!device.isEqual(data)) {
+    // update parameters
+    console.log("Update device parameters");
+    device.update(data);
   }
 
   // console.log(deviceListAll);
@@ -38,9 +34,9 @@ function onStatusInfo(serialNumber, payload) {
 }
 
 // message event handler
-mqttClient.on("message", (topic, payload, packet) => {
+mqttClient.on("message", (topic, payload) => {
   const topicTree = topic.split("/");
-  const serialNumber = topicTree[1];
+  const serial = topicTree[1];
   const type = topicTree[2];
   const category = topicTree[3];
 
@@ -48,30 +44,35 @@ mqttClient.on("message", (topic, payload, packet) => {
     case "status":
       switch (category) {
         case "info":
-          onStatusInfo(serialNumber, payload);
+          onStatusInfo(serial, payload);
           break;
 
         case "utils":
           console.log(payload);
+          break;
 
         default:
           break;
-          break;
       }
+      break;
 
     case "event":
       switch (category) {
         case "waypoint":
-          onEventWaypoint(serialNumber, payload);
+          onEventWaypoint(serial, payload);
           break;
 
         case "user":
-          onEventUser(serialNumber, payload);
+          onEventUser(serial, payload);
           break;
 
         default:
           break;
       }
+      break;
+
+    default:
+      break;
   }
 });
 

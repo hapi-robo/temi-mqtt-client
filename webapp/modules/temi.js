@@ -117,7 +117,7 @@ class Temi {
     console.log(`[CMD] TTS: ${utterance}`);
 
     const topic = `temi/${id}/command/tts`;
-    const payload = JSON.stringify({ utterance: utterance });
+    const payload = JSON.stringify({ utterance });
 
     this.client.publish(topic, payload, { qos: 1 });
   }
@@ -127,7 +127,7 @@ class Temi {
     console.log(`[CMD] Volume: ${volume}`);
 
     const topic = `temi/${id}/command/volume/absolute`;
-    const payload = JSON.stringify({ volume: volume });
+    const payload = JSON.stringify({ volume });
 
     this.client.publish(topic, payload, { qos: 1 });
   }

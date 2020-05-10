@@ -6,7 +6,7 @@ const authCheck = require("../modules/auth");
 // @desc    Render console page
 // @access  OAuth
 router.get("/", authCheck, (req, res) => {
-	res.render("console", { user: req.user });
+  res.render("console", { user: req.user });
 });
 
 module.exports = router;

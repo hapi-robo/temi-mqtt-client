@@ -22,8 +22,8 @@ router.get("/", authCheck, (req, res) => {
 // @access  OAuth
 router.get("/get", authCheck, (req, res) => {
   User.findById(req.user.id)
-    .then((user) => res.json(user.devices))
-    .catch((err) => res.status(404).json({ success: false }));
+    .then(user => res.json(user.devices))
+    .catch(err => res.status(404).json({ err }));
 });
 
 // @route   POST devices/add
@@ -38,27 +38,27 @@ router.post("/add", authCheck, (req, res) => {
   // construct new device
   const newDevice = {
     name: req.body.name,
-    serialNumber: req.body.serialNumber,
+    serialNumber: req.body.serialNumber
   };
 
   // find and add new device
   User.find({ _id: req.user.id, "devices.serialNumber": req.body.serialNumber })
-    .then((user) => {
+    .then(user => {
       if (user === undefined || user.length === 0) {
         console.log(`Adding device: ${req.body.serialNumber}`);
         User.updateOne({ _id: req.user.id }, { $push: { devices: newDevice } })
           .then(() => {
             User.findById(req.user.id)
-              .then((user) => res.json(user.devices))
-              .catch((err) => res.status(404).json({ err }));
+              .then(updatedUser => res.json(updatedUser.devices))
+              .catch(err => res.status(404).json({ err }));
           })
-          .catch((err) => res.status(404).json({ err }));
+          .catch(err => res.status(404).json({ err }));
       } else {
         console.log(`Device already exists...`);
         res.json({ exists: true });
       }
     })
-    .catch((err) => res.status(404).json({ err }));
+    .catch(err => res.status(404).json({ err }));
 });
 
 // @route   DELETE devices/delete
@@ -73,26 +73,26 @@ router.delete("/delete", authCheck, (req, res) => {
   // find and remove device
   User.find({
     _id: req.user.id,
-    "devices.serialNumber": req.query.serialNumber,
+    "devices.serialNumber": req.query.serialNumber
   })
-    .then((user) => {
+    .then(user => {
       if (user === undefined || user.length === 0) {
         console.log("Device does not exist...");
         res.json({ exists: false });
       } else {
         console.log(`Deleting device: ${req.query.serialNumber}`);
         User.findByIdAndUpdate(req.user.id, {
-          $pull: { devices: { serialNumber: req.query.serialNumber } },
+          $pull: { devices: { serialNumber: req.query.serialNumber } }
         })
           .then(() => {
             User.findById(req.user.id)
-              .then((user) => res.json(user.devices))
-              .catch((err) => res.status(404).json({ err }));
+              .then(updatedUser => res.json(updatedUser.devices))
+              .catch(err => res.status(404).json({ err }));
           })
-          .catch((err) => res.status(404).json(err));
+          .catch(err => res.status(404).json(err));
       }
     })
-    .catch((err) => res.status(404).json({ err }));
+    .catch(err => res.status(404).json({ err }));
 });
 
 //-------------------------------------------------------

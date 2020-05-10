@@ -1,11 +1,9 @@
-import { cmdGoto } from './modules/commands.js'
-
-let selectedSerialNumberList = [];
+import { cmdGoto } from "./modules/commands.js";
 
 function showSelectWaypointElement(dev) {
   const inputGoto = document.querySelector("#input-goto");
 
-  inputGoto.innerHTML = ''; // reset content
+  inputGoto.innerHTML = ""; // reset content
 
   const div = document.createElement("div");
   div.className = "input-group";
@@ -20,7 +18,7 @@ function showSelectWaypointElement(dev) {
   inputGoto.querySelector("#btn-goto").addEventListener("click", cmdGoto);
 
   const selectGoto = inputGoto.querySelector("#select-goto");
-  
+
   // construct waypoint list
   const option = document.createElement("option");
   option.disabled = true;
@@ -29,8 +27,8 @@ function showSelectWaypointElement(dev) {
   option.textContent = "Choose Location...";
   selectGoto.appendChild(option);
 
-  dev.waypointList.forEach((waypointName) => {
-    const option = document.createElement("option");
+  dev.waypointList.forEach(waypointName => {
+    option.innerHTML = ""; // reset
     option.value = waypointName;
     option.textContent = waypointName;
     selectGoto.appendChild(option);
@@ -42,21 +40,19 @@ function showBatteryState(value) {
   const i = document.createElement("i");
 
   if (value >= 87.5) {
-    i.className = 'fas fa-battery-full';
+    i.className = "fas fa-battery-full";
   } else if (value >= 62.5 && value < 87.5) {
-    i.className = 'fas fa-battery-threequarters';
+    i.className = "fas fa-battery-threequarters";
   } else if (value >= 37.5 && value < 62.5) {
-    i.className = 'fas fa-battery-half';
+    i.className = "fas fa-battery-half";
   } else if (value >= 12.5 && value < 37.5) {
-    i.className = 'fas fa-battery-quarter';
+    i.className = "fas fa-battery-quarter";
   } else if (value >= 0 && value < 12.5) {
-    i.className = 'fas fa-battery-empty';
-    i.style.color = 'red';
-  } else {
-    console.warn(`Battery Percentage: ${value}%`);
+    i.className = "fas fa-battery-empty";
+    i.style.color = "red";
   }
 
-  const deviceBattery = document.querySelector('#device-battery');
+  const deviceBattery = document.querySelector("#device-battery");
   deviceBattery.appendChild(i);
 }
 
@@ -64,8 +60,8 @@ async function showDeviceConsole(serial) {
   // get device information
   const res = await fetch("/devices/info", { method: "GET" });
   const data = await res.json();
-  const dev = data.find((elem) => elem["serialNumber"] === serial);
-  
+  const dev = data.find(elem => elem.serialNumber === serial);
+
   // reset values
   document.querySelector("#device-serial").innerHTML = serial;
   document.querySelector("#device-battery").innerHTML = "";
@@ -88,11 +84,10 @@ async function showDeviceConsole(serial) {
 
     // show video button
     document.querySelector("#btn-video").style.display = "block";
-
   } else {
     document.querySelector("#device-status").innerHTML = "Offline";
     document.querySelector("#btn-video").style.dispay = "none";
-    document.querySelector("#input-goto").innerHTML = '';
+    document.querySelector("#input-goto").innerHTML = "";
   }
 }
 
@@ -111,19 +106,19 @@ async function showDeviceList() {
 
   if (data.length > 0) {
     const deviceList = document.querySelector("#list-device");
-    
+
     // reset list
-    deviceList.textContent = '';
-    deviceList.setAttribute('role', 'tablist');
+    deviceList.textContent = "";
+    deviceList.setAttribute("role", "tablist");
 
     // append each device element
-    data.forEach((dev) => {
-      const a = document.createElement('a');
+    data.forEach(dev => {
+      const a = document.createElement("a");
       a.id = dev.serialNumber;
       a.className = "list-group-item list-group-item-action";
-      a.setAttribute('data-toggle', 'list');
-      a.setAttribute('role', 'tab');
-      a.setAttribute('aria-controls', `${dev.name}`);
+      a.setAttribute("data-toggle", "list");
+      a.setAttribute("role", "tab");
+      a.setAttribute("aria-controls", `${dev.name}`);
       a.innerHTML = `${dev.name}`;
 
       // add event listeners
@@ -139,4 +134,3 @@ async function showDeviceList() {
 
 // window event listeners
 window.onload = showDeviceList();
-

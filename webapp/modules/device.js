@@ -1,9 +1,9 @@
 function arraysEqual(a, b) {
   if (a === b) return true;
   if (a == null || b == null) return false;
-  if (a.length != b.length) return false;
+  if (a.length !== b.length) return false;
 
-  for (var i = 0; i < a.length; i++) {
+  for (let i = 0; i < a.length; i++) {
     if (a[i] !== b[i]) return false;
   }
 
@@ -26,26 +26,26 @@ class Device {
   // check if parameters are identical
   isEqual(obj) {
     // identification
-    if (this.name !== obj["name"]) {
+    if (this.name !== obj.name) {
       return false;
     }
-    if (this.ip !== obj["ip"]) {
+    if (this.ip !== obj.ip) {
       return false;
     }
 
     // state
-    if (this.state !== obj["state"]) {
+    if (this.state !== obj.state) {
       return false;
     }
-    if (this.batteryPercentage !== obj["battery_percentage"]) {
+    if (this.batteryPercentage !== obj.battery_percentage) {
       return false;
     }
 
     // navigation
-    if (this.destination !== obj["destination"]) {
+    if (this.destination !== obj.destination) {
       return false;
     }
-    if (!arraysEqual(this.waypointList, obj["waypoint_list"])) {
+    if (!arraysEqual(this.waypointList, obj.waypoint_list)) {
       return false;
     }
 
@@ -55,27 +55,27 @@ class Device {
   // update parameters
   update(obj) {
     // identification
-    if (obj["name"]) {
-      this.name = obj["name"];
+    if (obj.name) {
+      this.name = obj.name;
     }
-    if (obj["ip"]) {
-      this.ip = obj["ip"];
+    if (obj.ip) {
+      this.ip = obj.ip;
     }
 
     // state
-    if (obj["state"]) {
-      this.state = obj["state"];
+    if (obj.state) {
+      this.state = obj.state;
     }
-    if (obj["battery_percentage"]) {
-      this.batteryPercentage = obj["battery_percentage"];
+    if (obj.battery_percentage) {
+      this.batteryPercentage = obj.battery_percentage;
     }
 
     // navigation
-    if (obj["destination"]) {
-      this.destination = obj["destination"];
+    if (obj.destination) {
+      this.destination = obj.destination;
     }
-    if (obj["waypoint_list"]) {
-      this.waypointList = obj["waypoint_list"];
+    if (obj.waypoint_list) {
+      this.waypointList = obj.waypoint_list;
     }
 
     // timestamp

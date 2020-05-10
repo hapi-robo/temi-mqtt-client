@@ -4,12 +4,12 @@ const deviceSerialInput = document.querySelector("#deviceSerial");
 // display devices in a list
 function showDeviceList(list) {
   const deviceList = document.querySelector("#list-device");
-  
+
   // reset list
-  deviceList.textContent = '';
+  deviceList.textContent = "";
 
   // append each device element
-  list.forEach((dev) => {
+  list.forEach(dev => {
     const a = document.createElement("a");
     a.id = dev.serialNumber;
     a.className =
@@ -43,13 +43,13 @@ async function addDevice(e) {
 
   const device = {
     name: e.target.elements.deviceName.value,
-    serialNumber: e.target.elements.serialNumber.value,
+    serialNumber: e.target.elements.serialNumber.value
   };
 
   const res = await fetch("/devices/add", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(device),
+    body: JSON.stringify(device)
   });
 
   const data = await res.json();
@@ -71,7 +71,7 @@ async function deleteDevice(e) {
   const serialNumber = e.target.offsetParent.id;
 
   const res = await fetch(`/devices/delete?serialNumber=${serialNumber}`, {
-    method: "DELETE",
+    method: "DELETE"
   });
 
   const data = await res.json();

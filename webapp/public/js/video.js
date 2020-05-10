@@ -30,7 +30,7 @@ function openVideo() {
         "fodeviceselection",
         "hangup",
         "filmstrip",
-        "tileview",
+        "tileview"
       ],
       SETTINGS_SECTIONS: ["devices"],
       CLOSE_PAGE_GUEST_HINT: false,
@@ -41,8 +41,8 @@ function openVideo() {
       DISABLE_FOCUS_INDICATOR: false,
       DISABLE_DOMINANT_SPEAKER_INDICATOR: false,
       MOBILE_APP_PROMO: false,
-      SHOW_CHROME_EXTENSION_BANNER: false,
-    },
+      SHOW_CHROME_EXTENSION_BANNER: false
+    }
   };
 
   videoHandle = new JitsiMeetExternalAPI("meet.jit.si", options);
@@ -58,12 +58,11 @@ function closeVideo(handle) {
   handle.dispose();
 }
 
-
 window.onresize = () => {
   if (videoHandle !== undefined) {
     console.log(window.innerHeight * 0.6);
-    videoHandle.getIFrame().style.height = `${window.innerHeight * 0.6}px`; 
+    videoHandle.getIFrame().style.height = `${window.innerHeight * 0.6}px`;
   }
-}
+};
 
 document.querySelector("#btn-video").addEventListener("click", openVideo);
