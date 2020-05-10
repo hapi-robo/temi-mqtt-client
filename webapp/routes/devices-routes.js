@@ -5,7 +5,7 @@ const authCheck = require("../modules/auth");
 const deviceListAll = require("../modules/mqtt-message-parser");
 
 // constants
-const SERIAL_NUMBER_LENGTH = 11;
+const SERIAL_LENGTH = 11; // temi's serial number is 11-digits long
 
 // @route   GET console/
 // @desc    Render device page
@@ -31,21 +31,21 @@ router.get("/get", authCheck, (req, res) => {
 // @access  OAuth
 router.post("/add", authCheck, (req, res) => {
   // check parameters
-  if (req.body.serialNumber.length !== SERIAL_NUMBER_LENGTH) {
+  if (req.body.serial.length !== SERIAL_LENGTH) {
     res.status(404).json({ err: "Invalid serial number" });
   }
 
   // construct new device
   const newDevice = {
     name: req.body.name,
-    serialNumber: req.body.serialNumber
+    serial: req.body.serial
   };
 
   // find and add new device
-  User.find({ _id: req.user.id, "devices.serialNumber": req.body.serialNumber })
+  User.find({ _id: req.user.id, "devices.serial": req.body.serial })
     .then(user => {
       if (user === undefined || user.length === 0) {
-        console.log(`Adding device: ${req.body.serialNumber}`);
+        console.log(`Adding device: ${req.body.serial}`);
         User.updateOne({ _id: req.user.id }, { $push: { devices: newDevice } })
           .then(() => {
             User.findById(req.user.id)
@@ -66,23 +66,23 @@ router.post("/add", authCheck, (req, res) => {
 // @access  OAuth
 router.delete("/delete", authCheck, (req, res) => {
   // check parameters
-  if (req.query.serialNumber.length !== SERIAL_NUMBER_LENGTH) {
+  if (req.query.serial.length !== SERIAL_LENGTH) {
     res.status(404).json({ err: "Invalid serial number" });
   }
 
   // find and remove device
   User.find({
     _id: req.user.id,
-    "devices.serialNumber": req.query.serialNumber
+    "devices.serial": req.query.serial
   })
     .then(user => {
       if (user === undefined || user.length === 0) {
         console.log("Device does not exist...");
         res.json({ exists: false });
       } else {
-        console.log(`Deleting device: ${req.query.serialNumber}`);
+        console.log(`Deleting device: ${req.query.serial}`);
         User.findByIdAndUpdate(req.user.id, {
-          $pull: { devices: { serialNumber: req.query.serialNumber } }
+          $pull: { devices: { serial: req.query.serial } }
         })
           .then(() => {
             User.findById(req.user.id)
@@ -103,10 +103,14 @@ router.delete("/delete", authCheck, (req, res) => {
 // @desc    Get device information
 // @access  OAuth
 router.get("/info", authCheck, (req, res) => {
-  console.log("Get device real-time information");
-  console.log(req.query.serialNumber);
-
-  res.json(deviceListAll);
+  console.log("Get device real-time information");  
+  const device = deviceListAll.find(dev => dev.serial === req.query.serial);
+  
+  if (typeof device === "undefined") {
+    res.json({ success: false });
+  } else {
+    res.json(device);
+  }
 });
 
 module.exports = router;

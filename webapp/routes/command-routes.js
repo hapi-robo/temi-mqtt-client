@@ -10,7 +10,7 @@ const temi = new Temi(mqttClient);
 // @desc    Send device to location
 // @access  OAuth
 router.post("/goto", authCheck, (req, res) => {
-  temi.goto(req.body.serialNumber, req.body.waypoint);
+  temi.goto(req.body.serial, req.body.waypoint);
   res.json({ success: true, waypoint: req.body.waypoint });
 });
 

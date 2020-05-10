@@ -11,21 +11,21 @@ function showDeviceList(list) {
   // append each device element
   list.forEach(dev => {
     const a = document.createElement("a");
-    a.id = dev.serialNumber;
+    a.id = dev.serial;
     a.className =
       "list-group-item list-group-item-action flex-column align-items-start";
     a.innerHTML = `<div class="d-flex w-100 justify-content-between">
                     <h5>${dev.name}</h5>
-                    <button id="delete-${dev.serialNumber}" type="button" class="close" aria-label="Close">
+                    <button id="delete-${dev.serial}" type="button" class="close" aria-label="Close">
                       <span aria-hidden="true">&times;</span>
                     </button>
                   </div>
                   <div class="d-flex w-100 justify-content-between">
-                    <small>${dev.serialNumber}</small>
+                    <small>${dev.serial}</small>
                   </div>`;
     deviceList.appendChild(a);
     document
-      .querySelector(`#delete-${dev.serialNumber}`)
+      .querySelector(`#delete-${dev.serial}`)
       .addEventListener("click", deleteDevice);
   });
 }
@@ -43,7 +43,7 @@ async function addDevice(e) {
 
   const device = {
     name: e.target.elements.deviceName.value,
-    serialNumber: e.target.elements.serialNumber.value
+    serial: e.target.elements.deviceSerial.value
   };
 
   const res = await fetch("/devices/add", {
@@ -68,9 +68,9 @@ async function addDevice(e) {
 
 // remove device from database
 async function deleteDevice(e) {
-  const serialNumber = e.target.offsetParent.id;
+  const serial = e.target.offsetParent.id;
 
-  const res = await fetch(`/devices/delete?serialNumber=${serialNumber}`, {
+  const res = await fetch(`/devices/delete?serial=${serial}`, {
     method: "DELETE"
   });
 

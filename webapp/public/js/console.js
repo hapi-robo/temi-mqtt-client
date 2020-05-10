@@ -1,6 +1,6 @@
 import { cmdGoto } from "./modules/commands.js";
 
-function showSelectWaypointElement(dev) {
+function showSelectWaypointElement(waypointList) {
   const inputGoto = document.querySelector("#input-goto");
 
   inputGoto.innerHTML = ""; // reset content
@@ -20,15 +20,17 @@ function showSelectWaypointElement(dev) {
   const selectGoto = inputGoto.querySelector("#select-goto");
 
   // construct waypoint list
-  const option = document.createElement("option");
-  option.disabled = true;
-  option.selected = true;
-  option.style.display = "none";
-  option.textContent = "Choose Location...";
-  selectGoto.appendChild(option);
+  const instructionOption = document.createElement("option");
+  instructionOption.id = "option-instruction";
+  instructionOption.disabled = true;
+  instructionOption.selected = true;
+  instructionOption.style.display = "none";
+  instructionOption.textContent = "Choose Location...";
+  selectGoto.appendChild(instructionOption);
 
-  dev.waypointList.forEach(waypointName => {
-    option.innerHTML = ""; // reset
+  waypointList.forEach(waypointName => {
+    const option = document.createElement("option");
+    option.id = `option-${waypointName}`;
     option.value = waypointName;
     option.textContent = waypointName;
     selectGoto.appendChild(option);
@@ -58,16 +60,20 @@ function showBatteryState(value) {
 
 async function showDeviceConsole(serial) {
   // get device information
-  const res = await fetch("/devices/info", { method: "GET" });
-  const data = await res.json();
-  const dev = data.find(elem => elem.serialNumber === serial);
+  const res = await fetch(`/devices/info?serial=${serial}`, { method: "GET" });
+  const dev = await res.json();
+  console.log(dev);
 
   // reset values
   document.querySelector("#device-serial").innerHTML = serial;
   document.querySelector("#device-battery").innerHTML = "";
 
   // show device details
-  if (typeof dev !== "undefined") {
+  if (dev.success === false) {
+    document.querySelector("#device-status").innerHTML = "Offline";
+    document.querySelector("#btn-video").style.dispay = "none";
+    document.querySelector("#input-goto").innerHTML = "";
+  } else {
     document.querySelector("#device-status").innerHTML = "Online";
 
     // show battery status
@@ -79,15 +85,11 @@ async function showDeviceConsole(serial) {
 
     // show goto list
     if (dev.waypointList.length > 0) {
-      showSelectWaypointElement(dev);
+      showSelectWaypointElement(dev.waypointList);
     }
 
     // show video button
     document.querySelector("#btn-video").style.display = "block";
-  } else {
-    document.querySelector("#device-status").innerHTML = "Offline";
-    document.querySelector("#btn-video").style.dispay = "none";
-    document.querySelector("#input-goto").innerHTML = "";
   }
 }
 
@@ -114,7 +116,7 @@ async function showDeviceList() {
     // append each device element
     data.forEach(dev => {
       const a = document.createElement("a");
-      a.id = dev.serialNumber;
+      a.id = dev.serial;
       a.className = "list-group-item list-group-item-action";
       a.setAttribute("data-toggle", "list");
       a.setAttribute("role", "tab");

@@ -12,9 +12,9 @@ function arraysEqual(a, b) {
 
 class Device {
   // constructor
-  constructor(serialNumber, obj = {}) {
+  constructor(serial, obj = {}) {
     // identification
-    this.serialNumber = serialNumber;
+    this.serial = serial;
 
     // reset parameters
     this.reset();

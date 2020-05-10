@@ -5,7 +5,7 @@ async function cmdGoto() {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      serialNumber: sessionStorage.getItem("selectedSerial"),
+      serial: sessionStorage.getItem("selectedSerial"),
       waypoint: waypoint,
     }),
   });

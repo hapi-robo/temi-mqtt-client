@@ -111,15 +111,15 @@ io.on('connection', socket => {
 
     // parse and forward to MQTT
     if ('rotate' in data) {
-      temi.rotate(data.serialNumber, data.rotate);
+      temi.rotate(data.serial, data.rotate);
     }
     
     if ('translate' in data) {
-      temi.translate(data.serialNumber, data.translate);
+      temi.translate(data.serial, data.translate);
     }
 
     if ('tilt' in data) {
-      temi.tiltBy(data.serialNumber, data.tilt);
+      temi.tiltBy(data.serial, data.tilt);
     }
   });
 });

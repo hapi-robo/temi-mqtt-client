@@ -16,7 +16,7 @@ function onEventUser(serial, payload) {
 }
 
 function onStatusInfo(serial, payload) {
-  const device = deviceListAll.find(dev => dev.serialNumber === serial);
+  const device = deviceListAll.find(dev => dev.serial === serial);
   const data = JSON.parse(payload);
 
   if (typeof device === "undefined") {
