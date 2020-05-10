@@ -1,169 +1,142 @@
-const deviceList = document.querySelector("#list-device");
+import { cmdGoto } from './modules/commands.js'
+
 let selectedSerialNumberList = [];
 
+function showSelectWaypointElement(dev) {
+  const inputGoto = document.querySelector("#input-goto");
 
-function onDeviceCick(e) {
-  const serialNumber = e.target.id;
+  inputGoto.innerHTML = ''; // reset content
 
-  // add device to selection list
-  if (this.className.search("active") > -1) {
-    this.className = "list-group-item";
+  const div = document.createElement("div");
+  div.className = "input-group";
+  div.innerHTML = `<div class="input-group-prepend">
+                  <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                </div>
+                <select class="custom-select" id="select-goto"></select>
+                <div class="input-group-append">
+                  <button class="btn btn-secondary" type="button" id="btn-goto">Go</button>
+                </div>`;
+  inputGoto.appendChild(div);
+  inputGoto.querySelector("#btn-goto").addEventListener("click", cmdGoto);
 
-    // @TODO only when CTRL is pressed
-    // remove device from selection
-    const index = selectedSerialNumberList.indexOf(serialNumber);
-    if (index > -1) {
-      selectedSerialNumberList.splice(index, 1);
-    }
+  const selectGoto = inputGoto.querySelector("#select-goto");
+  
+  // construct waypoint list
+  const option = document.createElement("option");
+  option.disabled = true;
+  option.selected = true;
+  option.style.display = "none";
+  option.textContent = "Choose Location...";
+  selectGoto.appendChild(option);
+
+  dev.waypointList.forEach((waypointName) => {
+    const option = document.createElement("option");
+    option.value = waypointName;
+    option.textContent = waypointName;
+    selectGoto.appendChild(option);
+  });
+}
+
+function showBatteryState(value) {
+  // @TODO "far fa-battery-bolt"
+  const i = document.createElement("i");
+
+  if (value >= 87.5) {
+    i.className = 'fas fa-battery-full';
+  } else if (value >= 62.5 && value < 87.5) {
+    i.className = 'fas fa-battery-threequarters';
+  } else if (value >= 37.5 && value < 62.5) {
+    i.className = 'fas fa-battery-half';
+  } else if (value >= 12.5 && value < 37.5) {
+    i.className = 'fas fa-battery-quarter';
+  } else if (value >= 0 && value < 12.5) {
+    i.className = 'fas fa-battery-empty';
+    i.style.color = 'red';
   } else {
-    this.className = "list-group-item text-light active";
-
-    // @TODO only when CTRL is pressed
-    // add device to selection
-    selectedSerialNumberList.push(serialNumber);
+    console.warn(`Battery Percentage: ${value}%`);
   }
 
-  // show device details
-  const deviceDetails = document.querySelector("#div-device-details");
-  if (selectedSerialNumberList.length === 1) {
-    sessionStorage.setItem("selectedSerialNumber", serialNumber);
-    deviceDetails.style.display = "block";
-    showDeviceInfo(this.id);
-  } else {
-    sessionStorage.setItem("selectedSerialNumber", null);
-    deviceDetails.style.display = "none";
-  }
+  const deviceBattery = document.querySelector('#device-battery');
+  deviceBattery.appendChild(i);
 }
 
-function onDeviceHoverIn() {
-  if (this.className.search("active") === -1) {
-    this.className = "list-group-item";
-  }
-}
-
-function onDeviceHoverOut() {
-  if (this.className.search("active") === -1) {
-    this.className = "list-group-item";
-  }
-}
-
-function displayDeviceElement(dev) {
-  const a = document.createElement("a");
-  a.id = dev.serialNumber;
-  a.className = "list-group-item";
-  a.innerHTML = `${dev.name}`;
-
-  a.addEventListener("click", onDeviceCick);
-  a.addEventListener("mouseover", onDeviceHoverIn);
-  a.addEventListener("mouseout", onDeviceHoverOut);
-
-  deviceList.appendChild(a);
-}
-
-// display devices in a list
-function displayDeviceList(list) {
-  // reset list
-  deviceList.textContent = '';
-
-  // append each device element
-  list.forEach((dev) => displayDeviceElement(dev));
-}
-
-// display device information
-function deviceInfoView(obj, serialNumber) {
-  console.log(serialNumber);
-  console.log(obj);
-  const device = obj.find((elem) => elem["serialNumber"] === serialNumber);
-
-  // reset state
-  document.querySelector("#device-serial").innerHTML = serialNumber;
+async function showDeviceConsole(serial) {
+  // get device information
+  const res = await fetch("/devices/info", { method: "GET" });
+  const data = await res.json();
+  const dev = data.find((elem) => elem["serialNumber"] === serial);
+  
+  // reset values
+  document.querySelector("#device-serial").innerHTML = serial;
   document.querySelector("#device-battery").innerHTML = "";
 
-  const selectGoto = document.querySelector("#select-goto");
-  selectGoto.innerHTML = ""; // reset content
+  // show device details
+  if (typeof dev !== "undefined") {
+    document.querySelector("#device-status").innerHTML = "Online";
 
-  if (device !== undefined) {
-    if (device.batteryPercentage === undefined) {
-      document.querySelector("#device-battery").innerHTML = `Unknown`;
+    // show battery status
+    if (typeof dev.batteryPercentage === "undefined") {
+      document.querySelector("#device-battery").innerHTML = "Unknown";
     } else {
-      document.querySelector(
-        "#device-battery"
-      ).innerHTML = `${device.batteryPercentage}%`;
+      showBatteryState(dev.batteryPercentage);
     }
 
-    // construct waypoint list
-    const option = document.createElement("option");
-    option.disabled = true;
-    option.selected = true;
-    option.style.display = "none";
-    option.textContent = "Choose Location...";
-    selectGoto.appendChild(option);
+    // show goto list
+    if (dev.waypointList.length > 0) {
+      showSelectWaypointElement(dev);
+    }
 
-    device.waypointList.forEach((waypointName) => {
-      const option = document.createElement("option");
-      option.value = waypointName;
-      option.textContent = waypointName;
-      selectGoto.appendChild(option);
-    });
+    // show video button
+    document.querySelector("#btn-video").style.display = "block";
+
   } else {
-    console.log("Device: Offline");
+    document.querySelector("#device-status").innerHTML = "Offline";
+    document.querySelector("#btn-video").style.dispay = "none";
+    document.querySelector("#input-goto").innerHTML = '';
   }
 }
 
-// show device list
-function showDeviceList() {
-  fetch("/devices/get", {
-    method: "GET",
-  })
-    .then((res) => res.json())
-    .then((obj) => {
-      if (obj.length > 0) {
-        displayDeviceList(obj);
-      } else {
-        // no devices to display, show "add device button"
-        console.log("No devices to display");
-        document.querySelector("#container-no-devices").style.display = "block";
-      }
-    })
-    .catch((err) => console.error(err));
+function onDeviceClick(e) {
+  const serial = e.target.id;
+  sessionStorage.setItem("selectedSerial", serial);
+
+  // show device details
+  document.querySelector("#div-device-details").style.display = "block";
+  showDeviceConsole(this.id);
 }
 
-// show device information
-function showDeviceInfo(serialNumber) {
-  fetch("/devices/info", {
-    method: "GET",
-  })
-    .then((res) => res.json())
-    .then((obj) => deviceInfoView(obj, serialNumber))
-    .catch((err) => console.error(err));
-}
+async function showDeviceList() {
+  const res = await fetch("/devices/get", { method: "GET" });
+  const data = await res.json();
 
-function cmdGoto(event) {
-  const waypoint = document.querySelector("#select-goto").value;
-  console.log(`Goto: ${waypoint}`);
+  if (data.length > 0) {
+    const deviceList = document.querySelector("#list-device");
+    
+    // reset list
+    deviceList.textContent = '';
+    deviceList.setAttribute('role', 'tablist');
 
-  fetch("/command/goto", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      serialNumber: sessionStorage.getItem("selectedSerialNumber"),
-      waypoint: waypoint,
-    }),
-  })
-    .then((res) => res.json())
-    .then((obj) => console.log(obj))
-    .catch((err) => console.error(err));
-}
+    // append each device element
+    data.forEach((dev) => {
+      const a = document.createElement('a');
+      a.id = dev.serialNumber;
+      a.className = "list-group-item list-group-item-action";
+      a.setAttribute('data-toggle', 'list');
+      a.setAttribute('role', 'tab');
+      a.setAttribute('aria-controls', `${dev.name}`);
+      a.innerHTML = `${dev.name}`;
 
-// initialize device list
-function init() {
-  showDeviceList();
+      // add event listeners
+      a.addEventListener("click", onDeviceClick);
+
+      deviceList.appendChild(a);
+    });
+  } else {
+    // no devices to display; show "add device" button
+    document.querySelector("#container-no-devices").style.display = "block";
+  }
 }
 
 // window event listeners
-window.onload = init();
+window.onload = showDeviceList();
 
-// element event listener
-document.querySelector("#btn-goto").addEventListener("click", cmdGoto);

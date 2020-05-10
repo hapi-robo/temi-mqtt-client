@@ -1,42 +1,40 @@
-const deviceList = document.querySelector("#list-device");
 const deviceNameInput = document.querySelector("#deviceName");
-const serialNumberInput = document.querySelector("#serialNumber");
-
-// display device element
-function displayDeviceElement(dev) {
-  const a = document.createElement("a");
-  a.id = dev.serialNumber;
-  a.className =
-    "list-group-item list-group-item-action flex-column align-items-start";
-  a.innerHTML = `<div class="d-flex w-100 justify-content-between">
-                  <h5>${dev.name}</h5>
-                  <button id="delete-${dev.serialNumber}" type="button" class="close" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                  </button>
-                </div>
-                <div class="d-flex w-100 justify-content-between">
-                  <small>${dev.serialNumber}</small>
-                </div>`;
-  deviceList.appendChild(a);
-  document
-    .querySelector(`#delete-${dev.serialNumber}`)
-    .addEventListener("click", removeDevice);
-}
+const deviceSerialInput = document.querySelector("#deviceSerial");
 
 // display devices in a list
-function displayDeviceList(list) {
+function showDeviceList(list) {
+  const deviceList = document.querySelector("#list-device");
+  
   // reset list
   deviceList.textContent = '';
 
   // append each device element
-  list.forEach((dev) => displayDeviceElement(dev));
+  list.forEach((dev) => {
+    const a = document.createElement("a");
+    a.id = dev.serialNumber;
+    a.className =
+      "list-group-item list-group-item-action flex-column align-items-start";
+    a.innerHTML = `<div class="d-flex w-100 justify-content-between">
+                    <h5>${dev.name}</h5>
+                    <button id="delete-${dev.serialNumber}" type="button" class="close" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="d-flex w-100 justify-content-between">
+                    <small>${dev.serialNumber}</small>
+                  </div>`;
+    deviceList.appendChild(a);
+    document
+      .querySelector(`#delete-${dev.serialNumber}`)
+      .addEventListener("click", deleteDevice);
+  });
 }
 
 // get devices from database
 async function getDevices() {
   const res = await fetch("/devices/get", { method: "GET" });
   const data = await res.json();
-  displayDeviceList(data);
+  showDeviceList(data);
 }
 
 // add device to database
@@ -57,11 +55,11 @@ async function addDevice(e) {
   const data = await res.json();
 
   if (!("exists" in data)) {
-    displayDeviceList(data);
+    showDeviceList(data);
 
     // clear input fields
     deviceNameInput.value = "";
-    serialNumberInput.value = "";
+    deviceSerialInput.value = "";
   } else {
     console.log("Device already exists");
     // @TODO Show alert
@@ -69,7 +67,7 @@ async function addDevice(e) {
 }
 
 // remove device from database
-async function removeDevice(e) {
+async function deleteDevice(e) {
   const serialNumber = e.target.offsetParent.id;
 
   const res = await fetch(`/devices/delete?serialNumber=${serialNumber}`, {
@@ -79,7 +77,7 @@ async function removeDevice(e) {
   const data = await res.json();
 
   if (!("exists" in data)) {
-    displayDeviceList(data);
+    showDeviceList(data);
   }
 }
 
@@ -89,7 +87,7 @@ function init() {
 
   // clear inputs
   deviceNameInput.value = "";
-  serialNumberInput.value = "";
+  deviceSerialInput.value = "";
 }
 
 // window event listeners

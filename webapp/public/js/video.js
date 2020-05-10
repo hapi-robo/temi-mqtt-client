@@ -13,7 +13,7 @@ function openVideo() {
   // https://github.com/jitsi/jitsi-meet/blob/master/interface_config.js
   const options = {
     roomName: `temi-${sessionStorage.getItem("selectedSerialNumber")}`,
-    height: window.innerHeight * 0.6,
+    height: window.innerHeight * 0.7,
     parentNode: divVideo,
     interfaceConfigOverwrite: {
       DEFAULT_BACKGROUND: "#ffffff",
@@ -60,8 +60,10 @@ function closeVideo(handle) {
 
 
 window.onresize = () => {
-  console.log(window.innerHeight * 0.6);
-  videoHandle.getIFrame().style.height = `${window.innerHeight * 0.6}px`; 
+  if (videoHandle !== undefined) {
+    console.log(window.innerHeight * 0.6);
+    videoHandle.getIFrame().style.height = `${window.innerHeight * 0.6}px`; 
+  }
 }
 
 document.querySelector("#btn-video").addEventListener("click", openVideo);

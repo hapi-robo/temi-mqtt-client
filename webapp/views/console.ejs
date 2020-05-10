@@ -25,31 +25,23 @@
         <div id="div-device-details" style="display:none">
           <div class="row">
             <div class="col-3">
-              <p class="font-weight-bold">Serial Number</p>
-              <p class="font-weight-bold">Battery</p>
+              <p><span class="font-weight-bold">Serial Number</span>&emsp;<span id="device-serial"></span></p>
             </div>
             <div class="col-3">
-              <p id="device-serial"></p>
-              <p id="device-battery"></p>
+              <p>
+                <span class="font-weight-bold">Status</span>&emsp;
+                <span id="device-status"></span>&emsp;
+                <span id="device-battery"></span>
+              </p>
             </div>
             <div class="col-6">
-              <!-- Goto List -->
-              <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
-                </div>
-                <select class="custom-select" id="select-goto"></select>
-                <div class="input-group-append">
-                  <button class="btn btn-secondary" type="button" id="btn-goto">Go</button>
-                </div>
-              </div>
-              <!-- End of Goto List -->
+              <div id="input-goto" class="input-group"></div>
             </div> 
           </div>
 
           <div class="row mt-2">
             <div class="col">
-              <button class="btn btn-secondary" type="button" id="btn-video"><i class="fas fa-video"></i> Video</button>
+              <button class="btn btn-secondary" type="button" id="btn-video" style="display:none"><i class="fas fa-video"></i> Video</button>
             </div>
           </div>
 
@@ -89,7 +81,7 @@
   <script src="/socket.io/socket.io.js"></script>
 
   <!-- Custom -->
-  <script src="/js/console.js"></script>
+  <script type="module" defer src="/js/console.js"></script>
   <script src="/js/keyboard.js"></script>
   <script src="/js/gamepad.js"></script>
   <script src="/js/video.js"></script>

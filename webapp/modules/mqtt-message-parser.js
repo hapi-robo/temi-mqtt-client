@@ -20,16 +20,15 @@ function onStatusInfo(serialNumber, payload) {
     (device) => device.serialNumber === serialNumber
   );
   const data = JSON.parse(payload);
-  // console.log(data);
 
-  if (device === undefined) {
+  if (typeof device === "undefined") {
     // append to list
-    console.log("Append");
+    console.log("Append device");
     deviceListAll.push(new Device(serialNumber, data));
   } else {
     if (!device.isEqual(data)) {
       // update parameters
-      console.log("Update");
+      console.log("Update device parameters");
       device.update(data);
     }
   }
