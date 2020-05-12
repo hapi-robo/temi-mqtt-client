@@ -1,3 +1,7 @@
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
+
 const http = require('http'); // debug
 const https = require('https');
 const fs = require('fs');
@@ -72,8 +76,8 @@ app.get('/', (req, res) => {
 });
 
 // create server and websocket connection
-// const server = http.createServer(app);
-const server = https.createServer(ssl_options, app);
+const server = http.createServer(app);
+// const server = https.createServer(ssl_options, app);
 const io = socketio(server);
 
 // socket.io handlers
