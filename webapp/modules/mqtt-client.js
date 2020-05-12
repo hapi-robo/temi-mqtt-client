@@ -3,11 +3,15 @@ const mqtt = require("mqtt");
 
 // const keys = require("../config/keys");
 
-const client = mqtt.connect("mqtt://localhost"); // local development
-// const client = mqtt.connect(keys.mqtt.host, { // production
-//   username: keys.mqtt.username,
-//   password: keys.mqtt.password
-// });
+let client;
+if (process.env.NODE_ENV !== 'production') {
+  client = mqtt.connect(keys.mqtt.host, {
+    username: keys.mqtt.username,
+    password: keys.mqtt.password
+  });
+} else {
+  client = mqtt.connect("mqtt://localhost");
+}
 
 // successful connection
 client.on("connect", () => {
