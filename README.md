@@ -11,7 +11,7 @@ The project consists of 3 components:
 
 ## Folder Structure
 ```
-jitsi-temi              Root directory
+connect                 Root directory
 ├─ android              Android application to be installed on temi
 ├─ config               MQTT broker configuration files
 ├─ mosquitto            MQTT broker
