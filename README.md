@@ -1,4 +1,4 @@
-# jitsi-temi
+# Connect
 A free and open-source alternative to [temi](https://www.robotemi.com/)'s default video-conferencing application.
 
 This is still a prototype. This project uses MQTT for message transport between the client's web-brower user-interface and robot. It uses [Jitsi-Meet](https://jitsi.org/), a free open-source WebRTC framework, for video conferencing.
