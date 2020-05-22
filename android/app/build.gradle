@@ -1,5 +1,9 @@
 apply plugin: 'com.android.application'
 
+def secretsPropertiesFile = rootProject.file("secrets.properties")
+def secretsProperties = new Properties()
+secretsProperties.load(new FileInputStream(secretsPropertiesFile))
+
 android {
     compileSdkVersion 29
     defaultConfig {
@@ -9,6 +13,13 @@ android {
         versionCode 1
         versionName "0.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        // secrets
+        // @TODO: Doing this because it's easier for developer. Consider using Android Keystore API
+        // Ref: https://github.com/codepath/android_guides/wiki/Storing-Secret-Keys-in-Android
+        buildConfigField("String", "MQTT_HOSTNAME", secretsProperties['MQTT_HOSTNAME'])
+        buildConfigField("String", "MQTT_USERNAME", secretsProperties['MQTT_USERNAME'])
+        buildConfigField("String", "MQTT_PASSWORD", secretsProperties['MQTT_PASSWORD'])
     }
     signingConfigs {
         debug {

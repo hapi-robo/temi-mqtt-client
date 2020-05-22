@@ -91,7 +91,7 @@ if __name__ == '__main__':
             'waypoint_list': ['home base', 'a', 'b', 'c'], 
             }), 
             qos=0)
-        time.sleep(1)
+        time.sleep(5)
 
         # print("[{}] Publish Status".format(datetime.now().strftime("%Y%m%d_%H%M%S")))
         # client.publish(
