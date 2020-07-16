@@ -2,8 +2,10 @@ package com.hapirobo.connect;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -30,14 +32,17 @@ import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
 import org.jitsi.meet.sdk.JitsiMeet;
 import org.jitsi.meet.sdk.JitsiMeetActivity;
 import org.jitsi.meet.sdk.JitsiMeetActivityDelegate;
 import org.jitsi.meet.sdk.JitsiMeetActivityInterface;
 import org.jitsi.meet.sdk.JitsiMeetConferenceOptions;
 import org.jitsi.meet.sdk.JitsiMeetView;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -156,6 +161,22 @@ public class MainActivity extends AppCompatActivity implements
 //        sView.dispose();
 //        sView = null;
 //        JitsiMeetActivityDelegate.onHostDestroy(this);
+    }
+
+    /**
+     * Play YouTube.
+     * @param context Context
+     * @param id YouTube video ID
+     */
+    public static void playYoutubeVideo(Context context, String id){
+        Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + id));
+        Intent webIntent = new Intent(Intent.ACTION_VIEW,
+                Uri.parse("http://www.youtube.com/watch?v=" + id));
+        try {
+            context.startActivity(appIntent);
+        } catch (ActivityNotFoundException ex) {
+            context.startActivity(webIntent);
+        }
     }
 
     /**
@@ -291,9 +312,16 @@ public class MainActivity extends AppCompatActivity implements
      * Connects to MQTT broker.
      * @param v View context
      */
-    public void onButtonClick(View v) {
+    public void onButtonConnectClick(View v) {
         EditText hostNameView = findViewById(R.id.edit_text_host_name);
-        String hostUri = "tcp://" + hostNameView.getText().toString().trim() + ":1883";
+
+        String hostUri;
+        if (hostNameView.getText().toString().length() > 0) {
+            hostUri = "tcp://" + hostNameView.getText().toString().trim() + ":1883";
+        } else {
+            hostUri = "tcp://" + BuildConfig.MQTT_HOSTNAME.toString().trim() + ":1883";
+        }
+        Log.i(TAG, hostUri.toString());
 
         // hide keyboard
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -307,6 +335,14 @@ public class MainActivity extends AppCompatActivity implements
         } else {
             initMqtt(hostUri, "temi-" + sSerialNumber);
         }
+    }
+
+    /**
+     * DEVEL: Used to test intents
+     * @param v View context
+     */
+    public void onButtonEventClick(View v) {
+        playYoutubeVideo(this, "g-O4VmJN2N8");
     }
 
     /**
@@ -372,11 +408,11 @@ public class MainActivity extends AppCompatActivity implements
         // https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttConnectOptions.html
         MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
 
-        // have the client automatically attempt to reconnect to the server if the connection is lost
-        mqttConnectOptions.setAutomaticReconnect(true);
-
         // client and server should forget the state across reconnects.
         mqttConnectOptions.setCleanSession(true);
+
+        // have the client automatically attempt to reconnect to the server if the connection is lost
+        mqttConnectOptions.setAutomaticReconnect(true);
 
         // the maximum time interval the client will wait for the network connection to the MQTT server to be established [seconds]
         mqttConnectOptions.setConnectionTimeout(10);
@@ -384,6 +420,10 @@ public class MainActivity extends AppCompatActivity implements
         // set the "Last Will and Testament" (LWT) for the connection
         JSONObject payload = new JSONObject();
         mqttConnectOptions.setWill("temi/" + sSerialNumber + "/lwt", payload.toString().getBytes(StandardCharsets.UTF_8), 1, false);
+
+        // set username and password
+        mqttConnectOptions.setUserName(BuildConfig.MQTT_USERNAME);
+        mqttConnectOptions.setPassword(BuildConfig.MQTT_PASSWORD.toCharArray());
 
         try {
             mMqttClient.connect(mqttConnectOptions, null, new IMqttActionListener() {
