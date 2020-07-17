@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,6 +14,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import com.facebook.react.modules.core.PermissionListener;
 import com.robotemi.sdk.BatteryData;
@@ -60,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements
         OnGoToLocationStatusChangedListener,
         OnDetectionStateChangedListener,
         OnUserInteractionChangedListener {
-    private static final String TAG = "DEBUG";
+    private static final String TAG = "HRST";
 
     private static Handler sHandler = new Handler();
     private static JitsiMeetView sView;
@@ -164,18 +166,49 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     /**
+     * Play Audio.
+     * @param url Video URL
+     */
+    public void playAudio(String url) {
+        MediaPlayer mediaPlayer;
+        mediaPlayer = new MediaPlayer();
+
+        Log.i(TAG, url);
+        try {
+            mediaPlayer.setDataSource(url);
+            mediaPlayer.prepare();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        mediaPlayer.start();
+    }
+
+    /**
+     * Play Video.
+     * @param url Video URL
+     */
+    public void playVideo(String url) {
+        Uri uri=Uri.parse(url);
+        VideoView video=(VideoView)findViewById(R.id.videoView);
+        video.setVideoURI(uri);
+        video.start();
+    }
+
+    /**
      * Play YouTube.
      * @param context Context
-     * @param id YouTube video ID
+     * @param videoId YouTube video ID
      */
-    public static void playYoutubeVideo(Context context, String id){
-        Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + id));
-        Intent webIntent = new Intent(Intent.ACTION_VIEW,
-                Uri.parse("http://www.youtube.com/watch?v=" + id));
+    public static void playYoutube(Context context, String videoId){
+        Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + videoId));
+        appIntent.putExtra("VIDEO_ID", videoId);
+        appIntent.putExtra("force_fullscreen", true);
+
         try {
             context.startActivity(appIntent);
-        } catch (ActivityNotFoundException ex) {
-            context.startActivity(webIntent);
+        } catch (ActivityNotFoundException e) {
+            Log.i(TAG, "YouTube not found");
         }
     }
 
@@ -338,14 +371,6 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     /**
-     * DEVEL: Used to test intents
-     * @param v View context
-     */
-    public void onButtonEventClick(View v) {
-        playYoutubeVideo(this, "g-O4VmJN2N8");
-    }
-
-    /**
      * Publish robot status information.
      * @throws JSONException
      */
@@ -493,6 +518,10 @@ public class MainActivity extends AppCompatActivity implements
                     sRobot.speak(TtsRequest.create(payload.getString("utterance"), true));
                     break;
 
+                case "media":
+                    parseMedia(topicTree[4], payload);
+                    break;
+
                 default:
                     Log.i(TAG, "Invalid topic: " + topic);
                     break;
@@ -515,7 +544,7 @@ public class MainActivity extends AppCompatActivity implements
                 break;
 
             case "delete":
-                sRobot.deleteLocation(payload.getString(locationName));
+                sRobot.deleteLocation(locationName);
                 break;
 
             case "goto":
@@ -573,6 +602,36 @@ public class MainActivity extends AppCompatActivity implements
 
             default:
                 Log.i(TAG, "[MOVE] Unknown Movement Command");
+                break;
+        }
+    }
+
+    /**
+     * Parses Move messages.
+     * @param media Media type
+     * @param payload Message Payload
+     * @throws JSONException
+     */
+    private void parseMedia(String media, JSONObject payload) throws JSONException {
+
+        switch (media) {
+            case "audio":
+                playAudio(payload.getString("url"));
+                break;
+
+            case "image":
+                break;
+
+            case "video":
+                playVideo(payload.getString("url"));
+                break;
+
+            case"youtube":
+                playYoutube(this, payload.getString("video_id"));
+                break;
+
+            default:
+                Log.i(TAG, "[MOVE] Unknown Media");
                 break;
         }
     }

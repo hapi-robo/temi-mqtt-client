@@ -22,20 +22,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/button_event"
-        android:layout_width="200dp"
-        android:layout_height="55dp"
-        android:layout_marginStart="160dp"
-        android:layout_marginTop="396dp"
-        android:layout_marginEnd="160dp"
-        android:onClick="onButtonEventClick"
-        android:text="@string/button_event"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.504"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <EditText
         android:id="@+id/edit_text_host_name"
         android:layout_width="wrap_content"
@@ -48,6 +34,15 @@
         android:text="@string/host_name"
         android:textAlignment="center"
         android:textColor="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <VideoView
+        android:id="@+id/videoView"
+        android:layout_width="285dp"
+        android:layout_height="143dp"
+        android:layout_marginTop="500dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
