@@ -2,10 +2,12 @@ package com.hapirobo.connect;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.media.MediaPlayer;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,7 +16,6 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
-import android.widget.VideoView;
 
 import com.facebook.react.modules.core.PermissionListener;
 import com.robotemi.sdk.BatteryData;
@@ -62,18 +63,21 @@ public class MainActivity extends AppCompatActivity implements
         OnGoToLocationStatusChangedListener,
         OnDetectionStateChangedListener,
         OnUserInteractionChangedListener {
-    private static final String TAG = "HRST";
+    private static final String TAG = "MAIN";
+    public static final String VIDEO_URL = "com.hapirobo.test_media.VIDEO_URL";
+    public static final String WEBVIEW_URL = "com.hapirobo.test_media.WEBVIEW_URL";
 
     private static Handler sHandler = new Handler();
     private static JitsiMeetView sView;
     private static Robot sRobot;
     private static String sSerialNumber;
+
     private MqttAndroidClient mMqttClient;
     private Runnable periodicTask = new Runnable() {
         // periodically publishes robot status to the MQTT broker.
         @Override
         public void run() {
-            Log.v(TAG, "Publish status");
+            Log.i(TAG, "Publish status");
             sHandler.postDelayed(this, 3000);
 
             try {
@@ -84,10 +88,9 @@ public class MainActivity extends AppCompatActivity implements
         }
     };
 
-    /**
-     * Initializes robot instance and default Jitsi-meet conference options.
-     * @param savedInstanceState
-     */
+    //----------------------------------------------------------------------------------------------
+    // ACTIVITY LIFE CYCLE METHODS
+    //----------------------------------------------------------------------------------------------
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,28 +99,28 @@ public class MainActivity extends AppCompatActivity implements
         // initialize robot
         sRobot = Robot.getInstance();
 
-        // initialize default options for Jitsi Meet conferences.
-        URL serverUrl;
-        try {
-            serverUrl = new URL("https://meet.jit.si");
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Invalid server URL!");
-        }
-        JitsiMeetConferenceOptions defaultOptions
-            = new JitsiMeetConferenceOptions.Builder()
-                .setServerURL(serverUrl)
-                .setWelcomePageEnabled(false)
-                .build();
-        JitsiMeet.setDefaultConferenceOptions(defaultOptions);
+//         // initialize default options for Jitsi activity
+//         URL serverUrl;
+//         try {
+//             serverUrl = new URL("https://meet.jit.si");
+//         } catch (MalformedURLException e) {
+//             e.printStackTrace();
+//             throw new RuntimeException("Invalid server URL!");
+//         }
+//         JitsiMeetConferenceOptions defaultOptions
+//             = new JitsiMeetConferenceOptions.Builder()
+//                 .setServerURL(serverUrl)
+//                 .setWelcomePageEnabled(false)
+//                 .build();
+//         JitsiMeet.setDefaultConferenceOptions(defaultOptions);
+
     }
 
-    /**
-     * Adds robot event listeners.
-     */
     @Override
     protected void onStart() {
         super.onStart();
+
+        // add robot event listeners
         sRobot.addOnRobotReadyListener(this);
         sRobot.addOnBatteryStatusChangedListener(this);
         sRobot.addOnGoToLocationStatusChangedListener(this);
@@ -125,24 +128,34 @@ public class MainActivity extends AppCompatActivity implements
         sRobot.addOnUserInteractionChangedListener(this);
     }
 
-    /**
-     * Removes robot event listeners.
-     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+//        // resume Jitsi activity
+//        JitsiMeetActivityDelegate.onHostResume(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+//        // pause Jitsi activity
+//        JitsiMeetActivityDelegate.onHostPause(this);
+    }
+
     @Override
     protected void onStop() {
         super.onStop();
+
+        // remove robot event listeners
         sRobot.removeOnRobotReadyListener(this);
         sRobot.removeOnBatteryStatusChangedListener(this);
         sRobot.removeOnGoToLocationStatusChangedListener(this);
         sRobot.removeDetectionStateChangedListener(this);
         sRobot.removeOnUserInteractionChangedListener(this);
-
-        JitsiMeetActivityDelegate.onHostPause(this);
     }
 
-    /**
-     * Disconnects MQTT client from broker.
-     */
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -159,61 +172,17 @@ public class MainActivity extends AppCompatActivity implements
             }
         }
 
-        // remote Jitsi view
+//        // remove Jitsi activity
 //        sView.dispose();
 //        sView = null;
 //        JitsiMeetActivityDelegate.onHostDestroy(this);
     }
 
+    //----------------------------------------------------------------------------------------------
+    // ROBOT EVENT LISTENERS
+    //----------------------------------------------------------------------------------------------
     /**
-     * Play Audio.
-     * @param url Video URL
-     */
-    public void playAudio(String url) {
-        MediaPlayer mediaPlayer;
-        mediaPlayer = new MediaPlayer();
-
-        Log.i(TAG, url);
-        try {
-            mediaPlayer.setDataSource(url);
-            mediaPlayer.prepare();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        mediaPlayer.start();
-    }
-
-    /**
-     * Play Video.
-     * @param url Video URL
-     */
-    public void playVideo(String url) {
-        Uri uri=Uri.parse(url);
-        VideoView video=(VideoView)findViewById(R.id.videoView);
-        video.setVideoURI(uri);
-        video.start();
-    }
-
-    /**
-     * Play YouTube.
-     * @param context Context
-     * @param videoId YouTube video ID
-     */
-    public static void playYoutube(Context context, String videoId){
-        Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + videoId));
-        appIntent.putExtra("VIDEO_ID", videoId);
-        appIntent.putExtra("force_fullscreen", true);
-
-        try {
-            context.startActivity(appIntent);
-        } catch (ActivityNotFoundException e) {
-            Log.i(TAG, "YouTube not found");
-        }
-    }
-
-    /**
-     * Configures robot after it is ready.
+     * Configures robot after it is ready
      * @param isReady True if robot initialized correctly; False otherwise
      */
     @Override
@@ -223,11 +192,19 @@ public class MainActivity extends AppCompatActivity implements
             sRobot.hideTopBar(); // hides temi's top menu bar
             sRobot.toggleNavigationBillboard(true); // hides navigation billboard
             Log.i(TAG, "[ROBOT][READY]");
+
+            // place app in temi's top bar menu
+            try {
+                final ActivityInfo activityInfo = getPackageManager().getActivityInfo(getComponentName(), PackageManager.GET_META_DATA);
+                sRobot.onStart(activityInfo);
+            } catch (PackageManager.NameNotFoundException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
     /**
-     * Handles battery update events.
+     * Handles battery update events
      * @param batteryData Object containing battery state
      */
     @Override
@@ -257,7 +234,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     /**
-     * Handles go-to event updates.
+     * Handles go-to event updates
      * @param location Go-to location name
      * @param status Current status
      * @param descriptionId Description-identifier of the event
@@ -301,6 +278,10 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    /**
+     * On user detection events
+     * @param state User detection state
+     */
     @Override
     public void onDetectionStateChanged(int state) {
         JSONObject payload = new JSONObject();
@@ -321,6 +302,10 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    /**
+     * On user interaction
+     * @param isInteracting
+     */
     @Override
     public void onUserInteraction(boolean isInteracting) {
         JSONObject payload = new JSONObject();
@@ -341,11 +326,14 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    //----------------------------------------------------------------------------------------------
+    // UI HANDLER
+    //----------------------------------------------------------------------------------------------
     /**
-     * Connects to MQTT broker.
+     * Connects to MQTT broker
      * @param v View context
      */
-    public void onButtonConnectClick(View v) {
+    public void onConnect(View v) {
         EditText hostNameView = findViewById(R.id.edit_text_host_name);
 
         String hostUri;
@@ -371,34 +359,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     /**
-     * Publish robot status information.
-     * @throws JSONException
-     */
-    public void robotPublishStatus() throws JSONException {
-        JSONObject payload = new JSONObject();
-        JSONArray waypointArray = new JSONArray();
-
-        List<String> waypointList = sRobot.getLocations();
-
-        // collect all waypoints
-        for (String waypoint : waypointList) {
-            waypointArray.put(waypoint);
-        }
-
-        // generate payload
-        payload.put("waypoint_list", waypointArray);
-        payload.put("battery_percentage", Objects.requireNonNull(sRobot.getBatteryData()).getBatteryPercentage());
-
-        try {
-            MqttMessage message = new MqttMessage(payload.toString().getBytes(StandardCharsets.UTF_8));
-            mMqttClient.publish("temi/" + sSerialNumber + "/status/info", message);
-        } catch (MqttException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Initializes MQTT client.
+     * Initializes MQTT client
      * @param hostUri Host name / URI
      * @param clientId Identifier used to uniquely identify this client
      */
@@ -480,7 +441,37 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     /**
-     * Parses MQTT messages received by this client.
+     * Publish robot status information
+     * @throws JSONException
+     */
+    public void robotPublishStatus() throws JSONException {
+        JSONObject payload = new JSONObject();
+        JSONArray waypointArray = new JSONArray();
+
+        List<String> waypointList = sRobot.getLocations();
+
+        // collect all waypoints
+        for (String waypoint : waypointList) {
+            waypointArray.put(waypoint);
+        }
+
+        // generate payload
+        payload.put("waypoint_list", waypointArray);
+        payload.put("battery_percentage", Objects.requireNonNull(sRobot.getBatteryData()).getBatteryPercentage());
+
+        try {
+            MqttMessage message = new MqttMessage(payload.toString().getBytes(StandardCharsets.UTF_8));
+            mMqttClient.publish("temi/" + sSerialNumber + "/status/info", message);
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // MQTT MESSAGE PARSER
+    //----------------------------------------------------------------------------------------------
+    /**
+     * Parses MQTT messages
      * @param topic Message topic
      * @param payload Message payload
      * @throws JSONException
@@ -507,11 +498,7 @@ public class MainActivity extends AppCompatActivity implements
                     break;
 
                 case "call":
-                    startCall();
-                    break;
-
-                case "hangup":
-                    hangupCall();
+                    parseCall(topicTree[4], payload);
                     break;
 
                 case "tts":
@@ -530,7 +517,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     /**
-     * Parses Waypoint messages.
+     * Parses waypoint messages
      * @param command Command type
      * @param payload Message Payload
      * @throws JSONException
@@ -563,7 +550,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     /**
-     * Parses Move messages.
+     * Parses Move messages
      * @param command Command type
      * @param payload Message Payload
      * @throws JSONException
@@ -607,27 +594,45 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     /**
-     * Parses Move messages.
+     * Parses Call messages
+     * @param command Command type
+     * @param payload Message Payload
+     * @throws JSONException
+     */
+    private void parseCall(String command, JSONObject payload) throws JSONException {
+        switch (command) {
+            case "start":
+//                startCall(this, payload.getString("room_name"));
+                break;
+
+            case "end":
+//                endCall(this);
+                break;
+
+            default:
+                Log.i(TAG, "[MOVE] Unknown Movement Command");
+                break;
+        }
+    }
+
+    /**
+     * Parses Media messages
      * @param media Media type
      * @param payload Message Payload
      * @throws JSONException
      */
     private void parseMedia(String media, JSONObject payload) throws JSONException {
-
         switch (media) {
-            case "audio":
-                playAudio(payload.getString("url"));
-                break;
-
-            case "image":
-                break;
-
             case "video":
-                playVideo(payload.getString("url"));
+                playVideo(this, payload.getString("url"));
                 break;
 
             case"youtube":
                 playYoutube(this, payload.getString("video_id"));
+                break;
+
+            case "webview":
+                showWebview(this, payload.getString("url"));
                 break;
 
             default:
@@ -636,41 +641,41 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    /**
-     * Start video-call
-     */
-    private void startCall() {
-        Log.v(TAG, "[CMD][CALL]");
-
-        // build options object for joining the conference
-        // the SDK will merge the default one we set earlier and this one when joining
-        JitsiMeetConferenceOptions options
-                = new JitsiMeetConferenceOptions.Builder()
-                .setRoom("temi-" + sSerialNumber)
-                .build();
-
-        // Launch the new view with the given options
-//        sView = new JitsiMeetView(this);
+    //----------------------------------------------------------------------------------------------
+    // JitsiMeetView Methods
+    // https://jitsi.github.io/handbook/docs/dev-guide/dev-guide-android-sdk
+    //----------------------------------------------------------------------------------------------
+//    /**
+//     * Start video-call
+//     */
+//    private void startCall(Context context, String roomName) {
+//        // build options object for joining the conference
+//        // the SDK will merge the default one we set earlier and this one when joining
+//        JitsiMeetConferenceOptions options
+//                = new JitsiMeetConferenceOptions.Builder()
+//                .setRoom(roomName)
+//                .build();
+//
+//        // Launch the new view with the given options
+//        sView = new JitsiMeetView(context);
 //        sView.join(options);
 //        setContentView(sView);
-        JitsiMeetActivity.launch(this, options);
-    }
-
-    /**
-     * Hangup video call
-     */
-    private void hangupCall() {
-        Log.v(TAG, "[CMD][HANGUP]");
-
-        sView.leave();
-        sView.dispose();
-        sView = null;
-        JitsiMeetActivityDelegate.onHostDestroy(this);
-
-        // set main menu
-        setContentView(R.layout.activity_main);
-    }
-
+//        JitsiMeetActivity.launch(context, options);
+//    }
+//
+//    /**
+//     * End video call
+//     */
+//    private void endCall(Activity activity) {
+//        sView.leave();
+//        sView.dispose();
+//        sView = null;
+//        JitsiMeetActivityDelegate.onHostDestroy(activity);
+//
+//        // set main menu
+//        setContentView(R.layout.activity_main);
+//    }
+//
 //    @Override
 //    protected void onActivityResult(
 //            int requestCode,
@@ -680,18 +685,18 @@ public class MainActivity extends AppCompatActivity implements
 //        JitsiMeetActivityDelegate.onActivityResult(
 //                this, requestCode, resultCode, data);
 //    }
-
+//
 //    @Override
 //    public void onBackPressed() {
 //        JitsiMeetActivityDelegate.onBackPressed();
 //    }
-
+//
 //    @Override
 //    public void onNewIntent(Intent intent) {
 //        super.onNewIntent(intent);
 //        JitsiMeetActivityDelegate.onNewIntent(intent);
 //    }
-
+//
 //    @Override
 //    public void onRequestPermissionsResult(
 //            final int requestCode,
@@ -699,16 +704,59 @@ public class MainActivity extends AppCompatActivity implements
 //            final int[] grantResults) {
 //        JitsiMeetActivityDelegate.onRequestPermissionsResult(requestCode, permissions, grantResults);
 //    }
-
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
 //
-//        JitsiMeetActivityDelegate.onHostResume(this);
-//    }
-
 //    @Override
 //    public void requestPermissions(String[] strings, int i, PermissionListener permissionListener) {
 //
 //    }
+
+    //----------------------------------------------------------------------------------------------
+    // MEDIA SERVICES
+    //----------------------------------------------------------------------------------------------
+     /**
+      * Play YouTube from URL
+      * @param context Context
+      * @param videoId YouTube video ID
+      */
+     public static void playYoutube(Context context, String videoId){
+         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + videoId));
+         intent.putExtra("VIDEO_ID", videoId);
+         intent.putExtra("force_fullscreen", true);
+
+         try {
+             context.startActivity(intent);
+         } catch (ActivityNotFoundException e) {
+             Log.i(TAG, "YouTube not found");
+         }
+     }
+
+    /**
+     * Play video from URL
+     * @param url URL to compatible video (https://developer.android.com/guide/topics/media/media-formats)
+     */
+    public void playVideo(Context context, String url) {
+        Intent intent = new Intent(this, VideoActivity.class);
+        intent.putExtra(VIDEO_URL, url);
+
+        try {
+            context.startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Log.i(TAG, "Video not found");
+        }
+    }
+
+    /**
+     * Show web-view from URL
+     * @param url URL to display
+     */
+    public void showWebview(Context context, String url) {
+        Intent intent = new Intent(this, WebviewActivity.class);
+        intent.putExtra(WEBVIEW_URL, url);
+
+        try {
+            context.startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Log.i(TAG, "URL not found");
+        }
+    }
 }

@@ -58,7 +58,7 @@ dependencies {
 
     // Jitsi Meet
     // https://github.com/jitsi/jitsi-maven-repository/tree/master/releases/org/jitsi/react/jitsi-meet-sdk
-    implementation ('org.jitsi.react:jitsi-meet-sdk:2.+') { transitive = true }
+    implementation('org.jitsi.react:jitsi-meet-sdk:2.+') { transitive = true }
 
     // paho-mqtt
     // https://github.com/eclipse/paho.mqtt.java
@@ -68,5 +68,5 @@ dependencies {
 
     // temi
     // https://github.com/robotemi/sdk
-    implementation 'com.robotemi:sdk:0.10.55'
+    implementation 'com.robotemi:sdk:0.10.+'
 }
