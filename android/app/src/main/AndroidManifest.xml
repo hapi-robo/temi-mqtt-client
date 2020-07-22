@@ -9,26 +9,22 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/SkillTheme">
+        <activity android:name=".WebviewActivity"></activity>
+        <activity android:name=".VideoActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-        <!-- MQTT service -->
-        <service
-            android:name="org.eclipse.paho.android.service.MqttService" />
-
-        <!-- temi Meta Data -->
+        </activity> <!-- MQTT service -->
+        <service android:name="org.eclipse.paho.android.service.MqttService" /> <!-- temi Meta Data -->
         <meta-data
             android:name="com.robotemi.sdk.metadata.SKILL"
-            android:value="@string/app_name"/>
-
+            android:value="@string/app_name" />
         <meta-data
             android:name="com.robotemi.sdk.metadata.KIOSK"
-            android:value="TRUE"/>
+            android:value="TRUE" />
     </application>
 
 </manifest>

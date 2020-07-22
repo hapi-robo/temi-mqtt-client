@@ -1,5 +1,6 @@
-*.cert
+*.env
 *.key
+*.cert
 *.apk
 webapp/node_modules/
 *venv/
@@ -12,3 +13,4 @@ android/build
 android/captures
 android/.externalNativeBuild
 android/.cxx
+webapp/ssl/

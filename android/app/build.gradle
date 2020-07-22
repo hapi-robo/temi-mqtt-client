@@ -1,5 +1,9 @@
 apply plugin: 'com.android.application'
 
+def secretsPropertiesFile = rootProject.file("secrets.properties")
+def secretsProperties = new Properties()
+secretsProperties.load(new FileInputStream(secretsPropertiesFile))
+
 android {
     compileSdkVersion 29
     defaultConfig {
@@ -9,6 +13,13 @@ android {
         versionCode 1
         versionName "0.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        // secrets
+        // @TODO: Doing this because it's easier for developer. Consider using Android Keystore API
+        // Ref: https://github.com/codepath/android_guides/wiki/Storing-Secret-Keys-in-Android
+        buildConfigField("String", "MQTT_HOSTNAME", secretsProperties['MQTT_HOSTNAME'])
+        buildConfigField("String", "MQTT_USERNAME", secretsProperties['MQTT_USERNAME'])
+        buildConfigField("String", "MQTT_PASSWORD", secretsProperties['MQTT_PASSWORD'])
     }
     signingConfigs {
         debug {
@@ -46,9 +57,8 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 
     // Jitsi Meet
-    // https://github.com/jitsi/jitsi-meet
     // https://github.com/jitsi/jitsi-maven-repository/tree/master/releases/org/jitsi/react/jitsi-meet-sdk
-    implementation ('org.jitsi.react:jitsi-meet-sdk:2.7.0') { transitive = true }
+    implementation('org.jitsi.react:jitsi-meet-sdk:2.+') { transitive = true }
 
     // paho-mqtt
     // https://github.com/eclipse/paho.mqtt.java
@@ -58,5 +68,5 @@ dependencies {
 
     // temi
     // https://github.com/robotemi/sdk
-    implementation 'com.robotemi:sdk:0.10.55'
+    implementation 'com.robotemi:sdk:0.10.+'
 }
