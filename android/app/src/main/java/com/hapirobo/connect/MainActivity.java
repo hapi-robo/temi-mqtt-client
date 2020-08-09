@@ -2,6 +2,7 @@ package com.hapirobo.connect;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -75,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements
     private MqttAndroidClient mMqttClient;
     private Runnable periodicTask = new Runnable() {
         // periodically publishes robot status to the MQTT broker.
+        @SuppressLint("LogNotTimber")
         @Override
         public void run() {
             Log.i(TAG, "Publish status");
@@ -156,6 +158,7 @@ public class MainActivity extends AppCompatActivity implements
         sRobot.removeOnUserInteractionChangedListener(this);
     }
 
+    @SuppressLint("LogNotTimber")
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -185,6 +188,7 @@ public class MainActivity extends AppCompatActivity implements
      * Configures robot after it is ready
      * @param isReady True if robot initialized correctly; False otherwise
      */
+    @SuppressLint("LogNotTimber")
     @Override
     public void onRobotReady(boolean isReady) {
         if (isReady) {
@@ -212,13 +216,17 @@ public class MainActivity extends AppCompatActivity implements
         JSONObject payload = new JSONObject();
 
         try {
-            payload.put("percentage", batteryData.getBatteryPercentage());
+            if (batteryData != null) {
+                payload.put("percentage", batteryData.getBatteryPercentage());
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
         try {
-            payload.put("is_charging", batteryData.isCharging());
+            if (batteryData != null) {
+                payload.put("is_charging", batteryData.isCharging());
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -304,7 +312,7 @@ public class MainActivity extends AppCompatActivity implements
 
     /**
      * On user interaction
-     * @param isInteracting
+     * @param isInteracting User interaction state
      */
     @Override
     public void onUserInteraction(boolean isInteracting) {
@@ -333,6 +341,7 @@ public class MainActivity extends AppCompatActivity implements
      * Connects to MQTT broker
      * @param v View context
      */
+    @SuppressLint("LogNotTimber")
     public void onConnect(View v) {
         EditText hostNameView = findViewById(R.id.edit_text_host_name);
 
@@ -340,13 +349,15 @@ public class MainActivity extends AppCompatActivity implements
         if (hostNameView.getText().toString().length() > 0) {
             hostUri = "tcp://" + hostNameView.getText().toString().trim() + ":1883";
         } else {
-            hostUri = "tcp://" + BuildConfig.MQTT_HOSTNAME.toString().trim() + ":1883";
+            hostUri = "tcp://" + BuildConfig.MQTT_HOSTNAME.trim() + ":1883";
         }
-        Log.i(TAG, hostUri.toString());
+        Log.i(TAG, hostUri);
 
         // hide keyboard
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(hostNameView.getWindowToken(), 0);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(hostNameView.getWindowToken(), 0);
+        }
 
 
         // initialize MQTT
@@ -363,6 +374,7 @@ public class MainActivity extends AppCompatActivity implements
      * @param hostUri Host name / URI
      * @param clientId Identifier used to uniquely identify this client
      */
+    @SuppressLint("LogNotTimber")
     private void initMqtt(String hostUri, String clientId) {
         Log.i(TAG, "Connecting to MQTT broker");
 
@@ -442,7 +454,7 @@ public class MainActivity extends AppCompatActivity implements
 
     /**
      * Publish robot status information
-     * @throws JSONException
+     * @throws JSONException JSON exception
      */
     public void robotPublishStatus() throws JSONException {
         JSONObject payload = new JSONObject();
@@ -474,8 +486,9 @@ public class MainActivity extends AppCompatActivity implements
      * Parses MQTT messages
      * @param topic Message topic
      * @param payload Message payload
-     * @throws JSONException
+     * @throws JSONException JSON exception
      */
+    @SuppressLint("LogNotTimber")
     private void parseMessage(String topic, JSONObject payload) throws JSONException {
         String[] topicTree = topic.split("/");
 
@@ -509,6 +522,10 @@ public class MainActivity extends AppCompatActivity implements
                     parseMedia(topicTree[4], payload);
                     break;
 
+                case "app":
+                    launchApp(payload.getString("package_name"));
+                    break;
+
                 default:
                     Log.i(TAG, "Invalid topic: " + topic);
                     break;
@@ -520,8 +537,9 @@ public class MainActivity extends AppCompatActivity implements
      * Parses waypoint messages
      * @param command Command type
      * @param payload Message Payload
-     * @throws JSONException
+     * @throws JSONException JSON exception
      */
+    @SuppressLint("LogNotTimber")
     private void parseWaypoint(String command, JSONObject payload) throws JSONException {
         String locationName = payload.getString("location");
 
@@ -553,8 +571,9 @@ public class MainActivity extends AppCompatActivity implements
      * Parses Move messages
      * @param command Command type
      * @param payload Message Payload
-     * @throws JSONException
+     * @throws JSONException JSON exception
      */
+    @SuppressLint("LogNotTimber")
     private void parseMove(String command, JSONObject payload) throws JSONException {
         switch (command) {
             case "joystick":
@@ -597,8 +616,9 @@ public class MainActivity extends AppCompatActivity implements
      * Parses Call messages
      * @param command Command type
      * @param payload Message Payload
-     * @throws JSONException
+     * @throws JSONException JSON exception
      */
+    @SuppressLint("LogNotTimber")
     private void parseCall(String command, JSONObject payload) throws JSONException {
         switch (command) {
             case "start":
@@ -619,8 +639,9 @@ public class MainActivity extends AppCompatActivity implements
      * Parses Media messages
      * @param media Media type
      * @param payload Message Payload
-     * @throws JSONException
+     * @throws JSONException JSON exception
      */
+    @SuppressLint("LogNotTimber")
     private void parseMedia(String media, JSONObject payload) throws JSONException {
         switch (media) {
             case "video":
@@ -718,6 +739,7 @@ public class MainActivity extends AppCompatActivity implements
       * @param context Context
       * @param videoId YouTube video ID
       */
+     @SuppressLint("LogNotTimber")
      public static void playYoutube(Context context, String videoId){
          Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + videoId));
          intent.putExtra("VIDEO_ID", videoId);
@@ -734,6 +756,7 @@ public class MainActivity extends AppCompatActivity implements
      * Play video from URL
      * @param url URL to compatible video (https://developer.android.com/guide/topics/media/media-formats)
      */
+    @SuppressLint("LogNotTimber")
     public void playVideo(Context context, String url) {
         Intent intent = new Intent(this, VideoActivity.class);
         intent.putExtra(VIDEO_URL, url);
@@ -749,6 +772,7 @@ public class MainActivity extends AppCompatActivity implements
      * Show web-view from URL
      * @param url URL to display
      */
+    @SuppressLint("LogNotTimber")
     public void showWebview(Context context, String url) {
         Intent intent = new Intent(this, WebviewActivity.class);
         intent.putExtra(WEBVIEW_URL, url);
@@ -757,6 +781,27 @@ public class MainActivity extends AppCompatActivity implements
             context.startActivity(intent);
         } catch (ActivityNotFoundException e) {
             Log.i(TAG, "URL not found");
+        }
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // LAUNCH ANDROID APP
+    //----------------------------------------------------------------------------------------------
+
+    /**
+     * Launch App using package name
+     * @param packageName Name of package
+     */
+    @SuppressLint("LogNotTimber")
+    public void launchApp(String packageName) {
+        Intent mIntent = getPackageManager().getLaunchIntentForPackage(packageName);
+
+        if (mIntent != null) {
+            try {
+                startActivity(mIntent);
+            } catch (ActivityNotFoundException e) {
+                Log.i(TAG, "App not found");
+            }
         }
     }
 }
