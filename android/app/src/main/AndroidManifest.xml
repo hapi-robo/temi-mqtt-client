@@ -17,8 +17,12 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity> <!-- MQTT service -->
-        <service android:name="org.eclipse.paho.android.service.MqttService" /> <!-- temi Meta Data -->
+        </activity>
+
+        <!-- MQTT service -->
+        <service android:name="org.eclipse.paho.android.service.MqttService" />
+
+        <!-- temi Meta Data -->
         <meta-data
             android:name="com.robotemi.sdk.metadata.SKILL"
             android:value="@string/app_name" />
