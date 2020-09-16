@@ -5,13 +5,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -27,6 +33,8 @@ import com.robotemi.sdk.listeners.OnDetectionStateChangedListener;
 import com.robotemi.sdk.listeners.OnGoToLocationStatusChangedListener;
 import com.robotemi.sdk.listeners.OnRobotReadyListener;
 import com.robotemi.sdk.listeners.OnUserInteractionChangedListener;
+import com.robotemi.sdk.map.MapDataModel;
+import com.robotemi.sdk.map.MapImage;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
@@ -51,6 +59,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -204,6 +217,67 @@ public class MainActivity extends AppCompatActivity implements
             } catch (PackageManager.NameNotFoundException e) {
                 throw new RuntimeException(e);
             }
+
+            // get robot's map data
+//            final MapDataModel mapDataModel = Robot.getInstance().getMapData();
+//            MapImage mapImage = mapDataModel.mapImage;
+//            List<Integer> mapData = mapImage.getData();
+//            int width = mapImage.getCols();
+//            int height = mapImage.getRows();
+//            Log.i(TAG, "[MAP] Width: " + width + " Height: " + height);
+
+//            // fake map
+//            int[] map = new int[] {
+//                    Color.argb(255, 0, 0, 0),
+//                    Color.argb(100, 0, 0, 0),
+//                    Color.argb(100, 0, 0, 0),
+//                    Color.argb(255, 0, 0, 0)};
+//            // https://developer.android.com/reference/android/graphics/Bitmap#createBitmap(int[],%20int,%20int,%20android.graphics.Bitmap.Config)
+//            Bitmap bitmap = Bitmap.createBitmap(map, 2, 2, Bitmap.Config.ARGB_8888);
+//
+//            final String relativePath = Environment.DIRECTORY_DOWNLOADS + File.separator;
+//            final String fileName = "test.png";
+//            final String mimeType = "image/*";
+//
+//            final ContentValues contentValues = new ContentValues();
+//            contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
+//            contentValues.put(MediaStore.MediaColumns.MIME_TYPE, mimeType);
+//            contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, relativePath);
+//            final ContentResolver resolver = this.getContentResolver();
+//
+//            OutputStream stream = null;
+//            Uri uri = null;
+//
+//            try {
+//                final Uri contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+//                uri = resolver.insert(contentUri, contentValues);
+//                if (uri == null) {
+//                    Log.i(TAG, "[BITMAP] Failed to create media record");
+//                    return;
+//                }
+//
+//                stream = resolver.openOutputStream(uri);
+//                if (stream == null) {
+//                    Log.i(TAG, "[BITMAP] Failed to get output stream");
+//                }
+//
+//                boolean saved = bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream); // PNG is a lossless format, the compression factor (100) is ignored
+//                if (!saved) {
+//                    Log.i(TAG, "[BITMAP] Failed to save file");
+//                }
+//            } catch (IOException e) {
+//                if (uri != null) {
+//                    resolver.delete(uri, null, null);
+//                }
+//            } finally {
+//                if (stream != null) {
+//                    try {
+//                        stream.close();
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }
         }
     }
 
@@ -349,6 +423,7 @@ public class MainActivity extends AppCompatActivity implements
         if (hostNameView.getText().toString().length() > 0) {
             hostUri = "tcp://" + hostNameView.getText().toString().trim() + ":1883";
         } else {
+            // for development purposes
             hostUri = "tcp://" + BuildConfig.MQTT_HOSTNAME.trim() + ":1883";
         }
         Log.i(TAG, hostUri);
