@@ -17,7 +17,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.facebook.react.modules.core.PermissionListener;
 import com.robotemi.sdk.BatteryData;
 import com.robotemi.sdk.Robot;
 import com.robotemi.sdk.TtsRequest;
@@ -39,25 +38,15 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import org.jitsi.meet.sdk.JitsiMeet;
-import org.jitsi.meet.sdk.JitsiMeetActivity;
-import org.jitsi.meet.sdk.JitsiMeetActivityDelegate;
-import org.jitsi.meet.sdk.JitsiMeetActivityInterface;
-import org.jitsi.meet.sdk.JitsiMeetConferenceOptions;
-import org.jitsi.meet.sdk.JitsiMeetView;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements
-//        JitsiMeetActivityInterface,
         OnRobotReadyListener,
         OnBatteryStatusChangedListener,
         OnGoToLocationStatusChangedListener,
@@ -67,13 +56,12 @@ public class MainActivity extends AppCompatActivity implements
     public static final String VIDEO_URL = "com.hapirobo.test_media.VIDEO_URL";
     public static final String WEBVIEW_URL = "com.hapirobo.test_media.WEBVIEW_URL";
 
-    private static Handler sHandler = new Handler();
-    private static JitsiMeetView sView;
+    private static final Handler sHandler = new Handler();
     private static Robot sRobot;
     private static String sSerialNumber;
 
     private MqttAndroidClient mMqttClient;
-    private Runnable periodicTask = new Runnable() {
+    private final Runnable periodicTask = new Runnable() {
         // periodically publishes robot status to the MQTT broker.
         @Override
         public void run() {
@@ -98,22 +86,6 @@ public class MainActivity extends AppCompatActivity implements
 
         // initialize robot
         sRobot = Robot.getInstance();
-
-//         // initialize default options for Jitsi activity
-//         URL serverUrl;
-//         try {
-//             serverUrl = new URL("https://meet.jit.si");
-//         } catch (MalformedURLException e) {
-//             e.printStackTrace();
-//             throw new RuntimeException("Invalid server URL!");
-//         }
-//         JitsiMeetConferenceOptions defaultOptions
-//             = new JitsiMeetConferenceOptions.Builder()
-//                 .setServerURL(serverUrl)
-//                 .setWelcomePageEnabled(false)
-//                 .build();
-//         JitsiMeet.setDefaultConferenceOptions(defaultOptions);
-
     }
 
     @Override
@@ -131,17 +103,11 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-
-//        // resume Jitsi activity
-//        JitsiMeetActivityDelegate.onHostResume(this);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-
-//        // pause Jitsi activity
-//        JitsiMeetActivityDelegate.onHostPause(this);
     }
 
     @Override
@@ -171,11 +137,6 @@ public class MainActivity extends AppCompatActivity implements
                 e.printStackTrace();
             }
         }
-
-//        // remove Jitsi activity
-//        sView.dispose();
-//        sView = null;
-//        JitsiMeetActivityDelegate.onHostDestroy(this);
     }
 
     //----------------------------------------------------------------------------------------------
@@ -348,7 +309,6 @@ public class MainActivity extends AppCompatActivity implements
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(hostNameView.getWindowToken(), 0);
 
-
         // initialize MQTT
         if (mMqttClient != null && mMqttClient.isConnected() && hostUri.equals(mMqttClient.getServerURI())) {
             Toast.makeText(MainActivity.this, "Already Connected", Toast.LENGTH_SHORT).show();
@@ -410,6 +370,8 @@ public class MainActivity extends AppCompatActivity implements
         // set username and password
         mqttConnectOptions.setUserName(BuildConfig.MQTT_USERNAME);
         mqttConnectOptions.setPassword(BuildConfig.MQTT_PASSWORD.toCharArray());
+//        mqttConnectOptions.setUserName("connect");
+//        mqttConnectOptions.setPassword("hrstqa123".toCharArray());
 
         try {
             mMqttClient.connect(mqttConnectOptions, null, new IMqttActionListener() {
@@ -497,10 +459,6 @@ public class MainActivity extends AppCompatActivity implements
                     parseMove(topicTree[4], payload);
                     break;
 
-                case "call":
-                    parseCall(topicTree[4], payload);
-                    break;
-
                 case "tts":
                     sRobot.speak(TtsRequest.create(payload.getString("utterance"), true));
                     break;
@@ -572,7 +530,7 @@ public class MainActivity extends AppCompatActivity implements
                 break;
 
             case "turn_by":
-                sRobot.turnBy(Integer.parseInt(payload.getString("angle")));
+                sRobot.turnBy(Integer.parseInt(payload.getString("angle")), 1.0f);
                 break;
 
             case "tilt":
@@ -580,33 +538,11 @@ public class MainActivity extends AppCompatActivity implements
                 break;
 
             case "tilt_by":
-                sRobot.tiltBy(Integer.parseInt(payload.getString("angle")));
+                sRobot.tiltBy(Integer.parseInt(payload.getString("angle")), 1.0f);
                 break;
 
             case "stop":
                 sRobot.stopMovement();
-                break;
-
-            default:
-                Log.i(TAG, "[MOVE] Unknown Movement Command");
-                break;
-        }
-    }
-
-    /**
-     * Parses Call messages
-     * @param command Command type
-     * @param payload Message Payload
-     * @throws JSONException
-     */
-    private void parseCall(String command, JSONObject payload) throws JSONException {
-        switch (command) {
-            case "start":
-//                startCall(this, payload.getString("room_name"));
-                break;
-
-            case "end":
-//                endCall(this);
                 break;
 
             default:
@@ -640,75 +576,6 @@ public class MainActivity extends AppCompatActivity implements
                 break;
         }
     }
-
-    //----------------------------------------------------------------------------------------------
-    // JitsiMeetView Methods
-    // https://jitsi.github.io/handbook/docs/dev-guide/dev-guide-android-sdk
-    //----------------------------------------------------------------------------------------------
-//    /**
-//     * Start video-call
-//     */
-//    private void startCall(Context context, String roomName) {
-//        // build options object for joining the conference
-//        // the SDK will merge the default one we set earlier and this one when joining
-//        JitsiMeetConferenceOptions options
-//                = new JitsiMeetConferenceOptions.Builder()
-//                .setRoom(roomName)
-//                .build();
-//
-//        // Launch the new view with the given options
-//        sView = new JitsiMeetView(context);
-//        sView.join(options);
-//        setContentView(sView);
-//        JitsiMeetActivity.launch(context, options);
-//    }
-//
-//    /**
-//     * End video call
-//     */
-//    private void endCall(Activity activity) {
-//        sView.leave();
-//        sView.dispose();
-//        sView = null;
-//        JitsiMeetActivityDelegate.onHostDestroy(activity);
-//
-//        // set main menu
-//        setContentView(R.layout.activity_main);
-//    }
-//
-//    @Override
-//    protected void onActivityResult(
-//            int requestCode,
-//            int resultCode,
-//            Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//        JitsiMeetActivityDelegate.onActivityResult(
-//                this, requestCode, resultCode, data);
-//    }
-//
-//    @Override
-//    public void onBackPressed() {
-//        JitsiMeetActivityDelegate.onBackPressed();
-//    }
-//
-//    @Override
-//    public void onNewIntent(Intent intent) {
-//        super.onNewIntent(intent);
-//        JitsiMeetActivityDelegate.onNewIntent(intent);
-//    }
-//
-//    @Override
-//    public void onRequestPermissionsResult(
-//            final int requestCode,
-//            final String[] permissions,
-//            final int[] grantResults) {
-//        JitsiMeetActivityDelegate.onRequestPermissionsResult(requestCode, permissions, grantResults);
-//    }
-//
-//    @Override
-//    public void requestPermissions(String[] strings, int i, PermissionListener permissionListener) {
-//
-//    }
 
     //----------------------------------------------------------------------------------------------
     // MEDIA SERVICES
