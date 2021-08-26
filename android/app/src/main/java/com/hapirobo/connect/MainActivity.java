@@ -370,8 +370,6 @@ public class MainActivity extends AppCompatActivity implements
         // set username and password
         mqttConnectOptions.setUserName(BuildConfig.MQTT_USERNAME);
         mqttConnectOptions.setPassword(BuildConfig.MQTT_PASSWORD.toCharArray());
-//        mqttConnectOptions.setUserName("connect");
-//        mqttConnectOptions.setPassword("hrstqa123".toCharArray());
 
         try {
             mMqttClient.connect(mqttConnectOptions, null, new IMqttActionListener() {
