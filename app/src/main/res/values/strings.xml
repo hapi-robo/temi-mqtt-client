@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">temi MQTT Client</string>
+    <string name="hostname">%s</string>
+    <string name="button_connect">Connect</string>
+</resources>

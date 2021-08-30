@@ -1,6 +1,0 @@
-[submodule "mosquitto"]
-	path = mosquitto
-	url = https://github.com/eclipse/mosquitto.git
-[submodule "connect_webapp"]
-	path = connect_webapp
-	url = https://github.com/ray-hrst/connect_webapp.git
