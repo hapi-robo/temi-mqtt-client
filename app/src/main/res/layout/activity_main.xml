@@ -31,7 +31,7 @@
         android:backgroundTint="#ff008577"
         android:ems="10"
         android:inputType="textUri"
-        android:text="@string/host_name"
+        android:text="@string/hostname"
         android:textAlignment="center"
         android:textColor="#FFFFFF"
         app:layout_constraintEnd_toEndOf="parent"
