@@ -22,6 +22,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
-        assertEquals("com.hapirobo.connect", appContext.getPackageName());
+        assertEquals("com.hrst.temi_mqtt_client", appContext.getPackageName());
     }
 }

@@ -370,9 +370,15 @@ public class MainActivity extends AppCompatActivity implements
         JSONObject payload = new JSONObject();
         mqttConnectOptions.setWill("temi/" + sSerialNumber + "/lwt", payload.toString().getBytes(StandardCharsets.UTF_8), 1, false);
 
-        // set username and password
-        mqttConnectOptions.setUserName(BuildConfig.MQTT_USERNAME);
-        mqttConnectOptions.setPassword(BuildConfig.MQTT_PASSWORD.toCharArray());
+        // set username
+        if (BuildConfig.MQTT_USERNAME != null && BuildConfig.MQTT_USERNAME.trim().isEmpty()) {
+            mqttConnectOptions.setUserName(BuildConfig.MQTT_USERNAME);
+        }
+
+        // set password
+        if (BuildConfig.MQTT_PASSWORD != null && BuildConfig.MQTT_PASSWORD.trim().isEmpty()) {
+            mqttConnectOptions.setPassword(BuildConfig.MQTT_PASSWORD.toCharArray());
+        }
 
         try {
             mMqttClient.connect(mqttConnectOptions, null, new IMqttActionListener() {
