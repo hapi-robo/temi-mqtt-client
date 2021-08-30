@@ -371,12 +371,12 @@ public class MainActivity extends AppCompatActivity implements
         mqttConnectOptions.setWill("temi/" + sSerialNumber + "/lwt", payload.toString().getBytes(StandardCharsets.UTF_8), 1, false);
 
         // set username
-        if (BuildConfig.MQTT_USERNAME != null && BuildConfig.MQTT_USERNAME.trim().isEmpty()) {
+        if (BuildConfig.MQTT_USERNAME != null && !BuildConfig.MQTT_USERNAME.trim().isEmpty()) {
             mqttConnectOptions.setUserName(BuildConfig.MQTT_USERNAME);
         }
 
         // set password
-        if (BuildConfig.MQTT_PASSWORD != null && BuildConfig.MQTT_PASSWORD.trim().isEmpty()) {
+        if (BuildConfig.MQTT_PASSWORD != null && !BuildConfig.MQTT_PASSWORD.trim().isEmpty()) {
             mqttConnectOptions.setPassword(BuildConfig.MQTT_PASSWORD.toCharArray());
         }
 
